@@ -1,0 +1,140 @@
+.review-page-bg {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f0fdf4 0%, #f8fafc 100%);
+    background-attachment: fixed;
+}
+
+.review-page-bg.dark {
+    background: linear-gradient(135deg, #064e3b 0%, #0f172a 100%);
+}
+
+.top-navbar-review {
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(16, 185, 129, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.review-page-bg.dark .top-navbar-review {
+    background: rgba(15, 23, 42, 0.8);
+    border-color: rgba(16, 185, 129, 0.2);
+}
+
+.navbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+}
+
+.navbar-logo {
+    height: 40px;
+    width: auto;
+}
+
+.navbar-brand h2 {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: #059669;
+}
+
+.back-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: transparent;
+    border: 2px solid #10b981;
+    color: #10b981;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.back-btn:hover {
+    background: #10b981;
+    color: white;
+}
+
+.review-card {
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.review-card:hover {
+    transform: translateY(-5px);
+}
+
+.review-page-bg.dark .review-card {
+    background: #1e293b;
+    border-color: #334155;
+}
+
+.review-page-bg.dark h1, 
+.review-page-bg.dark label {
+    color: #f8fafc;
+}
+
+.review-page-bg.dark p {
+    color: #94a3b8;
+}
+
+.review-page-bg.dark select,
+.review-page-bg.dark textarea {
+    background: #0f172a;
+    border-color: #334155;
+    color: #f8fafc;
+}
+
+.review-success-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f0fdf4;
+    padding: 20px;
+}
+
+.review-success-container.dark {
+    background: #064e3b;
+}
+
+.success-content {
+    background: white;
+    max-width: 500px;
+    width: 100%;
+}
+
+.review-success-container.dark .success-content {
+    background: #1e293b;
+}
+
+@keyframes animate-bounce-slow {
+    0%, 100% { transform: translateY(-5%); }
+    50% { transform: translateY(0); }
+}
+
+.animate-bounce-slow {
+    animation: animate-bounce-slow 3s infinite ease-in-out;
+}
+
+@media (max-width: 640px) {
+    .top-navbar-review {
+        padding: 15px 20px;
+    }
+    
+    .navbar-brand h2 {
+        display: none;
+    }
+    
+    .review-card {
+        padding: 25px;
+        border-radius: 30px;
+    }
+}

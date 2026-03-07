@@ -1,0 +1,123 @@
+.login-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    padding: 20px;
+}
+
+.login-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(1, 22, 17, 0.1);
+    width: 100%;
+    max-width: 400px;
+    margin-bottom: 1rem;
+}
+
+.login-title {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 0.2rem;
+    font-size: 1.75rem;
+}
+
+.login-subtitle {
+    text-align: center;
+    color: #7f8c8d;
+    margin-bottom: 1rem;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    /* Managed by Tailwind space-y */
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.form-group label {
+    font-weight: 500;
+    color: #34495e;
+}
+
+
+
+
+.submit-btn {
+    background-color: #3498db;
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.submit-btn:hover {
+    background-color: #2980b9;
+}
+
+.submit-btn:disabled {
+    background-color: #bdc3c7;
+    cursor: not-allowed;
+}
+
+.signup-link {
+    text-align: center;
+    margin-top: 1.5rem;
+    color: #7f8c8d;
+}
+
+.signup-link a {
+    color: #3498db;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.login-method-toggle {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.toggle-btn {
+    padding: 8px 16px;
+    border: 1px solid #3498db;
+    background: transparent;
+    color: #3498db;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.toggle-btn.active {
+    background: #3498db;
+    color: white;
+}
+
+.toggle-btn:hover {
+    background: #2980b9;
+    color: white;
+}
+
+.alert-error {
+    background-color: #fadbd8;
+    color: #c0392b;
+    padding: 10px;
+    border-radius: 6px;
+    text-align: center;
+    margin-bottom: 1rem;
+    border: 1px solid #f1948a;
+}
