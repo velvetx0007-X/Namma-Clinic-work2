@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useParams, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
@@ -13,6 +13,8 @@ import PatientDashboard from './pages/PatientDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import ClinicAdminDashboard from './pages/ClinicAdminDashboard';
 import ReviewPage from './pages/ReviewPage';
+import SplashScreen from './components/common/SplashScreen';
+import AdvancedAIView from './components/AdvancedAIView';
 
 
 // Protected Route Component
@@ -21,10 +23,49 @@ const ProtectedRoute = ({ children }) => {
   return isAuthenticated ? children : <Navigate to="/login" replace />;
 };
 
-// Public Route Component (redirect to home if already logged in)
+// Role-Based Protected Route Component
+const RoleProtectedRoute = ({ children, allowedRoles }) => {
+  const { isAuthenticated, user, loading } = useAuth();
+  
+  if (loading) return null; // Or a loading spinner
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (allowedRoles && !allowedRoles.includes(user?.role)) {
+    // Redirect to their own dashboard if they try to access an unauthorized one
+    const dashboardMap = {
+      admin: '/admin-dashboard',
+      clinic: '/clinic-admin-dashboard',
+      patient: '/patient-dashboard',
+      doctor: '/doctor-dashboard',
+      nurse: '/nurse-dashboard',
+      receptionist: '/receptionist-dashboard'
+    };
+    return <Navigate to={dashboardMap[user.role] || '/home'} replace />;
+  }
+
+  return children;
+};
+
+// Public Route Component (redirect to specific dashboard if already logged in)
 const PublicRoute = ({ children }) => {
-  const { isAuthenticated } = useAuth();
-  return !isAuthenticated ? children : <Navigate to="/home" replace />;
+  const { isAuthenticated, user } = useAuth();
+  
+  if (isAuthenticated && user) {
+    const dashboardMap = {
+      admin: '/admin-dashboard',
+      clinic: '/clinic-admin-dashboard',
+      patient: '/patient-dashboard',
+      doctor: '/doctor-dashboard',
+      nurse: '/nurse-dashboard',
+      receptionist: '/receptionist-dashboard'
+    };
+    return <Navigate to={dashboardMap[user.role] || '/home'} replace />;
+  }
+  
+  return children;
 };
 
 const PageWrapper = ({ children }) => (
@@ -79,57 +120,65 @@ const AnimatedRoutes = () => {
         <Route
           path="/doctor-dashboard"
           element={
-            <ProtectedRoute>
+            <RoleProtectedRoute allowedRoles={['doctor']}>
               <PageWrapper><DoctorDashboard /></PageWrapper>
-            </ProtectedRoute>
+            </RoleProtectedRoute>
           }
         />
         <Route
           path="/nurse-dashboard"
           element={
-            <ProtectedRoute>
+            <RoleProtectedRoute allowedRoles={['nurse']}>
               <PageWrapper><NurseDashboard /></PageWrapper>
-            </ProtectedRoute>
+            </RoleProtectedRoute>
           }
         />
         <Route
           path="/receptionist-dashboard"
           element={
-            <ProtectedRoute>
+            <RoleProtectedRoute allowedRoles={['receptionist']}>
               <PageWrapper><ReceptionistDashboard /></PageWrapper>
-            </ProtectedRoute>
+            </RoleProtectedRoute>
           }
         />
         <Route
           path="/patient-dashboard"
           element={
-            <ProtectedRoute>
+            <RoleProtectedRoute allowedRoles={['patient']}>
               <PageWrapper><PatientDashboard /></PageWrapper>
-            </ProtectedRoute>
+            </RoleProtectedRoute>
           }
         />
         <Route
           path="/admin-dashboard"
           element={
-            <ProtectedRoute>
+            <RoleProtectedRoute allowedRoles={['admin']}>
               <PageWrapper><AdminDashboard /></PageWrapper>
-            </ProtectedRoute>
+            </RoleProtectedRoute>
           }
         />
         <Route
           path="/clinic-admin-dashboard"
           element={
-            <ProtectedRoute>
+            <RoleProtectedRoute allowedRoles={['clinic']}>
               <PageWrapper><ClinicAdminDashboard /></PageWrapper>
+            </RoleProtectedRoute>
+          }
+        />
+        <Route
+          path="/ai-assistance/:module"
+          element={
+            <ProtectedRoute>
+              <PageWrapper><AIViewWrapper /></PageWrapper>
             </ProtectedRoute>
           }
         />
         <Route
           path="/reviews"
           element={
-            <ProtectedRoute>
+            <RoleProtectedRoute allowedRoles={['clinic', 'admin']}>
               <PageWrapper><ReviewPage /></PageWrapper>
-            </ProtectedRoute>
+            </RoleProtectedRoute>
           }
         />
 
@@ -140,13 +189,42 @@ const AnimatedRoutes = () => {
   );
 };
 
+const AIViewWrapper = () => {
+  const { module } = useParams();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  return (
+    <AdvancedAIView 
+      module={module.replace(/-/g, ' ')} 
+      user={user} 
+      onClose={() => navigate(-1)} 
+    />
+  );
+};
+
 function App() {
+  const [showSplash, setShowSplash] = React.useState(true);
+
   return (
     <ThemeProvider>
       <AuthProvider>
-        <Router>
-          <AnimatedRoutes />
-        </Router>
+        <AnimatePresence mode="wait">
+          {showSplash ? (
+            <motion.div
+              key="splash"
+              initial={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <SplashScreen onComplete={() => setShowSplash(false)} />
+            </motion.div>
+          ) : (
+            <Router key="router">
+              <AnimatedRoutes />
+            </Router>
+          )}
+        </AnimatePresence>
       </AuthProvider>
     </ThemeProvider>
   );

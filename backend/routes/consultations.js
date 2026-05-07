@@ -2,9 +2,12 @@ const express = require('express');
 const router = express.Router();
 const Consultation = require('../models/Consultation');
 const Appointment = require('../models/Appointment');
+const { sendNotification } = require('../services/notificationService');
+const Patient = require('../models/Patient');
+const auth = require('../middleware/auth');
 
 // Start consultation
-router.post('/', async (req, res) => {
+router.post('/', auth, async (req, res) => {
     try {
         const { appointmentId, patientId, subjective, objective, assessment, plan, diagnosis } = req.body;
 
@@ -35,7 +38,7 @@ router.post('/', async (req, res) => {
 });
 
 // Update consultation
-router.put('/:id', async (req, res) => {
+router.put('/:id', auth, async (req, res) => {
     try {
         const consultation = await Consultation.findByIdAndUpdate(
             req.params.id,
@@ -54,6 +57,22 @@ router.put('/:id', async (req, res) => {
             await Appointment.findByIdAndUpdate(consultation.appointmentId, { status: 'completed' });
         }
 
+        // Send Notification
+        try {
+            const patient = await Patient.findById(consultation.patientId);
+            if (patient) {
+                await sendNotification(patient.userId || patient._id, {
+                    title: 'Consultation Updated',
+                    text: `Hello ${patient.name}, your consultation record has been updated by your provider.`,
+                    type: 'consultation',
+                    relatedId: consultation._id,
+                    onModel: 'Consultation'
+                });
+            }
+        } catch (notifyErr) {
+            console.error('Failed to send consultation notification:', notifyErr.message);
+        }
+
         res.json({ success: true, message: 'Consultation updated', data: consultation });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
@@ -61,7 +80,7 @@ router.put('/:id', async (req, res) => {
 });
 
 // Get patient consultations
-router.get('/patient/:patientId', async (req, res) => {
+router.get('/patient/:patientId', auth, async (req, res) => {
     try {
         const consultations = await Consultation.find({ patientId: req.params.patientId })
             .populate('doctorId', 'userName clinicName')
@@ -74,7 +93,7 @@ router.get('/patient/:patientId', async (req, res) => {
 });
 
 // Get consultation by appointment
-router.get('/appointment/:appointmentId', async (req, res) => {
+router.get('/appointment/:appointmentId', auth, async (req, res) => {
     try {
         const consultation = await Consultation.findOne({ appointmentId: req.params.appointmentId })
             .populate('doctorId', 'userName clinicName')
@@ -85,6 +104,19 @@ router.get('/appointment/:appointmentId', async (req, res) => {
         }
 
         res.json({ success: true, data: consultation });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// Get consultations by logged-in doctor
+router.get('/doctor', auth, async (req, res) => {
+    try {
+        const consultations = await Consultation.find({ doctorId: req.user.id })
+            .populate('patientId', 'name uhid age gender bloodGroup phoneNumber')
+            .sort({ createdAt: -1 });
+
+        res.json({ success: true, data: consultations });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }

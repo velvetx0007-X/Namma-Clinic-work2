@@ -3,6 +3,8 @@ const router = express.Router();
 const Appointment = require('../models/Appointment');
 
 const auth = require('../middleware/auth');
+const { sendNotification } = require('../services/notificationService');
+const Patient = require('../models/Patient');
 
 // Book new appointment
 router.post('/', auth, async (req, res) => {
@@ -25,6 +27,22 @@ router.post('/', auth, async (req, res) => {
         });
 
         await appointment.save();
+
+        // Send Notification
+        try {
+            const patient = await Patient.findById(appointment.patientId);
+            if (patient) {
+                await sendNotification(patient.userId || patient._id, {
+                    title: 'Appointment Booked',
+                    text: `Hello ${patient.name}, your appointment has been booked for ${appointmentDate} at ${appointmentTime}.`,
+                    type: 'appointment',
+                    relatedId: appointment._id,
+                    onModel: 'Appointment'
+                });
+            }
+        } catch (notifyErr) {
+            console.error('Failed to send booking notification:', notifyErr.message);
+        }
 
         res.status(201).json({
             success: true,
@@ -95,6 +113,27 @@ router.put('/:id', auth, async (req, res) => {
 
         if (!appointment) {
             return res.status(404).json({ success: false, message: 'Appointment not found' });
+        }
+
+        // Send Status Update Notification
+        try {
+            const patient = await Patient.findById(appointment.patientId);
+            if (patient) {
+                let notificationText = `Hello ${patient.name}, your appointment status has been updated to: ${appointment.status}.`;
+                if (appointment.comment) {
+                    notificationText += ` Message: "${appointment.comment}"`;
+                }
+
+                await sendNotification(patient.userId || patient._id, {
+                    title: 'Appointment Status Updated',
+                    text: notificationText,
+                    type: 'appointment',
+                    relatedId: appointment._id,
+                    onModel: 'Appointment'
+                });
+            }
+        } catch (notifyErr) {
+            console.error('Failed to send status update notification:', notifyErr.message);
         }
 
         res.json({ success: true, message: 'Appointment updated', data: appointment });

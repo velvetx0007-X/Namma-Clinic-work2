@@ -5,22 +5,15 @@ const ThemeContext = createContext();
 export const useTheme = () => useContext(ThemeContext);
 
 export const ThemeProvider = ({ children }) => {
-    const [isDarkMode, setIsDarkMode] = useState(() => {
-        const savedTheme = localStorage.getItem('theme');
-        return savedTheme === 'dark';
-    });
+    const isDarkMode = false; // Forced pure white theme
 
     useEffect(() => {
-        localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
-        if (isDarkMode) {
-            document.documentElement.setAttribute('data-theme', 'dark');
-        } else {
-            document.documentElement.removeAttribute('data-theme');
-        }
-    }, [isDarkMode]);
+        localStorage.setItem('theme', 'light');
+        document.documentElement.removeAttribute('data-theme');
+    }, []);
 
     const toggleTheme = () => {
-        setIsDarkMode(prev => !prev);
+        // Disabled per user request to force white theme
     };
 
     const value = {

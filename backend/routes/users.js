@@ -40,5 +40,6 @@ if (!fs.existsSync(dir)) {
 router.post('/profile-photo', upload.single('profilePhoto'), userController.updateProfilePhoto);
 router.put('/profile', userController.updateProfileDetails);
 router.get('/profile/:role/:userId', userController.getProfile);
+router.delete('/', userController.deleteAccount);
 
 module.exports = router;

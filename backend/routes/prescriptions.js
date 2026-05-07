@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const Prescription = require('../models/Prescription');
 const auth = require('../middleware/auth');
+const { sendNotification } = require('../services/notificationService');
+const Patient = require('../models/Patient');
 
 // Create prescription
 router.post('/', auth, async (req, res) => {
@@ -34,6 +36,22 @@ router.post('/', auth, async (req, res) => {
         });
 
         await prescription.save();
+
+        // Send Notification
+        try {
+            const patient = await Patient.findById(patientId);
+            if (patient) {
+                await sendNotification(patient.userId || patient._id, {
+                    title: 'New Prescription Uploaded',
+                    text: `Hello ${patient.name}, a new prescription has been added to your records.`,
+                    type: 'consultation', // Or 'prescription' if I add it to the model enum
+                    relatedId: prescription._id,
+                    onModel: 'Prescription'
+                });
+            }
+        } catch (notifyErr) {
+            console.error('Failed to send prescription notification:', notifyErr.message);
+        }
 
         res.status(201).json({
             success: true,

@@ -1,0 +1,218 @@
+.notification-center-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.nav-icon-btn {
+    background: transparent;
+    border: none;
+    color: var(--nav-text, #64748b);
+    padding: 8px;
+    border-radius: 12px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav-icon-btn:hover {
+    background: rgba(30, 136, 229, 0.1);
+    color: #1e88e2;
+}
+
+.notification-badge {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: #ff4d4f;
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 4px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.notification-dropdown {
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+    width: 360px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.05);
+    z-index: 1000;
+    overflow: hidden;
+    transform-origin: top right;
+}
+
+.dropdown-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8fafc;
+}
+
+.dropdown-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.header-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.action-btn {
+    background: white;
+    border: 1px solid #e2e8f0;
+    padding: 6px;
+    border-radius: 8px;
+    color: #64748b;
+    cursor: pointer;
+    display: flex;
+    transition: all 0.2s;
+}
+
+.action-btn:hover {
+    color: #1e88e2;
+    border-color: #1e88e2;
+    background: #f0f7ff;
+}
+
+.action-btn.delete:hover {
+    color: #ef4444;
+    border-color: #fee2e2;
+    background: #fef2f2;
+}
+
+.notification-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.empty-state {
+    padding: 40px 20px;
+    text-align: center;
+    color: #94a3b8;
+}
+
+.empty-state p {
+    margin-top: 12px;
+    font-size: 14px;
+}
+
+.notification-item {
+    padding: 16px 20px;
+    display: flex;
+    gap: 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+    position: relative;
+    border-bottom: 1px solid #f8fafc;
+}
+
+.notification-item:hover {
+    background: #f8fafc;
+}
+
+.notification-item.unread {
+    background: #f0f7ff;
+}
+
+.notification-item.unread:hover {
+    background: #e6f0ff;
+}
+
+.item-icon {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nt-icon.appointment { background: #e0f2fe; color: #0369a1; }
+.nt-icon.lab { background: #f0fdf4; color: #15803d; }
+.nt-icon.consultation { background: #fef2f2; color: #b91c1c; }
+.nt-icon.ai { background: #faf5ff; color: #7e22ce; }
+.nt-icon.system { background: #f8fafc; color: #64748b; }
+
+.item-content h4 {
+    margin: 0 0 4px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.item-content p {
+    margin: 0 0 6px 0;
+    font-size: 13px;
+    color: #64748b;
+    line-height: 1.4;
+}
+
+.item-time {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: #94a3b8;
+}
+
+.unread-dot {
+    width: 8px;
+    height: 8px;
+    background: #3b82f6;
+    border-radius: 50%;
+    position: absolute;
+    right: 20px;
+    top: 20px;
+}
+
+.dropdown-footer {
+    padding: 12px;
+    border-top: 1px solid #f1f5f9;
+    text-align: center;
+    background: #f8fafc;
+}
+
+.dropdown-footer button {
+    background: transparent;
+    border: none;
+    color: #1e88e2;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.dropdown-footer button:hover {
+    text-decoration: underline;
+}
+
+/* Scrollbar styling */
+.notification-list::-webkit-scrollbar {
+    width: 6px;
+}
+.notification-list::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+.notification-list::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}

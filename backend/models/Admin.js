@@ -41,7 +41,36 @@ const adminSchema = new mongoose.Schema({
         type: String,
         required: [true, 'PIN is required'],
         minlength: [4, 'PIN must be 4 digits']
-    }
+    },
+    twoFactorEnabled: {
+        type: Boolean,
+        default: false
+    },
+    loginAlerts: {
+        type: Boolean,
+        default: true
+    },
+    notificationPreferences: {
+        appointments: { type: Boolean, default: true },
+        testResults: { type: Boolean, default: true },
+        consultationUpdates: { type: Boolean, default: true },
+        email: { type: Boolean, default: true },
+        sms: { type: Boolean, default: true }
+    },
+    dndMode: {
+        enabled: { type: Boolean, default: false },
+        from: { type: String, default: '22:00' },
+        to: { type: String, default: '08:00' }
+    },
+    teamAccess: [{
+        memberName: String,
+        role: String,
+        permission: {
+            type: String,
+            enum: ['Full Access', 'View Only', 'Restricted'],
+            default: 'View Only'
+        }
+    }]
 }, {
     timestamps: true
 });

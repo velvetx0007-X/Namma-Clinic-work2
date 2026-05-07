@@ -137,7 +137,7 @@ const Footer = ({ links, isAdmin }) => {
                 <div className="footer-bottom-content">
                     <p className="copyright-text">
                         &copy; {currentDate.getFullYear()} Namma Clinic. All rights reserved.
-                        Made with <Heart color="#10b981" fill="#10b981" size={14} style={{ display: 'inline', verticalAlign: 'middle' }} /> for better healthcare.
+                        Made with <Heart color="var(--action-primary)" fill="var(--action-primary)" size={14} style={{ display: 'inline', verticalAlign: 'middle' }} /> for better healthcare.
                     </p>
                     <div className="current-stats">
                         <span className="stat-pill"><Calendar size={12} /> {formatDate(currentDate)}</span>

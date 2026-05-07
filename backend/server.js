@@ -23,9 +23,16 @@ const medicationLogRoutes = require('./routes/medicationLogs');
 const communicationRoutes = require('./routes/communications');
 const clinicRoutes = require('./routes/clinics');
 const aiPrescriptionRoutes = require('./routes/aiPrescriptions');
+const subscriptionRoutes = require('./routes/subscriptionRoutes');
+const { startAIWatcher } = require('./services/aiMonitoringService');
+
+const { setupSecurity, errorHandler } = require('./middleware/security');
 
 // Initialize Express app
 const app = express();
+
+// Security and Logging
+setupSecurity(app);
 
 // Middleware
 app.use(cors()); // Enable CORS for frontend communication
@@ -78,6 +85,8 @@ app.use('/api/ai-lab-tests', require('./routes/aiLabTests'));
 app.use('/api/ai-health', require('./routes/aiHealth'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/reviews', require('./routes/reviews'));
+app.use('/api/notifications', require('./routes/notificationRoutes'));
+app.use('/api/subscriptions', subscriptionRoutes);
 
 // Test route
 app.get('/', (req, res) => {
@@ -85,17 +94,41 @@ app.get('/', (req, res) => {
 });
 
 // Error handling middleware
-app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).json({
-        success: false,
-        message: 'Something went wrong!',
-        error: err.message
-    });
-});
+app.use(errorHandler);
 
 // Start server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+const server = require('http').createServer(app);
+const io = require('socket.io')(server, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"]
+    }
+});
+
+module.exports = { app, io }; // Export for services
+
+// Attach io to app
+app.set('io', io);
+
+io.on('connection', (socket) => {
+    console.log('🔌 New WebSocket connection:', socket.id);
+    
+    socket.on('join', (userId) => {
+        socket.join(userId);
+        console.log(`👤 User joined room: ${userId}`);
+    });
+
+    socket.on('disconnect', () => {
+        console.log('🔌 User disconnected');
+    });
+});
+
+// Update Routes - Adding Task routes
+app.use('/api/tasks', require('./routes/taskRoutes'));
+app.use('/api/analytics', require('./routes/analytics'));
+
+server.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
+    startAIWatcher(); // Start health monitoring engine
 });

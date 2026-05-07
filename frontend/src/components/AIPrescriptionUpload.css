@@ -208,7 +208,7 @@
     padding: 14px;
     border-radius: 10px;
     background: var(--accent-primary);
-    color: white;
+    color: rgb(236, 232, 232);
     font-weight: 600;
     display: flex;
     align-items: center;

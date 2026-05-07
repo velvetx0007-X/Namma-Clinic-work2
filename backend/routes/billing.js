@@ -115,4 +115,86 @@ router.get('/reports/daily', async (req, res) => {
     }
 });
 
+// Get comprehensive revenue report (Daily, Weekly, Monthly, Yearly)
+router.get('/reports/analytics', async (req, res) => {
+    try {
+        const { doctorId } = req.query; // If doctorId is provided, filter by doctor
+        const filter = {};
+        if (doctorId) filter.createdBy = doctorId;
+
+        const now = new Date();
+        
+        // Helper for date ranges
+        const getStartOfDay = (d) => {
+            const date = new Date(d);
+            date.setHours(0, 0, 0, 0);
+            return date;
+        };
+
+        // Daily (Last 7 days)
+        const sevenDaysAgo = new Date(now);
+        sevenDaysAgo.setDate(now.getDate() - 7);
+        const dailyBills = await Billing.find({
+            ...filter,
+            createdAt: { $gte: getStartOfDay(sevenDaysAgo) }
+        }).sort({ createdAt: 1 });
+
+        // Weekly (Last 4 weeks)
+        const fourWeeksAgo = new Date(now);
+        fourWeeksAgo.setDate(now.getDate() - 28);
+        const weeklyBills = await Billing.find({
+            ...filter,
+            createdAt: { $gte: getStartOfDay(fourWeeksAgo) }
+        }).sort({ createdAt: 1 });
+
+        // Monthly (Last 6 months)
+        const sixMonthsAgo = new Date(now);
+        sixMonthsAgo.setMonth(now.getMonth() - 6);
+        const monthlyBills = await Billing.find({
+            ...filter,
+            createdAt: { $gte: getStartOfDay(sixMonthsAgo) }
+        }).sort({ createdAt: 1 });
+
+        // Yearly (Last 5 years)
+        const fiveYearsAgo = new Date(now);
+        fiveYearsAgo.setFullYear(now.getFullYear() - 5);
+        const yearlyBills = await Billing.find({
+            ...filter,
+            createdAt: { $gte: getStartOfDay(fiveYearsAgo) }
+        }).sort({ createdAt: 1 });
+
+        // Aggregate functions
+        const aggregateByDay = (bills) => {
+            const map = {};
+            bills.forEach(b => {
+                const day = b.createdAt.toISOString().split('T')[0];
+                map[day] = (map[day] || 0) + b.paidAmount;
+            });
+            return Object.entries(map).map(([name, value]) => ({ name, value }));
+        };
+
+        const aggregateByMonth = (bills) => {
+            const map = {};
+            bills.forEach(b => {
+                const month = b.createdAt.toLocaleString('default', { month: 'short', year: '2-digit' });
+                map[month] = (map[month] || 0) + b.paidAmount;
+            });
+            return Object.entries(map).map(([name, value]) => ({ name, value }));
+        };
+
+        res.json({
+            success: true,
+            data: {
+                daily: aggregateByDay(dailyBills),
+                weekly: aggregateByDay(weeklyBills), // Simplification: still show by day for last 4 weeks
+                monthly: aggregateByMonth(monthlyBills),
+                yearly: aggregateByMonth(yearlyBills) // Simplification: still show by month for last 5 years
+            }
+        });
+
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
 module.exports = router;

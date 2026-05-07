@@ -14,10 +14,19 @@ import RecordInsights from '../ai_modules/record-insights';
 import MedicationInfo from '../ai_modules/medication-info';
 import LifestyleTips from '../ai_modules/lifestyle-tips';
 import About from './About';
+import ProfileSettings from '../components/ProfileSettings';
+import AdvancedAIView from '../components/AdvancedAIView';
+import NotificationCenter from '../components/NotificationCenter';
 import { motion, AnimatePresence } from 'framer-motion';
 import gsap from 'gsap';
-import { Heart, Activity, Calendar, FileText, Pill, Search, MapPin, Navigation, MessageSquare, MessageSquarePlus, CheckCircle, User, UserCheck, LogOut, Sparkles, Bot, Zap, Download, Clock, Star } from 'lucide-react';
+import { 
+    Heart, Activity, Calendar, FileText, Pill, Search, MapPin, Navigation, 
+    MessageSquare, MessageSquarePlus, CheckCircle, User, UserCheck, LogOut, 
+    Sparkles, Bot, Zap, Download, Clock, Star, Loader2, X, LayoutDashboard
+} from 'lucide-react';
 import logo from '../assets/Namma Clinic logo.jpeg';
+import DashboardLayout from '../components/common/DashboardLayout';
+import StatCard from '../components/common/StatCard';
 import {
     LineChart,
     Line,
@@ -47,6 +56,7 @@ const PatientDashboard = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [userLocation, setUserLocation] = useState({ lat: 13.0827, lng: 80.2707 });
     const [loading, setLoading] = useState(true);
+    const [tasks, setTasks] = useState([]);
     const [profileDetails, setProfileDetails] = useState({
         bloodGroup: user.bloodGroup || '',
         uhid: user.uhid || '',
@@ -93,10 +103,21 @@ const PatientDashboard = () => {
     };
     const [uploadMessage, setUploadMessage] = useState({ type: '', text: '' });
     const [showChat, setShowChat] = useState(false);
-    const [showSymptomChecker, setShowSymptomChecker] = useState(false);
-    const [showRecordInsights, setShowRecordInsights] = useState(false);
-    const [showMedicationInfo, setShowMedicationInfo] = useState(false);
-    const [showLifestyleTips, setShowLifestyleTips] = useState(false);
+    const [selectedAIModule, setSelectedAIModule] = useState(null);
+    const [selectedReview, setSelectedReview] = useState(null);
+    const [showReviewDetail, setShowReviewDetail] = useState(false);
+    
+    // Advanced Review Form State
+    const [reviewForm, setReviewForm] = useState({
+        clinicId: '',
+        rating: 5,
+        communication: 5,
+        treatment: 5,
+        waitingTime: 5,
+        recommend: true,
+        issueResolved: true,
+        comment: ''
+    });
 
     // Mock data for graphs
     const healthTrendsData = [
@@ -123,11 +144,12 @@ const PatientDashboard = () => {
 
     const fetchPatientData = async () => {
         try {
-            const [appointmentsRes, prescriptionsRes, labTestsRes, clinicsRes] = await Promise.all([
+            const [appointmentsRes, prescriptionsRes, labTestsRes, clinicsRes, tasksRes] = await Promise.all([
                 api.get(`/appointments/patient/${user.id}`),
                 api.get(`/prescriptions/patient/${user.id}`),
                 api.get(`/lab-tests/patient/${user.id}`),
-                api.get(`/clinics`)
+                api.get(`/clinics`),
+                api.get(`/tasks/patient/${user.id}`)
             ]);
 
             setAppointments(appointmentsRes.data.data);
@@ -135,10 +157,23 @@ const PatientDashboard = () => {
             setLabTests(labTestsRes.data.data);
             // Filter only doctors
             setClinics(clinicsRes.data.data.filter(c => c.userType === 'doctor'));
+            setTasks(tasksRes.data.data || []);
             setLoading(false);
         } catch (error) {
             console.error('Error fetching patient data:', error);
             setLoading(false);
+        }
+    };
+
+    const handleTaskUpdate = async (taskId, newStatus) => {
+        try {
+            const res = await api.put(`/tasks/${taskId}`, { status: newStatus });
+            if (res.data.success) {
+                setTasks(prev => prev.map(t => t._id === taskId ? { ...t, status: newStatus } : t));
+                // Show success message if needed
+            }
+        } catch (error) {
+            console.error('Error updating task:', error);
         }
     };
 
@@ -226,6 +261,19 @@ const PatientDashboard = () => {
         }
     };
 
+    const handleDeleteAccount = async () => {
+        const confirmDelete = window.confirm("Are you sure you want to delete your account? This action is permanent and will remove all your data from the system.");
+        if (confirmDelete) {
+            try {
+                await api.delete('/users', { data: { userId: user.id, role: user.role } });
+                alert('Your account has been deleted successfully.');
+                handleLogout();
+            } catch (error) {
+                alert('Failed to delete account: ' + (error.response?.data?.message || error.message));
+            }
+        }
+    };
+
     const handleLogout = () => {
         logout();
         navigate('/login');
@@ -249,7 +297,7 @@ const PatientDashboard = () => {
             const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
 
             pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-            pdf.save(`${user.name}_Profile_HealthOne.pdf`);
+            pdf.save(`${user.name}_Profile_NammaClinic.pdf`);
         } catch (error) {
             console.error('PDF Generation Error:', error);
             alert('Failed to generate PDF');
@@ -300,29 +348,44 @@ const PatientDashboard = () => {
     const fetchMyReviews = async () => {
         try {
             setLoadingReviews(true);
-            const res = await api.get('/reviews/admin/all'); // We'll filter on frontend for simplicity or add a specific route
-            const filtered = res.data.data.filter(r => r.patientId?._id === user.id);
-            setMyReviews(filtered);
+            const res = await api.get(`/reviews/patient/${user.id}`);
+            setMyReviews(res.data.data);
         } catch (error) {
             console.error("Error fetching reviews:", error);
         } finally {
             setLoadingReviews(false);
         }
     };
+    // Categorize and aggregate tasks with official records
+    const medicationTasksList = tasks.filter(t => t.type === 'Medication' && t.status !== 'completed');
+    const activeMedications = [
+        ...prescriptions.slice(0, 2).flatMap(p => p.medications).slice(0, 5).map(m => ({ ...m, source: 'prescription' })),
+        ...medicationTasksList.map(t => ({ drugName: t.title, frequency: t.description, dosage: t.priority, source: 'task', _id: t._id }))
+    ];
+
     const allUpcoming = appointments.filter(apt => isAppointmentUpcoming(apt) && apt.status !== 'cancelled').sort((a,b) => new Date(a.appointmentDate) - new Date(b.appointmentDate));
-    const upcomingAppointments = allUpcoming.slice(0, 3);
+    const appointmentTasksList = tasks.filter(t => t.type === 'Appointment' && t.status !== 'completed');
+    const upcomingAppointments = [
+        ...allUpcoming.slice(0, 3).map(a => ({ ...a, source: 'official' })),
+        ...appointmentTasksList.map(t => ({ 
+            appointmentDate: t.dueDate || new Date(), 
+            appointmentTime: 'Scheduled Task', 
+            doctorId: { userName: 'Staff' }, 
+            source: 'task',
+            _id: t._id,
+            title: t.title
+        }))
+    ];
     const pastAppointments = appointments.filter(apt => !isAppointmentUpcoming(apt) || apt.status === 'cancelled').sort((a,b) => new Date(b.appointmentDate) - new Date(a.appointmentDate));
 
-    // Get active medications from recent prescriptions
-    const activeMedications = prescriptions
-        .slice(0, 2)
-        .flatMap(p => p.medications)
-        .slice(0, 5);
-
-    // Get pending lab tests
-    const pendingLabTests = labTests.filter(test =>
-        test.status === 'ordered' || test.status === 'sample-collected'
-    ).slice(0, 3);
+    const labTasksList = tasks.filter(t => t.type === 'Lab Test' && t.status !== 'completed');
+    const pendingLabTests = [
+        ...labTests.filter(test => test.status === 'ordered' || test.status === 'sample-collected').slice(0, 3)
+            .map(l => ({ ...l, source: 'official' })),
+        ...labTasksList.map(t => ({ testName: t.title, status: t.status, source: 'task', _id: t._id }))
+    ];
+    
+    const generalTasks = tasks.filter(t => (t.type === 'General Message' || !t.type) && t.status !== 'completed');
 
     const handleProfileUpdate = async () => {
         try {
@@ -418,56 +481,18 @@ const PatientDashboard = () => {
         setShowBookingModal(true);
     };
 
+    const sidebarLinks = [
+        { id: 'home', label: 'Dashboard', icon: LayoutDashboard },
+        { id: 'clinics', label: 'Clinics', icon: MapPin },
+        { id: 'appointments', label: 'Appointments', icon: Calendar },
+        { id: 'prescriptions', label: 'Prescriptions', icon: Pill },
+        { id: 'labTests', label: 'Records', icon: FileText },
+        { id: 'reviews', label: 'My Reviews', icon: Star },
+        { id: 'profile', label: 'Profile', icon: User },
+    ];
+
     return (
-        <div className="patient-dashboard">
-            {/* Top Navigation Bar */}
-            <nav className="top-navbar">
-                <div className="navbar-brand">
-                    <img src={logo} alt="Namma Clinic" className="navbar-logo" />
-                    <div className="brand-text">
-                        <h2>Namma Clinic</h2>
-                    </div>
-                </div>
-
-                <div className="navbar-menu">
-                    {[
-                        { id: 'home', label: 'Dashboard' },
-                        { id: 'clinics', label: 'Clinics' },
-                        { id: 'appointments', label: 'Appointments' },
-                        { id: 'prescriptions', label: 'Prescriptions' },
-                        { id: 'labTests', label: 'Records' },
-                        { id: 'reviews', label: 'My Reviews' },
-                        { id: 'profile', label: 'Profile' }
-                    ].map(tab => (
-                        <button
-                            key={tab.id}
-                            className={activeTab === tab.id ? 'active' : ''}
-                            onClick={() => setActiveTab(tab.id)}
-                        >
-                            {tab.label}
-                        </button>
-                    ))}
-                </div>
-
-                <div className="navbar-actions">
-                    <button onClick={toggleTheme} className="theme-toggle">
-                        {isDarkMode ? '☀️' : '🌙'}
-                    </button>
-                    <div className="user-profile" onClick={() => setActiveTab('profile')}>
-                        <img
-                            src={user.profilePhoto ? `http://localhost:5000/${user.profilePhoto}` : `https://ui-avatars.com/api/?name=${user.userName || user.name}&background=10b981&color=fff`}
-                            alt="Profile"
-                        />
-                        <span className="user-name-text">{user.userName || user.name}</span>
-                    </div>
-                    <button onClick={handleLogout} className="logout-icon-btn">
-                        <LogOut size={20} />
-                    </button>
-                </div>
-            </nav>
-
-            {/* Main Content */}
-            <div className="dashboard-main">
+        <DashboardLayout sidebarLinks={sidebarLinks} activeTab={activeTab} setActiveTab={setActiveTab}>
 
                 {/* HOME TAB */}
                 {activeTab === 'home' && (
@@ -482,8 +507,8 @@ const PatientDashboard = () => {
                             <div className="banner-glow"></div>
                             <div className="banner-content">
                                 <div className="banner-text">
-                                    <h1>Welcome back, {user.name}! 👋</h1>
-                                    <p>Manage your health and stay on track with your upcoming schedule.</p>
+                                    <h1 className="text-white">Welcome back, {user.name}! 👋</h1>
+                                    <p className="text-white opacity-90">Manage your health and stay on track with your upcoming schedule.</p>
                                 </div>
                                 <div className="banner-actions">
                                     <button
@@ -502,11 +527,10 @@ const PatientDashboard = () => {
                             </div>
                         </motion.div>
 
-                        {/* 3-Column Layout */}
-                        <div className="home-grid grid grid-cols-1 lg:grid-cols-12 gap-8">
-
-                            {/* Left: Task Reminders */}
-                            <motion.div variants={itemVariants} className="task-reminders">
+                        {/* 2-Column Layout */}
+                        <div className="home-grid grid grid-cols-1 lg:grid-cols-12 gap-8 mb-8">
+                            {/* Left: Task Reminders (Full width on medium, partial on large) */}
+                            <motion.div variants={itemVariants} className="lg:col-span-12 task-reminders-unified">
                                 <div className="section-title-row">
                                     <h2 className="title-with-icon">
                                         <div className="icon-box">
@@ -528,8 +552,9 @@ const PatientDashboard = () => {
                                                 {activeMedications.map((med, index) => (
                                                     <motion.div
                                                         whileHover={{ y: -2 }}
-                                                        key={index}
-                                                        className="reminder-item-card"
+                                                        key={med._id || index}
+                                                        className={`reminder-item-card ${med.source === 'task' ? 'task-source' : ''}`}
+                                                        onClick={() => med.source === 'task' && handleTaskUpdate(med._id, 'completed')}
                                                     >
                                                         <div>
                                                             <div className="item-main-text">{med.drugName}</div>
@@ -557,14 +582,15 @@ const PatientDashboard = () => {
                                                     <motion.div
                                                         whileHover={{ y: -2 }}
                                                         key={apt._id}
-                                                        className="reminder-item-card"
+                                                        className={`reminder-item-card ${apt.source === 'task' ? 'task-source' : ''}`}
+                                                        onClick={() => apt.source === 'task' && handleTaskUpdate(apt._id, 'completed')}
                                                     >
                                                         <div className="date-icon-small">
                                                             <span className="month">{new Date(apt.appointmentDate).toLocaleString('default', { month: 'short' })}</span>
                                                             <span className="day">{new Date(apt.appointmentDate).getDate()}</span>
                                                         </div>
                                                         <div className="item-info">
-                                                            <div className="item-main-text">Dr. {apt.doctorId?.userName}</div>
+                                                            <div className="item-main-text">{apt.title || `Dr. ${apt.doctorId?.userName}`}</div>
                                                             <div className="item-sub-text">{apt.appointmentTime}</div>
                                                         </div>
                                                     </motion.div>
@@ -588,7 +614,8 @@ const PatientDashboard = () => {
                                                     <motion.div
                                                         whileHover={{ y: -2 }}
                                                         key={test._id}
-                                                        className="reminder-item-card"
+                                                        className={`reminder-item-card ${test.source === 'task' ? 'task-source' : ''}`}
+                                                        onClick={() => test.source === 'task' && handleTaskUpdate(test._id, 'completed')}
                                                     >
                                                         <div className="item-main-text">{test.testName}</div>
                                                         <span className={`status-tag ${test.status}`}>
@@ -604,51 +631,104 @@ const PatientDashboard = () => {
                                             </div>
                                         )}
                                     </div>
+
+                                    <div className="reminder-group">
+                                        <div className="group-header">
+                                            <MessageSquare className="text-blue-500 w-4 h-4" />
+                                            <h3>GENERAL TASKS</h3>
+                                        </div>
+                                        {generalTasks.length > 0 ? (
+                                            <div className="items-list">
+                                                {generalTasks.map((task) => (
+                                                    <motion.div
+                                                        whileHover={{ y: -2 }}
+                                                        key={task._id}
+                                                        className={`reminder-item-card task-card-ext ${task.status}`}
+                                                    >
+                                                        <div className="item-content-flex">
+                                                            <div className="item-info-main">
+                                                                <div className="item-main-text flex items-center gap-2">
+                                                                    {task.title}
+                                                                    <span className={`priority-tag ${task.priority.toLowerCase()}`}>
+                                                                        {task.priority}
+                                                                    </span>
+                                                                </div>
+                                                                <div className="item-sub-text">{task.description}</div>
+                                                                {task.aiSuggestion && (
+                                                                    <div className="ai-insight-box">
+                                                                        <Sparkles size={12} />
+                                                                        <span>{task.aiSuggestion}</span>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                            <div className="task-actions">
+                                                                {task.status === 'pending' && (
+                                                                    <button 
+                                                                        onClick={() => handleTaskUpdate(task._id, 'acknowledged')}
+                                                                        className="task-btn ack"
+                                                                        title="Acknowledge"
+                                                                    >
+                                                                        <CheckCircle size={14} />
+                                                                        <span>Ack</span>
+                                                                    </button>
+                                                                )}
+                                                                {task.status === 'acknowledged' && (
+                                                                    <button 
+                                                                        onClick={() => handleTaskUpdate(task._id, 'completed')}
+                                                                        className="task-btn complete"
+                                                                        title="Mark Completed"
+                                                                    >
+                                                                        <CheckCircle size={14} />
+                                                                        <span>Done</span>
+                                                                    </button>
+                                                                )}
+                                                                {task.status === 'completed' && (
+                                                                    <div className="completed-badge">
+                                                                        <UserCheck size={14} />
+                                                                        <span>Completed</span>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    </motion.div>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <div className="empty-state">
+                                                <p>No new messages or tasks</p>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             </motion.div>
 
-                            {/* Right: Health Analytics */}
-                            <motion.div variants={itemVariants} className="health-analytics">
-                                <h2 className="title-with-icon">
-                                    <div className="icon-box">
-                                        <Activity className="w-6 h-6" />
-                                    </div>
-                                    Health Analytics
-                                </h2>
+                        </div>
 
-                                <div className="analytics-card">
-                                    <div className="stats-grid">
-                                        <div className="premium-card">
-                                            <div className="score-area">
-                                                <p className="score-label">Health Score</p>
-                                                <h2 className="score-value">8.5<span className="out-of">/10</span></h2>
-                                            </div>
-                                            <div className="progress-bar-container">
-                                                <div className="progress-fill health-progress-fill"></div>
-                                            </div>
+                        {/* Health Metrics & Analytics (Relocated & Redesigned) */}
+                        <motion.div variants={itemVariants} className="health-metrics-row grid grid-cols-1 lg:grid-cols-12 gap-8">
+                            {/* Box 1: Health Score & Activity */}
+                            <div className="lg:col-span-7 premium-analytics-card">
+                                <div className="card-header-row">
+                                    <h2 className="title-with-icon">
+                                        <div className="icon-box">
+                                            <Activity className="w-6 h-6" />
                                         </div>
-                                        {[
-                                            { label: 'Upcoming', value: appointments.length > 0 ? appointments.filter(a => a.status === 'scheduled' || a.status === 'pending').length : '1', sub: appointments.length > 0 ? 'Appointments' : 'Sample: Initial Check', icon: '📅' },
-                                            { label: 'Records', value: prescriptions.length + labTests.length > 0 ? prescriptions.length + labTests.length : '1', sub: prescriptions.length + labTests.length > 0 ? 'Total Files' : 'Sample Record', icon: '📂' },
-                                            { label: 'Status', value: 'Stable', sub: 'Last check today', icon: '📈' }
-                                        ].map((stat, i) => (
-                                            <div key={i} className="stat-box">
-                                                <div className="stat-header-row">
-                                                    <span className="stat-icon-large">{stat.icon}</span>
-                                                    <span className="stat-label-text">{stat.label}</span>
-                                                </div>
-                                                <h2 className="stat-value-text">{stat.value}</h2>
-                                                <p className="stat-sub-text">{stat.sub}</p>
-                                            </div>
-                                        ))}
+                                        Health Analytics
+                                    </h2>
+                                    <div className="health-score-pill">
+                                        <span className="label">Health Score</span>
+                                        <span className="value">8.5<span className="out-of">/10</span></span>
                                     </div>
                                 </div>
 
-                                <div className="chart-container">
-                                    <h3 className="chart-title">Activity Trends (Last 6 Months)</h3>
+                                <div className="chart-wrapper">
+                                    <div className="chart-header">
+                                        <h3 className="chart-title">Activity Trends</h3>
+                                        <span className="chart-period">Last 6 Months</span>
+                                    </div>
                                     <ResponsiveContainer width="100%" height={260}>
                                         <LineChart data={healthTrendsData}>
-                                            <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? "#064e3b" : "#d1fae5"} vertical={false} />
+                                            <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? "#064e3b" : "#f1f5f9"} vertical={false} />
                                             <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 'bold' }} />
                                             <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 'bold' }} />
                                             <Tooltip
@@ -662,13 +742,33 @@ const PatientDashboard = () => {
                                                 }}
                                             />
                                             <Legend iconType="circle" wrapperStyle={{ paddingTop: '30px', fontSize: '12px', fontWeight: '900' }} />
-                                            <Line type="monotone" dataKey="bp" stroke="#10b981" strokeWidth={6} dot={{ r: 0 }} activeDot={{ r: 8, strokeWidth: 0 }} name="Blood Pressure" strokeDasharray="" />
-                                            <Line type="monotone" dataKey="hr" stroke="#059669" strokeWidth={6} dot={{ r: 0 }} activeDot={{ r: 8, strokeWidth: 0 }} name="Heart Rate" strokeDasharray="10 10" />
+                                            <Line type="monotone" dataKey="bp" stroke="var(--action-primary)" strokeWidth={4} dot={{ r: 4, fill: "var(--action-primary)", strokeWidth: 2, stroke: "#fff" }} activeDot={{ r: 8 }} name="Blood Pressure" />
+                                            <Line type="monotone" dataKey="hr" stroke="#10b981" strokeWidth={4} dot={{ r: 4, fill: "#10b981", strokeWidth: 2, stroke: "#fff" }} activeDot={{ r: 8 }} name="Heart Rate" />
                                         </LineChart>
                                     </ResponsiveContainer>
                                 </div>
-                            </motion.div>
-                        </div>
+                            </div>
+
+                            {/* Box 2: Quick Stats */}
+                            <div className="lg:col-span-5 stats-card-grid">
+                                {[
+                                    { label: 'Upcoming', value: appointments.length > 0 ? appointments.filter(a => a.status === 'scheduled' || a.status === 'pending').length : '1', sub: appointments.length > 0 ? 'Appointments' : 'Initial Check', icon: '📅', color: 'blue' },
+                                    { label: 'Records', value: prescriptions.length + labTests.length > 0 ? prescriptions.length + labTests.length : '1', sub: 'Total Files', icon: '📂', color: 'emerald' },
+                                    { label: 'Status', value: 'Stable', sub: 'Last check today', icon: '📈', color: 'amber' }
+                                ].map((stat, i) => (
+                                    <div key={i} className={`minimal-stat-card ${stat.color}`}>
+                                        <div className="stat-icon-box">
+                                            <span className="stat-icon">{stat.icon}</span>
+                                        </div>
+                                        <div className="stat-info">
+                                            <p className="stat-label">{stat.label}</p>
+                                            <h2 className="stat-value">{stat.value}</h2>
+                                            <p className="stat-sub">{stat.sub}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </motion.div>
 
                         {/* AI Health Assistant */}
                         <motion.div variants={itemVariants} className="ai-consultation-row">
@@ -704,10 +804,8 @@ const PatientDashboard = () => {
                                             className="feature-box"
                                             style={{ cursor: 'pointer' }}
                                             onClick={() => {
-                                                if (feature.title === 'Symptom Checker') setShowSymptomChecker(true);
-                                                if (feature.title === 'Record Insights') setShowRecordInsights(true);
-                                                if (feature.title === 'Medication Info') setShowMedicationInfo(true);
-                                                if (feature.title === 'Lifestyle Tips') setShowLifestyleTips(true);
+                                                const modulePath = feature.title.toLowerCase().replace(/\s+/g, '-');
+                                                navigate(`/ai-assistance/${modulePath}`);
                                             }}
                                         >
                                             <div className="feature-icon-wrapper">
@@ -723,10 +821,6 @@ const PatientDashboard = () => {
                             </div>
                         </motion.div>
                         {showChat && <AIHealthAssistant onClose={() => setShowChat(false)} />}
-                        {showSymptomChecker && <SymptomChecker onClose={() => setShowSymptomChecker(false)} />}
-                        {showRecordInsights && <RecordInsights onClose={() => setShowRecordInsights(false)} />}
-                        {showMedicationInfo && <MedicationInfo onClose={() => setShowMedicationInfo(false)} />}
-                        {showLifestyleTips && <LifestyleTips onClose={() => setShowLifestyleTips(false)} />}
                     </motion.div>
                 )}
 
@@ -1030,356 +1124,248 @@ const PatientDashboard = () => {
                 {activeTab === 'reviews' && (
                     <div className="reviews-content">
                         <div className="flex-between-center mb-30">
-                            <h1>⭐ My Reviews & Feedback</h1>
-                            <button className="book-btn" onClick={() => navigate('/reviews')}>
-                                + Write New Review
+                            <div className="section-header-title">
+                                <h1>⭐ My Reviews & Feedback</h1>
+                                <p className="text-slate-500 text-sm">Manage and view your healthcare experiences</p>
+                            </div>
+                            <button className="btn-primary-compact flex items-center gap-1.5" onClick={() => navigate('/reviews')}>
+                                <MessageSquarePlus size={16} />
+                                Write New Review
                             </button>
                         </div>
 
                         {loadingReviews ? (
-                            <div className="loading-spinner">Loading reviews...</div>
+                            <div className="flex flex-col items-center py-20">
+                                <Loader2 className="animate-spin text-blue-500 mb-4" size={40} />
+                                <p className="text-slate-500 font-medium">Loading your experiences...</p>
+                            </div>
                         ) : myReviews.length > 0 ? (
-                            <div className="reviews-grid grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="reviews-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                                 {myReviews.map((review) => (
-                                    <div key={review._id} className="appointment-card mb-15 p-6 bg-white rounded-3xl shadow-lg border border-slate-100">
-                                        <div className="flex-between-center mb-10">
-                                            <div>
-                                                <h3 className="text-emerald-700 font-bold">{review.clinicId?.clinicName}</h3>
-                                                <p className="text-sm opacity-60">{new Date(review.createdAt).toLocaleDateString()}</p>
+                                    <motion.div 
+                                        key={review._id} 
+                                        whileHover={{ y: -5 }}
+                                        onClick={() => {
+                                            setSelectedReview(review);
+                                            setShowReviewDetail(true);
+                                        }}
+                                        className="review-card-premium cursor-pointer"
+                                    >
+                                        <div className="card-top-info p-4 border-b border-slate-50">
+                                            <div className="patient-mini-profile flex items-center gap-3 mb-4">
+                                                <img 
+                                                    src={user.profilePhoto ? `http://localhost:5000/${user.profilePhoto}` : `https://ui-avatars.com/api/?name=${user.name}&background=1E88E5&color=fff`} 
+                                                    alt="Patient" 
+                                                    className="w-10 h-10 rounded-full border-2 border-white shadow-sm"
+                                                />
+                                                <div className="flex-1">
+                                                    <h4 className="text-sm font-bold text-slate-800 leading-tight">{user.name}</h4>
+                                                    <p className="text-[10px] text-slate-400 font-bold uppercase">ID: {user.uhid || 'P-10234'}</p>
+                                                </div>
                                             </div>
-                                            <div className="flex text-amber-500">
+                                            
+                                            <div className="doctor-mini-info bg-slate-50 rounded-2xl p-3">
+                                                <p className="text-[9px] font-black text-slate-400 uppercase mb-2 tracking-widest">Reviewed Doctor</p>
+                                                <div className="flex items-center gap-3">
+                                                    <img 
+                                                        src={review.clinicId?.profilePhoto ? `http://localhost:5000/${review.clinicId.profilePhoto}` : `https://ui-avatars.com/api/?name=Dr+${review.clinicId?.userName}&background=43A047&color=fff`} 
+                                                        alt="Doctor" 
+                                                        className="w-8 h-8 rounded-full"
+                                                    />
+                                                    <div>
+                                                        <h5 className="text-xs font-bold text-slate-700">Dr. {review.clinicId?.userName}</h5>
+                                                        <p className="text-[10px] text-emerald-600 font-medium">{review.clinicId?.specialization || 'General Physician'}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="card-comment-preview p-4">
+                                            <div className="flex text-amber-400 mb-3">
                                                 {[...Array(5)].map((_, i) => (
-                                                    <Star key={i} size={14} fill={i < review.rating ? "currentColor" : "none"} />
+                                                    <Star key={i} size={12} fill={i < review.rating ? "currentColor" : "none"} strokeWidth={2.5} />
                                                 ))}
                                             </div>
+                                            <p className="text-sm text-slate-600 line-clamp-3 italic">"{review.comment}"</p>
                                         </div>
-                                        <p className="italic text-slate-600 mb-15">"{review.comment}"</p>
-                                        
-                                        <div className="ai-analysis-tag p-10 bg-emerald-50 rounded-xl flex items-center gap-10">
-                                            <div className={`sentiment-dot w-3 h-3 rounded-full ${
-                                                review.aiSentiment === 'positive' ? 'bg-emerald-500' : 
-                                                review.aiSentiment === 'negative' ? 'bg-rose-500' : 'bg-slate-400'
-                                            }`}></div>
-                                            <span className="text-xs font-bold text-emerald-700 uppercase">AI {review.aiSentiment}</span>
-                                            <div className="flex flex-wrap gap-5">
-                                                {review.aiKeywords?.map((kw, i) => (
-                                                    <span key={i} className="text-[10px] bg-white px-3 py-1 rounded-full border border-emerald-100 text-emerald-600">#{kw}</span>
-                                                ))}
+
+                                        <div className="card-footer-meta p-3 bg-slate-50/50 flex justify-between items-center rounded-b-3xl">
+                                            <span className="text-[10px] font-bold text-slate-400">{new Date(review.createdAt).toLocaleDateString()}</span>
+                                            <div className={`sentiment-indicator-tag flex items-center gap-1.5 px-2 py-1 rounded-full ${
+                                                review.aiSentiment === 'positive' ? 'bg-emerald-100 text-emerald-700' : 
+                                                review.aiSentiment === 'negative' ? 'bg-rose-100 text-rose-700' : 'bg-slate-200 text-slate-600'
+                                            }`}>
+                                                <div className={`w-1.5 h-1.5 rounded-full ${
+                                                    review.aiSentiment === 'positive' ? 'bg-emerald-500' : 
+                                                    review.aiSentiment === 'negative' ? 'bg-rose-500' : 'bg-slate-400'
+                                                }`}></div>
+                                                <span className="text-[9px] font-black uppercase">{review.aiSentiment}</span>
                                             </div>
                                         </div>
-                                    </div>
+                                    </motion.div>
                                 ))}
                             </div>
                         ) : (
-                            <div className="no-data-card text-center py-40 bg-white rounded-3xl">
-                                <MessageSquare size={48} className="mx-auto text-slate-200 mb-10" />
-                                <p className="text-slate-400">You haven't submitted any reviews yet.</p>
+                            <div className="no-data-card text-center py-40 bg-white rounded-3xl shadow-sm border border-slate-100">
+                                <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                                    <MessageSquare size={32} className="text-slate-200" />
+                                </div>
+                                <h3 className="text-xl font-bold text-slate-800 mb-2">No Reviews Yet</h3>
+                                <p className="text-slate-400 max-w-xs mx-auto mb-8">You haven't shared your healthcare experience with any providers yet.</p>
+                                <button className="btn-primary" onClick={() => navigate('/reviews')}>
+                                    Submit Your First Review
+                                </button>
                             </div>
                         )}
                     </div>
                 )}
 
-                {
-                    activeTab === 'profile' && (
-                        <div className="profile-content">
-                            <h1>👤 My Profile</h1>
-                            <div className="profile-top-grid">
-                                {/* DIGITAL ID CARD SECTION */}
-                                <div className="id-card-section">
-                                    <h2>💳 Digital ID Card</h2>
-                                    <DigitalIDCard user={user} onEdit={handleEditCardClick} />
-                                </div>
-
-                                {/* PHOTO & BASIC EDIT SECTION */}
-                                <div className="profile-edit-section" ref={editRef}>
-                                    <h2>⚙️ Profile Settings</h2>
-                                    <div className="profile-card-container">
-                                        <h3 className="profile-photo-header">Update Profile Photo</h3>
-                                        <div className="photo-upload-container">
-                                            <div className="current-photo">
-                                                <img
-                                                    src={user.profilePhoto ? `http://localhost:5000/${user.profilePhoto}` : `https://ui-avatars.com/api/?name=${user.name}`}
-                                                    alt="Current Profile"
-                                                />
-                                            </div>
-                                            <div className="upload-controls">
-                                                <input
-                                                    type="file"
-                                                    accept="image/*"
-                                                    onChange={(e) => setUploadFile(e.target.files[0])}
-                                                    className="mb-10 d-block"
-                                                />
-                                                <button
-                                                    className="upload-submit-btn"
-                                                    onClick={async () => {
-                                                        if (!uploadFile) return;
-                                                        const formData = new FormData();
-                                                        formData.append('profilePhoto', uploadFile);
-                                                        formData.append('userId', user.id);
-                                                        formData.append('role', 'patient');
-
-                                                        try {
-                                                            const res = await api.post('/users/profile-photo', formData);
-                                                            updateUser(res.data.data);
-                                                            alert('Photo updated successfully!');
-                                                            setUploadFile(null);
-                                                        } catch (err) {
-                                                            console.error(err);
-                                                            alert('Upload failed');
-                                                        }
-                                                    }}
-                                                >
-                                                    Upload New Photo
-                                                </button>
-                                            </div>
+                {/* Advanced Review Detail Modal */}
+                <AnimatePresence>
+                    {showReviewDetail && selectedReview && (
+                        <motion.div 
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="modal-overlay"
+                            onClick={() => setShowReviewDetail(false)}
+                        >
+                            <motion.div 
+                                initial={{ scale: 0.9, y: 20 }}
+                                animate={{ scale: 1, y: 0 }}
+                                exit={{ scale: 0.9, y: 20 }}
+                                className="modal-content-premium max-w-2xl w-full"
+                                onClick={e => e.stopPropagation()}
+                            >
+                                <div className="modal-header-glass border-b border-slate-100 p-6 flex justify-between items-center">
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2 bg-blue-50 text-blue-600 rounded-xl">
+                                            <Star size={24} fill="currentColor" />
                                         </div>
-
-                                        <div className="additional-fields">
-                                            <div className="form-group">
-                                                <label>Blood Group</label>
-                                                <input
-                                                    type="text"
-                                                    placeholder="e.g. O+ve"
-                                                    className="profile-input"
-                                                    value={profileDetails.bloodGroup}
-                                                    onChange={(e) => setProfileDetails({ ...profileDetails, bloodGroup: e.target.value })}
-                                                />
-                                            </div>
-                                            <div className="form-group">
-                                                <label>UHID (if any)</label>
-                                                <input
-                                                    type="text"
-                                                    placeholder="Unique Health ID"
-                                                    className="profile-input"
-                                                    value={profileDetails.uhid}
-                                                    onChange={(e) => setProfileDetails({ ...profileDetails, uhid: e.target.value })}
-                                                />
-                                            </div>
-                                            <div className="form-group">
-                                                <label>Age</label>
-                                                <input
-                                                    type="number"
-                                                    placeholder="Enter Age"
-                                                    className="profile-input"
-                                                    value={profileDetails.age}
-                                                    onChange={(e) => setProfileDetails({ ...profileDetails, age: e.target.value })}
-                                                />
-                                            </div>
-                                            <button
-                                                className="btn-save-section"
-                                                onClick={async () => {
-                                                    try {
-                                                        const res = await api.put(`/users/profile`, {
-                                                            userId: user.id,
-                                                            role: 'patient',
-                                                            ...profileDetails
-                                                        });
-                                                        updateUser(res.data.data);
-                                                        alert('Profile details updated!');
-                                                    } catch (err) {
-                                                        console.error('Update error:', err);
-                                                        alert('Update failed');
-                                                    }
-                                                }}
-                                            >
-                                                Save Profile Details
-                                            </button>
+                                        <div>
+                                            <h2 className="text-xl font-black text-slate-800">Review Details</h2>
+                                            <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">{new Date(selectedReview.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-
-                            <div className="profile-sections">
-                                {/* Personal Information */}
-                                <div className="profile-section">
-                                    <div className="profile-section-header">
-                                        <h2>👤 Personal Information</h2>
-                                        <button
-                                            className="btn-edit-toggle"
-                                            onClick={() => setEditModes({ ...editModes, personal: !editModes.personal })}
-                                        >
-                                            {editModes.personal ? '❌' : '✏️'}
-                                        </button>
-                                    </div>
-
-                                    {editModes.personal ? (
-                                        <div className="profile-grid">
-                                            <div className="form-group">
-                                                <label>Date of Birth</label>
-                                                <input type="date" className="profile-input" value={profileDetails.dob} onChange={(e) => setProfileDetails({ ...profileDetails, dob: e.target.value })} />
-                                            </div>
-                                            <div className="form-group">
-                                                <label>Blood Group</label>
-                                                <input type="text" className="profile-input" value={profileDetails.bloodGroup} onChange={(e) => setProfileDetails({ ...profileDetails, bloodGroup: e.target.value })} />
-                                            </div>
-                                            <div className="form-group">
-                                                <label>Age</label>
-                                                <input type="number" className="profile-input" value={profileDetails.age} onChange={(e) => setProfileDetails({ ...profileDetails, age: e.target.value })} />
-                                            </div>
-                                            <button className="btn-save-section" onClick={() => saveSection('personal')}>Save Personal Info</button>
-                                        </div>
-                                    ) : (
-                                        <div className="profile-grid">
-                                            <div className="profile-field">
-                                                <label>Full Name</label>
-                                                <p>{user.name}</p>
-                                            </div>
-                                            <div className="profile-field">
-                                                <label>Email</label>
-                                                <p>{user.email}</p>
-                                            </div>
-                                            <div className="profile-field">
-                                                <label>Phone Number</label>
-                                                <p>{user.phoneNumber || 'Not provided'}</p>
-                                            </div>
-                                            <div className="profile-field">
-                                                <label>Date of Birth</label>
-                                                <p>{user.dob ? new Date(user.dob).toLocaleDateString() : 'Not provided'}</p>
-                                            </div>
-                                            <div className="profile-field">
-                                                <label>Age</label>
-                                                <p>{user.age || 'Not provided'}</p>
-                                            </div>
-                                            <div className="profile-field">
-                                                <label>Blood Group</label>
-                                                <p>{user.bloodGroup || 'Not provided'}</p>
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Medical Information */}
-                                <div className="profile-section">
-                                    <div className="profile-section-header">
-                                        <h2>🏥 Medical Information</h2>
-                                        <button
-                                            className="btn-edit-toggle"
-                                            onClick={() => setEditModes({ ...editModes, medical: !editModes.medical })}
-                                        >
-                                            {editModes.medical ? '❌' : '✏️'}
-                                        </button>
-                                    </div>
-
-                                    {editModes.medical ? (
-                                        <div className="form-group">
-                                            <div>
-                                                <label>Allergies</label>
-                                                <textarea className="profile-input min-h-100" value={profileDetails.allergies} onChange={(e) => setProfileDetails({ ...profileDetails, allergies: e.target.value })} />
-                                            </div>
-                                            <div>
-                                                <label>Medical History</label>
-                                                <textarea className="profile-input min-h-100" value={profileDetails.medicalHistory} onChange={(e) => setProfileDetails({ ...profileDetails, medicalHistory: e.target.value })} />
-                                            </div>
-                                            <button className="btn-save-section" onClick={() => saveSection('medical')}>Save Medical Info</button>
-                                        </div>
-                                    ) : (
-                                        <div className="profile-grid">
-                                            <div className="profile-field">
-                                                <label>Allergies</label>
-                                                <p>{user.allergies || 'None reported'}</p>
-                                            </div>
-                                            <div className="profile-field">
-                                                <label>Medical History</label>
-                                                <p>{user.medicalHistory || 'No history available'}</p>
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Emergency Contact */}
-                                <div className="profile-section">
-                                    <div className="profile-section-header">
-                                        <h2>🚨 Emergency Contact</h2>
-                                        <button
-                                            className="btn-edit-toggle"
-                                            onClick={() => setEditModes({ ...editModes, emergency: !editModes.emergency })}
-                                        >
-                                            {editModes.emergency ? '❌' : '✏️'}
-                                        </button>
-                                    </div>
-
-                                    {editModes.emergency ? (
-                                        <div className="profile-grid">
-                                            <div className="form-group">
-                                                <label>Contact Name</label>
-                                                <input type="text" className="profile-input" value={profileDetails.emergencyContact.name} onChange={(e) => setProfileDetails({ ...profileDetails, emergencyContact: { ...profileDetails.emergencyContact, name: e.target.value } })} />
-                                            </div>
-                                            <div className="form-group">
-                                                <label>Contact Phone</label>
-                                                <input type="tel" className="profile-input" value={profileDetails.emergencyContact.phone} onChange={(e) => setProfileDetails({ ...profileDetails, emergencyContact: { ...profileDetails.emergencyContact, phone: e.target.value } })} />
-                                            </div>
-                                            <div className="form-group">
-                                                <label>Relationship</label>
-                                                <input type="text" className="profile-input" value={profileDetails.emergencyContact.relationship} onChange={(e) => setProfileDetails({ ...profileDetails, emergencyContact: { ...profileDetails.emergencyContact, relationship: e.target.value } })} />
-                                            </div>
-                                            <button className="btn-save-section" onClick={() => saveSection('emergency')}>Save Emergency Contact</button>
-                                        </div>
-                                    ) : (
-                                        <div className="profile-grid">
-                                            <div className="profile-field">
-                                                <label>Contact Name</label>
-                                                <p>{user.emergencyContact?.name || 'Not provided'}</p>
-                                            </div>
-                                            <div className="profile-field">
-                                                <label>Contact Phone</label>
-                                                <p>{user.emergencyContact?.phone || 'Not provided'}</p>
-                                            </div>
-                                            <div className="profile-field">
-                                                <label>Relationship</label>
-                                                <p>{user.emergencyContact?.relationship || 'Not provided'}</p>
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Address Section */}
-                                <div className="profile-section">
-                                    <div className="profile-section-header">
-                                        <h2>📍 Address</h2>
-                                        <button
-                                            className="btn-edit-toggle"
-                                            onClick={() => setEditModes({ ...editModes, address: !editModes.address })}
-                                        >
-                                            {editModes.address ? '❌' : '✏️'}
-                                        </button>
-                                    </div>
-
-                                    {editModes.address ? (
-                                        <div className="form-group">
-                                            <div>
-                                                <label>Area</label>
-                                                <input type="text" className="profile-input" value={profileDetails.area} onChange={(e) => setProfileDetails({ ...profileDetails, area: e.target.value })} />
-                                            </div>
-                                            <div>
-                                                <label>Full Address</label>
-                                                <textarea className="profile-input min-h-80" value={profileDetails.address} onChange={(e) => setProfileDetails({ ...profileDetails, address: e.target.value })} />
-                                            </div>
-                                            <button className="btn-save-section" onClick={() => saveSection('address')}>Save Address</button>
-                                        </div>
-                                    ) : (
-                                        <div className="profile-field">
-                                            <p>{user.address || user.area || 'Not provided'}</p>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Download PDF Button */}
-                                <div className="profile-actions-center">
-                                    <button
-                                        onClick={downloadProfilePDF}
-                                        className="btn-download-profile"
-                                    >
-                                        <FileText size={20} /> Download All Details (PDF)
+                                    <button className="p-2 hover:bg-slate-100 rounded-full transition-colors" onClick={() => setShowReviewDetail(false)}>
+                                        <X size={24} className="text-slate-400" />
                                     </button>
                                 </div>
-                            </div>
+
+                                <div className="modal-scroll-area p-8 max-h-[70vh] overflow-y-auto">
+                                    {/* Dual Profile Row */}
+                                    <div className="grid grid-cols-2 gap-8 mb-10">
+                                        <div className="patient-detail-box p-5 bg-blue-50/50 rounded-3xl border border-blue-100">
+                                            <p className="text-[10px] font-black text-blue-400 uppercase mb-4 tracking-widest">Feedback From</p>
+                                            <div className="flex items-center gap-4">
+                                                <img 
+                                                    src={user.profilePhoto ? `http://localhost:5000/${user.profilePhoto}` : `https://ui-avatars.com/api/?name=${user.name}&background=1E88E5&color=fff`} 
+                                                    alt="Patient" 
+                                                    className="w-14 h-14 rounded-full border-4 border-white shadow-md"
+                                                />
+                                                <div>
+                                                    <h3 className="font-black text-slate-800">{user.name}</h3>
+                                                    <p className="text-xs text-blue-600 font-bold uppercase">ID: {user.uhid || 'P-10234'}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="doctor-detail-box p-5 bg-emerald-50/50 rounded-3xl border border-emerald-100">
+                                            <p className="text-[10px] font-black text-emerald-400 uppercase mb-4 tracking-widest">Reviewed Doctor</p>
+                                            <div className="flex items-center gap-4">
+                                                <img 
+                                                    src={selectedReview.clinicId?.profilePhoto ? `http://localhost:5000/${selectedReview.clinicId.profilePhoto}` : `https://ui-avatars.com/api/?name=Dr+${selectedReview.clinicId?.userName}&background=43A047&color=fff`} 
+                                                    alt="Doctor" 
+                                                    className="w-14 h-14 rounded-full border-4 border-white shadow-md"
+                                                />
+                                                <div>
+                                                    <h3 className="font-black text-slate-800">Dr. {selectedReview.clinicId?.userName}</h3>
+                                                    <p className="text-xs text-emerald-600 font-bold uppercase">{selectedReview.clinicId?.specialization || 'General Physician'}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Main Content */}
+                                    <div className="feedback-text-area mb-8 p-6 bg-slate-50 rounded-3xl relative">
+                                        <Bot size={40} className="absolute -top-5 -right-5 text-blue-500/20" />
+                                        <h4 className="text-xs font-black text-slate-400 uppercase mb-3 tracking-widest">Conversation & Feedback</h4>
+                                        <p className="text-lg text-slate-700 leading-relaxed font-medium italic">"{selectedReview.comment}"</p>
+                                    </div>
+
+                                    {/* Granular Ratings */}
+                                    <div className="advanced-ratings-container grid grid-cols-2 gap-4 mb-8">
+                                        {[
+                                            { label: 'Doctor Communication', value: selectedReview.communication || selectedReview.rating, icon: <MessageSquare size={16} /> },
+                                            { label: 'Treatment Quality', value: selectedReview.treatment || selectedReview.rating, icon: <Activity size={16} /> },
+                                            { label: 'Waiting Time Efficiency', value: selectedReview.waitingTime || selectedReview.rating, icon: <Clock size={16} /> },
+                                            { label: 'Overall Experience', value: selectedReview.rating, icon: <Sparkles size={16} /> }
+                                        ].map((rat, i) => (
+                                            <div key={i} className="rating-row-premium flex justify-between items-center p-4 bg-white border border-slate-100 rounded-2xl">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="text-blue-500">{rat.icon}</div>
+                                                    <span className="text-xs font-bold text-slate-600">{rat.label}</span>
+                                                </div>
+                                                <div className="flex gap-0.5 text-amber-400">
+                                                    {[...Array(5)].map((_, idx) => (
+                                                        <Star key={idx} size={12} fill={idx < rat.value ? "currentColor" : "none"} strokeWidth={2.5} />
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    {/* Resolution & Recommendation */}
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className={`resolution-box flex items-center gap-3 p-4 rounded-2xl ${selectedReview.issueResolved !== false ? 'bg-emerald-50 border border-emerald-100 text-emerald-700' : 'bg-rose-50 border border-rose-100 text-rose-700'}`}>
+                                            <CheckCircle size={20} />
+                                            <div>
+                                                <p className="text-[10px] font-black uppercase opacity-60">Issue Status</p>
+                                                <p className="text-sm font-bold">{selectedReview.issueResolved !== false ? 'Issue Resolved' : 'Unresolved'}</p>
+                                            </div>
+                                        </div>
+                                        <div className={`recommend-box flex items-center gap-3 p-4 rounded-2xl ${selectedReview.recommend !== false ? 'bg-blue-50 border border-blue-100 text-blue-700' : 'bg-slate-50 border border-slate-200 text-slate-500'}`}>
+                                            <Heart size={20} fill={selectedReview.recommend !== false ? "currentColor" : "none"} />
+                                            <div>
+                                                <p className="text-[10px] font-black uppercase opacity-60">Recommendation</p>
+                                                <p className="text-sm font-bold">{selectedReview.recommend !== false ? 'Highly Recommended' : 'Neutral'}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="modal-footer-lux p-6 bg-slate-50 flex justify-between items-center rounded-b-3xl">
+                                    <div className="flex items-center gap-2">
+                                        <Zap size={16} className="text-amber-500" />
+                                        <span className="text-xs font-bold text-slate-500 uppercase">Consultation Type: In-Clinic</span>
+                                    </div>
+                                    <button className="btn-banner-white" onClick={() => setShowReviewDetail(false)}>Close Review</button>
+                                </div>
+                            </motion.div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
+                {/* Assuming Navbar is rendered here or similar structure */}
+                {/* This is a placeholder for where NotificationCenter would be added in a Navbar */}
+                {/* <NotificationCenter /> */}
+                {/* <button className="nav-icon-btn" onClick={toggleTheme}> */}
+                {/*     {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />} */}
+                {/* </button> */}
+                {/* <button className="nav-icon-btn" onClick={handleLogout}> */}
+                {/*     <LogOut size={20} /> */}
+                {/* </button> */}
+
+                {
+                    activeTab === 'profile' && (
+                        <div className="profile-tab-container">
+                            <ProfileSettings />
+                            
+
                         </div>
                     )
                 }
                 {activeTab === 'about' && <About />}
-            </div >
-
-
 
             <Footer links={[
                 { label: 'Home', onClick: () => setActiveTab('home') },
@@ -1419,7 +1405,7 @@ const PatientDashboard = () => {
                                         <input
                                             type="date"
                                             required
-                                            min={new Date().toISOString().split('T')[0]}
+                                            min={`${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-${String(new Date().getDate()).padStart(2, '0')}`}
                                             value={bookingData.appointmentDate}
                                             onChange={(e) => setBookingData({ ...bookingData, appointmentDate: e.target.value })}
                                         />
@@ -1463,7 +1449,7 @@ const PatientDashboard = () => {
                     </div>
                 )
             }
-        </div >
+        </DashboardLayout>
     );
 };
 

@@ -7,7 +7,9 @@ import api from '../api/axiosInstance';
 import AIPrescriptionUpload from '../components/AIPrescriptionUpload';
 import PatientHistory from '../components/PatientHistory';
 import Footer from '../components/Footer';
+import ProfileSettings from '../components/ProfileSettings';
 import { Upload, Users, User, LogOut, Settings, Star, MessageSquare } from 'lucide-react';
+import DashboardLayout from '../components/common/DashboardLayout';
 import './AdminDashboard.css'; // Reusing AdminDashboard styles for consistency
 
 const ClinicAdminDashboard = () => {
@@ -132,60 +134,16 @@ const ClinicAdminDashboard = () => {
         navigate('/login');
     };
 
-    return (
-        <div className={`admin-dashboard ${isDarkMode ? 'dark-mode' : ''}`}>
-            <nav className="top-nav">
-                <div className="navbar-brand">
-                    <img src={logo} alt="Namma Clinic" className="navbar-logo" />
-                    <h2>Namma Clinic - Clinic Admin</h2>
-                </div>
-                <div className="navbar-menu">
-                    <button
-                        className={activeTab === 'staff' ? 'active' : ''}
-                        onClick={() => setActiveTab('staff')}
-                    >
-                        Staff Management
-                    </button>
-                    <button
-                        className={activeTab === 'patients' ? 'active' : ''}
-                        onClick={() => setActiveTab('patients')}
-                    >
-                        Patient Records
-                    </button>
-                    <button
-                        className={activeTab === 'upload-prescription' ? 'active' : ''}
-                        onClick={() => setActiveTab('upload-prescription')}
-                    >
-                        Upload AI Rx
-                    </button>
-                    <button
-                        className={activeTab === 'reviews' ? 'active' : ''}
-                        onClick={() => setActiveTab('reviews')}
-                    >
-                        Reviews & AI Analytics
-                    </button>
-                    <button
-                        className={activeTab === 'profile' ? 'active' : ''}
-                        onClick={() => setActiveTab('profile')}
-                    >
-                        Clinic Profile
-                    </button>
-                </div>
-                <div className="navbar-actions">
-                    <button onClick={toggleTheme} className="theme-toggle">
-                        {isDarkMode ? '☀️' : '🌙'}
-                    </button>
-                    <div className="user-profile">
-                        <span className="user-name">{user.userName || user.name}</span>
-                        <span className="user-role-badge">Admin</span>
-                    </div>
-                    <button onClick={handleLogout} className="logout-button">
-                        Logout
-                    </button>
-                </div>
-            </nav>
+    const sidebarLinks = [
+        { id: 'staff', label: 'Staff Management', icon: Users },
+        { id: 'patients', label: 'Patient Records', icon: User },
+        { id: 'upload-prescription', label: 'Upload AI Rx', icon: Upload },
+        { id: 'reviews', label: 'Reviews & AI Analytics', icon: Star },
+        { id: 'profile', label: 'Clinic Profile', icon: Settings }
+    ];
 
-            <div className="dashboard-main">
+    return (
+        <DashboardLayout sidebarLinks={sidebarLinks} activeTab={activeTab} setActiveTab={setActiveTab}>
                 {activeTab === 'staff' && (
                     <div className="dashboard-section">
                         <div className="section-header">
@@ -344,20 +302,10 @@ const ClinicAdminDashboard = () => {
                 )}
 
                 {activeTab === 'profile' && (
-                    <div className="dashboard-section">
-                        <h1>Clinic Profile</h1>
-                        <div className="profile-card">
-                            <h3>{user.clinicName}</h3>
-                            <p><strong>Registration Number:</strong> {user.clinicRegistrationNumber}</p>
-                            <p><strong>Admin Name:</strong> {user.userName}</p>
-                            <p><strong>Contact:</strong> {user.contactName}</p>
-                            <p><strong>Email:</strong> {user.email}</p>
-                        </div>
-                    </div>
+                    <ProfileSettings />
                 )}
-            </div>
 
-            {/* Add Staff Modal */}
+                {/* Add Staff Modal */}
             {isFormVisible && (
                 <div className="modal-overlay">
                     <div className="modal-content">
@@ -480,7 +428,7 @@ const ClinicAdminDashboard = () => {
                 </div>
             )}
             <Footer />
-        </div>
+        </DashboardLayout>
     );
 };
 

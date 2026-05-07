@@ -82,6 +82,26 @@ const patientSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    twoFactorEnabled: {
+        type: Boolean,
+        default: false
+    },
+    loginAlerts: {
+        type: Boolean,
+        default: true
+    },
+    notificationPreferences: {
+        appointments: { type: Boolean, default: true },
+        testResults: { type: Boolean, default: true },
+        consultationUpdates: { type: Boolean, default: true },
+        email: { type: Boolean, default: true },
+        sms: { type: Boolean, default: true }
+    },
+    dndMode: {
+        enabled: { type: Boolean, default: false },
+        from: { type: String, default: '22:00' },
+        to: { type: String, default: '08:00' }
+    },
     verificationOTP: {
         type: String,
         default: null

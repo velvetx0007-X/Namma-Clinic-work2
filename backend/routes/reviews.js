@@ -6,7 +6,17 @@ const mlService = require('../services/mlService');
 // Submit a review
 router.post('/', async (req, res) => {
     try {
-        const { patientId, clinicId, rating, comment } = req.body;
+        const { 
+            patientId, 
+            clinicId, 
+            rating, 
+            comment,
+            communication,
+            treatment,
+            waitingTime,
+            recommend,
+            issueResolved
+        } = req.body;
         
         // AI Analysis
         const aiAnalysis = await mlService.analyzeReview(comment);
@@ -16,6 +26,11 @@ router.post('/', async (req, res) => {
             clinicId,
             rating,
             comment,
+            communication,
+            treatment,
+            waitingTime,
+            recommend,
+            issueResolved,
             aiSentiment: aiAnalysis.sentiment,
             aiKeywords: aiAnalysis.keywords
         });
@@ -32,7 +47,20 @@ router.post('/', async (req, res) => {
 router.get('/clinic/:clinicId', async (req, res) => {
     try {
         const reviews = await Review.find({ clinicId: req.params.clinicId })
-            .populate('patientId', 'name profilePhoto')
+            .populate('patientId', 'name profilePhoto uhid')
+            .populate('clinicId', 'clinicName userName profilePhoto specialization')
+            .sort({ createdAt: -1 });
+        res.json({ success: true, data: reviews });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// Get reviews submitted by a specific patient
+router.get('/patient/:patientId', async (req, res) => {
+    try {
+        const reviews = await Review.find({ patientId: req.params.patientId })
+            .populate('clinicId', 'clinicName userName profilePhoto specialization')
             .sort({ createdAt: -1 });
         res.json({ success: true, data: reviews });
     } catch (error) {
@@ -44,8 +72,8 @@ router.get('/clinic/:clinicId', async (req, res) => {
 router.get('/admin/all', async (req, res) => {
     try {
         const reviews = await Review.find()
-            .populate('patientId', 'name')
-            .populate('clinicId', 'clinicName userName')
+            .populate('patientId', 'name profilePhoto uhid')
+            .populate('clinicId', 'clinicName userName profilePhoto specialization')
             .sort({ createdAt: -1 });
         res.json({ success: true, data: reviews });
     } catch (error) {

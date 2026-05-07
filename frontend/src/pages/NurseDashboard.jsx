@@ -6,6 +6,8 @@ import { useTheme } from '../context/ThemeContext';
 import api from '../api/axiosInstance';
 import DigitalIDCard from '../components/DigitalIDCard';
 import Footer from '../components/Footer';
+import DashboardLayout from '../components/common/DashboardLayout';
+import StatCard from '../components/common/StatCard';
 import {
     LayoutDashboard,
     ClipboardList,
@@ -45,6 +47,7 @@ import {
 } from 'lucide-react';
 import AIPrescriptionUpload from '../components/AIPrescriptionUpload';
 import PatientHistory from '../components/PatientHistory';
+import AssignTaskButton from '../components/AssignTaskButton';
 import './NurseDashboard.css';
 
 const NurseDashboard = () => {
@@ -162,121 +165,101 @@ const NurseDashboard = () => {
         }
     };
 
+    const handleDeleteAccount = async () => {
+        const confirmDelete = window.confirm("Are you sure you want to delete your account? This action is permanent and will remove all your data from the system.");
+        if (confirmDelete) {
+            try {
+                await api.delete('/users', { data: { userId: user.id, role: user.role } });
+                alert('Your account has been deleted successfully.');
+                handleLogout();
+            } catch (error) {
+                alert('Failed to delete account: ' + (error.response?.data?.message || error.message));
+            }
+        }
+    };
+
+    const handleUpdateProfile = async (e) => {
+        try {
+            const res = await api.put('/users/profile', {
+                userId: user.id,
+                role: 'clinic',
+                ...profileDetails
+            });
+            updateUser(res.data.data);
+            alert('Profile updated successfully!');
+        } catch (err) {
+            alert('Update failed: ' + err.message);
+        }
+    };
+
     const handleLogout = () => {
         logout();
         navigate('/login');
     };
 
     const todayAppointments = appointments.filter(apt => {
-        const today = new Date().toISOString().split('T')[0];
+        const date = new Date();
+        const today = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
         return apt.appointmentDate.startsWith(today);
     });
 
+    const sidebarLinks = [
+        { id: 'home', label: 'Home', icon: LayoutDashboard },
+        { id: 'records', label: 'Patient Records', icon: Users },
+        { id: 'prescriptions', label: 'Prescriptions', icon: Pill },
+        { id: 'upload-prescription', label: 'Upload AI Rx', icon: Upload },
+        { id: 'followups', label: 'Follow Ups', icon: ClipboardList },
+        { id: 'profile', label: 'Profile', icon: User },
+    ];
+
     return (
-        <div className="nurse-dashboard">
-            {/* Top Navigation Bar */}
-            <nav className="top-navbar">
-                <div className="navbar-brand">
-                    <img src={logo} alt="Namma Clinic" className="navbar-logo" />
-                    <h2>Namma Clinic</h2>
-                </div>
-                <div className="navbar-menu">
-                    <button
-                        className={activeTab === 'home' ? 'active' : ''}
-                        onClick={() => setActiveTab('home')}
-                    >
-                        <LayoutDashboard size={18} />
-                        <span>Home</span>
-                    </button>
-                    <button
-                        className={activeTab === 'records' ? 'active' : ''}
-                        onClick={() => setActiveTab('records')}
-                    >
-                        <Users size={18} />
-                        <span>Patient Records</span>
-                    </button>
-                    <button
-                        className={activeTab === 'prescriptions' ? 'active' : ''}
-                        onClick={() => setActiveTab('prescriptions')}
-                    >
-                        <Pill size={18} />
-                        <span>Prescriptions</span>
-                    </button>
-                    <button
-                        className={activeTab === 'upload-prescription' ? 'active' : ''}
-                        onClick={() => setActiveTab('upload-prescription')}
-                    >
-                        <Upload size={18} />
-                        <span>Upload AI Rx</span>
-                    </button>
-                    <button
-                        className={activeTab === 'followups' ? 'active' : ''}
-                        onClick={() => setActiveTab('followups')}
-                    >
-                        <ClipboardList size={18} />
-                        <span>Follow Ups</span>
-                    </button>
-                    <button
-                        className={activeTab === 'profile' ? 'active' : ''}
-                        onClick={() => setActiveTab('profile')}
-                    >
-                        <User size={18} />
-                        <span>Profile</span>
-                    </button>
-                </div>
-                <div className="navbar-actions">
-                    <button onClick={toggleTheme} className="theme-toggle">
-                        {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
-                    </button>
-                    <div className="user-profile">
-                        <img
-                            src={user.profilePhoto ? `http://localhost:5000/${user.profilePhoto}` : `https://ui-avatars.com/api/?name=${user.userName || user.name}&background=10b981&color=fff`}
-                            alt="Profile"
-                            className="nav-profile-img"
-                        />
-                        <span className="user-name">Nurse {user.userName || user.name}</span>
+        <DashboardLayout sidebarLinks={sidebarLinks} activeTab={activeTab} setActiveTab={setActiveTab}>
+            {/* HOME TAB */}
+            {activeTab === 'home' && (
+                <div className="home-content">
+                    <div className="welcome-banner mb-6">
+                        <div className="welcome-text">
+                            <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+                                Welcome, Nurse {user.userName || user.name}! <Activity className="text-white opacity-80" size={24} />
+                            </h1>
+                            <p className="text-white opacity-90">Daily nursing overview and patient care</p>
+                        </div>
                     </div>
-                    <button onClick={handleLogout} className="logout-button">
-                        <LogOut size={18} />
-                        <span>Logout</span>
-                    </button>
-                </div>
-            </nav>
 
-            {/* Main Content */}
-            <div className="dashboard-main">
-
-                {/* HOME TAB */}
-                {activeTab === 'home' && (
-                    <div className="home-content">
-                        <div className="welcome-banner">
-                            <h1>Welcome, Nurse {user.userName || user.name}! <Activity className="inline-icon" /></h1>
-                            <p>Daily nursing overview and patient care</p>
-                        </div>
-
-                        <div className="stats-grid">
-                            <div className="stat-card">
-                                <h3>Today's Appointments</h3>
-                                <p className="stat-number">{todayAppointments.length}</p>
-                                <div className="stat-footer">
-                                    <Calendar size={14} /> <span>{new Date().toLocaleDateString()}</span>
-                                </div>
-                            </div>
-                            <div className="stat-card">
-                                <h3>Pending Lab Samples</h3>
-                                <p className="stat-number">{labSamples.filter(s => s.status === 'pending').length}</p>
-                                <div className="stat-footer">
-                                    <Droplets size={14} /> <span>Urgent collections</span>
-                                </div>
-                            </div>
-                            <div className="stat-card">
-                                <h3>Total Prescriptions</h3>
-                                <p className="stat-number">{prescriptions.length}</p>
-                                <div className="stat-footer">
-                                    <Pill size={14} /> <span>All-time records</span>
-                                </div>
-                            </div>
-                        </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                        <StatCard 
+                            icon={Calendar} 
+                            number={todayAppointments.length} 
+                            label="Today's Appointments" 
+                            subtextIcon={Calendar} 
+                            subtext={new Date().toLocaleDateString()} 
+                            colorClass="text-blue-500"
+                        />
+                        <StatCard 
+                            icon={Droplets} 
+                            number={labSamples.filter(s => s.status === 'ordered').length} 
+                            label="Pending Lab Samples" 
+                            subtextIcon={Droplets} 
+                            subtext="Urgent collections" 
+                            colorClass="text-red-500"
+                        />
+                        <StatCard 
+                            icon={Pill} 
+                            number={prescriptions.length} 
+                            label="Total Prescriptions" 
+                            subtextIcon={Pill} 
+                            subtext="All-time records" 
+                            colorClass="text-purple-500"
+                        />
+                        <StatCard 
+                            icon={Activity} 
+                            number="24" 
+                            label="Vitals Recorded" 
+                            subtextIcon={Activity} 
+                            subtext="Patient updates" 
+                            colorClass="text-green-500"
+                        />
+                    </div>
 
                         <div className="quick-actions">
                             <h2>Quick Actions</h2>
@@ -293,6 +276,7 @@ const NurseDashboard = () => {
                                     <ClipboardList />
                                     <span>Follow Up Schedule</span>
                                 </button>
+                                <AssignTaskButton />
                             </div>
                         </div>
                     </div>
@@ -553,28 +537,34 @@ const NurseDashboard = () => {
                                         />
                                     </div>
                                     <button
-                                        className="btn-primary mt-10"
-                                        onClick={async () => {
-                                            try {
-                                                const res = await api.put('/users/profile', {
-                                                    userId: user.id,
-                                                    role: 'clinic',
-                                                    ...profileDetails
-                                                });
-                                                updateUser(res.data.data);
-                                                alert('Details saved!');
-                                            } catch (err) { alert('Failed to save'); }
-                                        }}
+                                        className="btn-primary"
+                                        onClick={handleUpdateProfile}
                                     >
                                         <Save size={18} />
                                         <span>Save Professional Details</span>
                                     </button>
                                 </div>
+
+                                {/* Account Maintenance Section */}
+                                <div className="account-maintenance-section">
+                                    <div className="section-header danger-header">
+                                        <AlertCircle size={18} />
+                                        <h2>Account Maintenance</h2>
+                                    </div>
+                                    <div className="maintenance-card danger-zone">
+                                        <div className="maintenance-info">
+                                            <h3>Delete Your Account</h3>
+                                            <p>This will permanently remove your medical profile, appointment history, and all associated records from our system. This action cannot be undone.</p>
+                                        </div>
+                                        <button className="btn-delete-account" onClick={handleDeleteAccount}>
+                                            Delete My Account
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 )}
-            </div>
             <Footer links={[
                 { label: 'Home', onClick: () => setActiveTab('home') },
                 { label: 'AI Upload', onClick: () => setActiveTab('upload-prescription') },
@@ -582,7 +572,7 @@ const NurseDashboard = () => {
                 { label: 'Lab Tests', onClick: () => setActiveTab('labtests') },
                 { label: 'Profile', onClick: () => setActiveTab('profile') }
             ]} />
-        </div>
+        </DashboardLayout>
     );
 };
 

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import api from '../api/axiosInstance';
+import { useAuth } from '../context/AuthContext';
 import './AIHealthAssistant.css';
 
 const AIHealthAssistant = ({ onClose }) => {
@@ -9,8 +10,10 @@ const AIHealthAssistant = ({ onClose }) => {
             text: 'Hello! I am your AI Health Assistant. How can I help you today? I can guide you on food, exercise, warmup, and yoga.'
         }
     ]);
-    const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [input, setInput] = useState('');
+    const { user, updateUser } = useAuth();
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const messagesEndRef = useRef(null);
 
     const scrollToBottom = () => {
@@ -64,6 +67,36 @@ const AIHealthAssistant = ({ onClose }) => {
         return <span dangerouslySetInnerHTML={{ __html: formatted }} />;
     };
 
+    const handleEnableMonitoring = async () => {
+        setIsSubmitting(true);
+        try {
+            await api.post('/subscriptions/toggle-ai', { 
+                userId: user._id, 
+                enabled: true 
+            });
+            updateUser({ ...user, aiMonitoringEnabled: true });
+        } catch (error) {
+            console.error('Error enabling AI monitoring:', error);
+            alert('Failed to enable AI monitoring. Please try again.');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const handleUpgrade = async () => {
+        setIsSubmitting(true);
+        try {
+            await api.post('/subscriptions/upgrade', { userId: user._id });
+            updateUser({ ...user, subscriptionStatus: 'premium' });
+            alert('🎉 You are now a Premium Member! You can now enable Full AI Health Monitoring.');
+        } catch (error) {
+            console.error('Error upgrading:', error);
+            alert('Failed to upgrade subscription.');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
     return (
         <div className="ai-health-assistant-overlay">
             <div className="ai-health-assistant-modal">
@@ -74,6 +107,36 @@ const AIHealthAssistant = ({ onClose }) => {
                     </div>
                     <button onClick={onClose} className="close-btn">×</button>
                 </div>
+
+                {/* AI Monitoring Opt-in Banner */}
+                {!user.aiMonitoringEnabled && (
+                    <div className="ai-monitoring-banner">
+                        <div className="banner-content">
+                            <span className="banner-icon">✨</span>
+                            <div className="banner-text">
+                                <h4>Full AI Health Monitoring</h4>
+                                <p>Get personalized daily tips and medication reminders.</p>
+                            </div>
+                        </div>
+                        {user.subscriptionStatus === 'premium' ? (
+                            <button 
+                                onClick={handleEnableMonitoring} 
+                                disabled={isSubmitting}
+                                className="banner-btn enable"
+                            >
+                                {isSubmitting ? 'Enabling...' : 'Enable Now'}
+                            </button>
+                        ) : (
+                            <button 
+                                onClick={handleUpgrade} 
+                                disabled={isSubmitting}
+                                className="banner-btn upgrade"
+                            >
+                                {isSubmitting ? 'Upgrading...' : 'Upgrade to Premium'}
+                            </button>
+                        )}
+                    </div>
+                )}
 
                 <div className="ai-chat-body">
                     {messages.map((msg, index) => (

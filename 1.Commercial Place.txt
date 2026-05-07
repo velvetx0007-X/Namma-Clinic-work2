@@ -1,0 +1,25 @@
+1.Commercial Place
+2.Commercial EB Connection
+3.
+
+
+
+
+
+zeushera145@gmail.com
+
+snl142812@gmail.com
+
+
+
+patient = 6382715355 - srikrishnaprasaths.23aid@kongu.edu
+
+clinic = 1234567890 - 
+
+doc = 9379023459 - 
+
+nurse = 7894561230 - ujaini.sk@gmail.com
+
+reception = 7418529630 - zeushera145@gmail.com
+
+admin = 1472583690 - snl142812@gmail.com

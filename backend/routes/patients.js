@@ -107,7 +107,7 @@ router.post('/', async (req, res) => {
 
         const patient = new Patient({
             name,
-            email: email || `${phoneNumber}@healthone.com`, // Default email if not provided
+            email: email || `${phoneNumber}@nammaclinic.com`, // Default email if not provided
             password,
             phoneNumber,
             area: area || 'N/A',
@@ -130,6 +130,21 @@ router.post('/', async (req, res) => {
             message: 'Server Error',
             error: error.message
         });
+    }
+});
+
+// @route   GET /api/patients/search/:phoneNumber
+// @desc    Search for a patient by phone number
+router.get('/search/:phoneNumber', async (req, res) => {
+    try {
+        const patient = await Patient.findOne({ phoneNumber: req.params.phoneNumber }).select('-password');
+        if (!patient) {
+            return res.status(404).json({ success: false, message: 'Patient not found' });
+        }
+        res.status(200).json({ success: true, data: patient });
+    } catch (error) {
+        console.error('Error searching patient:', error);
+        res.status(500).json({ success: false, message: 'Server Error' });
     }
 });
 

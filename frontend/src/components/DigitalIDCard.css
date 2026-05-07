@@ -16,7 +16,7 @@
 }
 
 .card-header {
-    background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%);
+    background: linear-gradient(135deg, var(--action-primary) 0%, var(--action-hover) 100%);
     padding: 15px 20px;
     display: flex;
     justify-content: space-between;
@@ -156,16 +156,16 @@
     gap: 4px;
     max-width: 150px;
     padding: 8px;
-    background: rgba(16, 185, 129, 0.05);
+    background: rgba(255, 59, 59, 0.05);
     border-radius: 8px;
-    border-left: 3px solid #10b981;
+    border-left: 3px solid var(--action-primary);
 }
 
 .disclaimer-title {
     margin: 0;
     font-size: 0.7rem;
     font-weight: 700;
-    color: #10b981;
+    color: var(--action-primary);
     text-transform: uppercase;
 }
 
@@ -196,7 +196,7 @@
 
 .download-id-btn {
     margin-top: 15px;
-    background: #10b981;
+    background: var(--action-primary);
     color: white;
     border: none;
     padding: 10px 20px;
@@ -211,9 +211,9 @@
 }
 
 .download-id-btn:hover {
-    background: #14b8a6;
+    background: var(--action-hover);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    box-shadow: 0 4px 12px rgba(255, 59, 59, 0.3);
 }
 
 /* Ensure cross-origin images work with html2canvas */

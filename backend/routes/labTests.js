@@ -68,6 +68,9 @@ router.get('/patient/:patientId', auth, async (req, res) => {
     }
 });
 
+const { sendNotification } = require('../services/notificationService');
+const Patient = require('../models/Patient');
+
 // Mark sample collected (using PUT for backward compatibility and PATCH for new endpoint)
 router.patch('/:id/collect-sample', auth, async (req, res) => {
     try {
@@ -131,6 +134,22 @@ router.put('/:id/results', auth, async (req, res) => {
 
         if (!labTest) {
             return res.status(404).json({ success: false, message: 'Lab test not found' });
+        }
+
+        // Send Notification
+        try {
+            const patient = await Patient.findById(labTest.patientId);
+            if (patient) {
+                await sendNotification(patient.userId || patient._id, {
+                    title: 'Lab Result Ready',
+                    text: `Hello ${patient.name}, your lab result for "${labTest.testName}" is now ready to view.`,
+                    type: 'lab_result',
+                    relatedId: labTest._id,
+                    onModel: 'LabTest'
+                });
+            }
+        } catch (notifyErr) {
+            console.error('Failed to send lab notification:', notifyErr.message);
         }
 
         res.json({ success: true, message: 'Results added', data: labTest });

@@ -3,21 +3,28 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axiosInstance';
 import PinInput from '../components/PinInput';
-import { motion, AnimatePresence } from 'framer-motion';
-import { LogIn, Mail, Lock } from 'lucide-react';
+import FloatingLabelInput from '../components/common/FloatingLabelInput';
+import PhoneInput from '../components/common/PhoneInput';
 
-import './LoginPage.css';
+import ForgotPasswordModal from '../components/auth/ForgotPasswordModal';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Mail, Phone } from 'lucide-react';
+import logo from '../assets/Namma Clinic logo.jpeg';
 
 const LoginPage = () => {
     const [formData, setFormData] = useState({
         email: '',
+        phoneNumber: '',
+        countryCode: '+91',
         password: '',
         role: 'patient',
         pin: ''
     });
-    const [loginMethod, setLoginMethod] = useState('password'); // 'password' or 'pin'
+    const [loginMethod, setLoginMethod] = useState('password');
+    const [identifierType, setIdentifierType] = useState('email'); // 'email' or 'phone'
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [showForgotModal, setShowForgotModal] = useState(false);
     const navigate = useNavigate();
     const { login } = useAuth();
 
@@ -35,8 +42,8 @@ const LoginPage = () => {
         setLoading(true);
 
         const loginData = {
-            email: formData.email,
-            role: formData.role
+            role: formData.role,
+            identifier: identifierType === 'email' ? formData.email : (formData.countryCode + formData.phoneNumber)
         };
 
         if (loginMethod === 'password') {
@@ -55,18 +62,18 @@ const LoginPage = () => {
                 // Redirect based on role
                 if (user.role === 'admin') {
                     navigate('/admin-dashboard');
-                } else if (user.role === 'clinic' && user.userType === 'admin') {
+                } else if (user.role === 'clinic') {
                     navigate('/clinic-admin-dashboard');
-                } else if (user.role === 'doctor' || (user.role === 'clinic' && user.userType === 'doctor')) {
-                    navigate('/doctor-dashboard');
-                } else if (user.role === 'nurse' || (user.role === 'clinic' && user.userType === 'nurse')) {
-                    navigate('/nurse-dashboard');
-                } else if (user.role === 'receptionist' || (user.role === 'clinic' && user.userType === 'receptionist')) {
-                    navigate('/receptionist-dashboard');
                 } else if (user.role === 'patient') {
                     navigate('/patient-dashboard');
+                } else if (user.role === 'doctor') {
+                    navigate('/doctor-dashboard');
+                } else if (user.role === 'nurse') {
+                    navigate('/nurse-dashboard');
+                } else if (user.role === 'receptionist') {
+                    navigate('/receptionist-dashboard');
                 } else {
-                    navigate('/home'); // Fallback
+                    navigate('/home');
                 }
             }
         } catch (err) {
@@ -77,90 +84,82 @@ const LoginPage = () => {
     };
 
     return (
-        <div className="login-container relative overflow-hidden bg-[var(--bg-primary)] flex items-center justify-center min-h-screen">
-            {/* Animated Background Blobs */}
-            <div className="absolute top-0 -left-4 w-72 h-72 bg-emerald-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
-            <div className="absolute top-0 -right-4 w-72 h-72 bg-teal-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
-            <div className="absolute -bottom-8 left-20 w-72 h-72 bg-emerald-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
-
+        <div className="flex items-center justify-center min-h-screen bg-white p-6">
             <motion.div
-                initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                transition={{ duration: 0.5, ease: "easeOut" }}
-                className="login-card z-10 w-full max-w-md p-6 bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="w-full max-w-[480px] bg-white p-10 rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.06)] border border-[#F0F0F0] text-center"
             >
-                <div className="flex flex-col items-center mb-4">
-                    <motion.div
-                        initial={{ rotate: -10, opacity: 0 }}
-                        animate={{ rotate: 0, opacity: 1 }}
-                        transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-                        className="w-14 h-14 bg-gradient-to-tr from-emerald-600 to-teal-500 rounded-2xl flex items-center justify-center mb-2 shadow-lg shadow-emerald-500/30"
-                    >
-                        <LogIn className="text-white w-7 h-7" />
-                    </motion.div>
-                    <h1 className="login-title text-2xl font-bold text-white tracking-tight">Welcome Back</h1>
-                    <p className="login-subtitle text-emerald-400 mt-0.5 text-sm font-medium">Login to Namma Clinic</p>
+                <div className="flex flex-col items-center mb-8">
+                    <img src={logo} alt="Namma Clinic Logo" className="w-24 h-24 mb-4 object-contain" />
+                    <h1 className="text-2xl font-bold text-[#333]">Welcome Back</h1>
+                    <p className="text-[#757575] text-sm mt-1">Please enter your details to sign in</p>
                 </div>
 
                 {error && (
-                    <motion.div
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className="p-4 mb-6 bg-red-500/10 border border-red-500/50 rounded-xl text-red-200 text-sm"
-                    >
+                    <div className="p-4 mb-6 bg-[#FFEBEE] border border-[#FFCDD2] rounded-xl text-[#C62828] text-sm text-left">
                         {error}
-                    </motion.div>
+                    </div>
                 )}
 
-                <form onSubmit={handleSubmit} className="login-form space-y-3">
-                    <div className="form-group mb-0">
-                        <label className="text-slate-100 text-xs font-medium mb-0.5 block text-left">Select Role</label>
-                        <div className="role-selector-buttons flex p-1 bg-white/5 rounded-xl">
-                            {['patient', 'clinic', 'admin'].map((role) => (
-                                <button
-                                    key={role}
-                                    type="button"
-                                    className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all capitalize ${formData.role === role ? 'bg-emerald-600 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
-                                    onClick={() => setFormData({ ...formData, role: role })}
-                                >
-                                    {role}
-                                </button>
-                            ))}
-                        </div>
+                <form onSubmit={handleSubmit} className="space-y-6 text-left">
+                    {/* Role Dropdown */}
+                    <div className="mb-2">
+                        <label className="text-[11px] font-bold text-[#9E9E9E] uppercase tracking-wider mb-2 block">I am a</label>
+                        <select
+                            value={formData.role}
+                            onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                            className="w-full py-3 px-4 rounded-xl border-2 border-[#E0E0E0] bg-white text-sm font-bold text-[#333] appearance-none cursor-pointer focus:border-[#1E88E5] focus:outline-none focus:shadow-[0_0_0_4px_rgba(30,136,229,0.1)] transition-all"
+                            style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23757575' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 16px center' }}
+                        >
+                            <option value="patient">🩺 Patient</option>
+                            <option value="clinic">🏥 Clinic</option>
+                            <option value="doctor">👨‍⚕️ Doctor</option>
+                            <option value="nurse">💉 Nurse</option>
+                            <option value="receptionist">📋 Receptionist</option>
+                            <option value="admin">🔐 Admin</option>
+                        </select>
                     </div>
 
-
-                    <div className="form-group">
-                        <label className="text-slate-100 text-xs font-medium mb-0.5 block text-left">Email Address</label>
-                        <div className="relative">
-                            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-400/80" />
-                            <input
-                                type="email"
-                                name="email"
-                                value={formData.email}
-                                onChange={handleChange}
-                                required
-                                style={{ paddingLeft: '2.5rem' }}
-                                className="w-full pr-4 py-2 bg-white/5 border border-white/20 rounded-xl text-white placeholder:text-slate-400 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-sm"
-                                placeholder="name@example.com"
-                            />
-                        </div>
+                    {/* Email / Phone Toggle - REMOVED for single identifier input */}
+                    
+                    {/* Identifier Input */}
+                    <div className="space-y-4">
+                        <FloatingLabelInput
+                            label="Email Address or Phone Number"
+                            id="identifier"
+                            type="text"
+                            value={identifierType === 'email' ? formData.email : formData.phoneNumber}
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                // Basic heuristic: if it contains @, it's an email
+                                if (val.includes('@')) {
+                                    setIdentifierType('email');
+                                    setFormData({ ...formData, email: val });
+                                } else {
+                                    setIdentifierType('phone');
+                                    setFormData({ ...formData, phoneNumber: val });
+                                }
+                            }}
+                            required
+                        />
                     </div>
 
-                    <div className="login-method-toggle flex p-1 bg-white/5 rounded-xl mb-0">
+                    {/* Password / PIN Toggle */}
+                    <div className="flex gap-4 mb-6">
                         <button
                             type="button"
-                            className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${loginMethod === 'password' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/40' : 'text-slate-500 hover:text-slate-300'}`}
+                            className={`flex-1 py-2 text-xs font-bold rounded-lg border ${loginMethod === 'password' ? 'bg-[#1E88E5] text-white border-[#1E88E5]' : 'bg-white text-[#757575] border-[#E0E0E0]'}`}
                             onClick={() => setLoginMethod('password')}
                         >
-                            Password
+                            PASSWORD
                         </button>
                         <button
                             type="button"
-                            className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${loginMethod === 'pin' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/40' : 'text-slate-500 hover:text-slate-300'}`}
+                            className={`flex-1 py-2 text-xs font-bold rounded-lg border ${loginMethod === 'pin' ? 'bg-[#1E88E5] text-white border-[#1E88E5]' : 'bg-white text-[#757575] border-[#E0E0E0]'}`}
                             onClick={() => setLoginMethod('pin')}
                         >
-                            PIN Login
+                            PIN LOGIN
                         </button>
                     </div>
 
@@ -168,66 +167,60 @@ const LoginPage = () => {
                         {loginMethod === 'password' ? (
                             <motion.div
                                 key="password"
-                                initial={{ opacity: 0, scale: 0.95 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.95 }}
-                                transition={{ duration: 0.2 }}
-                                className="form-group"
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: 10 }}
                             >
-                                <label className="text-slate-100 text-xs font-medium mb-0.5 block text-left">Password</label>
-                                <div className="relative">
-                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-400/80" />
-                                    <input
-                                        type="password"
-                                        name="password"
-                                        value={formData.password}
-                                        onChange={handleChange}
-                                        required={loginMethod === 'password'}
-                                        style={{ paddingLeft: '2.5rem' }}
-                                        className="w-full pr-4 py-2 bg-white/5 border border-white/20 rounded-xl text-white placeholder:text-slate-400 focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-sm"
-                                        placeholder="••••••••"
-                                    />
-                                </div>
+                                <FloatingLabelInput
+                                    label="Password"
+                                    id="password"
+                                    type="password"
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    required
+                                />
                             </motion.div>
                         ) : (
                             <motion.div
                                 key="pin"
-                                initial={{ opacity: 0, scale: 0.95 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.95 }}
-                                transition={{ duration: 0.2 }}
-                                className="form-group flex flex-col items-center"
+                                initial={{ opacity: 0, x: 10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -10 }}
+                                className="flex flex-col items-center py-2"
                             >
-                                <label className="text-slate-100 text-sm font-medium mb-2 block w-full text-left">Enter 4-Digit Security PIN</label>
-                                <PinInput
-                                    length={4}
-                                    onComplete={handlePinChange}
-                                />
+                                <p className="text-xs font-semibold text-[#757575] mb-4 w-full text-left uppercase">Secure 4-Digit PIN</p>
+                                <PinInput length={4} onComplete={handlePinChange} />
                             </motion.div>
                         )}
                     </AnimatePresence>
 
-                    <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
+                    <button
                         type="submit"
-                        className="submit-btn w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-xl shadow-xl shadow-emerald-900/20 transition-all flex items-center justify-center gap-2 group"
                         disabled={loading}
+                        className="w-full py-4 bg-[#E53935] hover:bg-[#D32F2F] text-white font-bold rounded-xl shadow-lg shadow-red-100 transition-all flex items-center justify-center gap-2 mt-2"
                     >
-                        {loading ? (
-                            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                        ) : (
-                            <>
-                                <span>{loginMethod === 'password' ? 'Sign In Securely' : 'Authorize with PIN'}</span>
-                                <LogIn className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                            </>
-                        )}
-                    </motion.button>
+                        {loading ? 'Authenticating...' : 'Sign In'}
+                    </button>
+
+                    <div className="flex justify-center mt-6">
+                        <button 
+                            type="button"
+                            onClick={() => setShowForgotModal(true)}
+                            className="text-[#1E88E5] text-sm font-bold hover:underline"
+                        >
+                            Forgot Password or PIN?
+                        </button>
+                    </div>
                 </form>
 
-                <div className="mt-4 pt-4 border-t border-white/10 text-center">
-                    <p className="signup-link text-emerald-400/80 text-sm font-medium">
-                        New to Namma Clinic? <Link to="/signup" className="text-emerald-400 hover:text-emerald-300 font-bold underline underline-offset-4">Create clinical account</Link>
+                <ForgotPasswordModal 
+                    isOpen={showForgotModal} 
+                    onClose={() => setShowForgotModal(false)} 
+                />
+
+                <div className="mt-8 pt-6 border-t border-[#F5F5F5]">
+                    <p className="text-[#757575] text-sm">
+                        New practitioner? <Link to="/signup" className="text-[#1E88E5] font-bold hover:underline">Create clinical account</Link>
                     </p>
                 </div>
             </motion.div>

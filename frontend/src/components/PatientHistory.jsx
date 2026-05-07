@@ -1,27 +1,22 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
-    Search, 
-    User, 
-    Activity, 
-    Pill, 
-    Clipboard, 
-    ChevronRight, 
-    FileText, 
-    Calendar,
-    ArrowLeft,
-    Loader2
+    Search, Activity, Calendar, User, Loader2, 
+    ChevronRight, ArrowLeft, Pill, FileText, Clipboard, Phone 
 } from 'lucide-react';
 import api from '../api/axiosInstance';
 import './PatientHistory.css';
 
-const PatientHistory = () => {
-    const [patients, setPatients] = useState([]);
+const PatientHistory = ({ source = 'doctor' }) => {
+    const [attendedRecords, setAttendedRecords] = useState([]);
+    const [filteredRecords, setFilteredRecords] = useState([]);
     const [selectedPatient, setSelectedPatient] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
-    const [showResults, setShowResults] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [filterType, setFilterType] = useState('all'); // all, today, week, month
+    const [globalPatient, setGlobalPatient] = useState(null);
     
-    // History states
+    // History states for full view
     const [history, setHistory] = useState({
         vitals: [],
         prescriptions: [],
@@ -30,19 +25,93 @@ const PatientHistory = () => {
     const [loadingHistory, setLoadingHistory] = useState(false);
 
     useEffect(() => {
-        fetchPatients();
-    }, []);
+        if (source === 'receptionist') {
+            fetchGlobalPatients();
+        } else {
+            fetchAttendedPatients();
+        }
+    }, [source]);
 
-    const fetchPatients = async () => {
+    const fetchGlobalPatients = async () => {
+        setLoading(true);
         try {
             const res = await api.get('/patients');
-            setPatients(res.data.data || []);
+            const patients = res.data.data || [];
+            setAttendedRecords(patients);
+            setFilteredRecords(patients);
         } catch (error) {
-            console.error('Error fetching patients:', error);
+            console.error('Error fetching global patients:', error);
         } finally {
             setLoading(false);
         }
     };
+
+    const fetchAttendedPatients = async () => {
+        setLoading(true);
+        try {
+            const res = await api.get('/consultations/doctor');
+            const records = res.data.data || [];
+            
+            // Deduplicate by patient ID, keeping the latest consultation record
+            const uniquePatients = [];
+            const patientMap = new Map();
+            
+            records.forEach(record => {
+                if (record.patientId && !patientMap.has(record.patientId._id)) {
+                    patientMap.set(record.patientId._id, record);
+                    uniquePatients.push(record);
+                }
+            });
+
+            setAttendedRecords(uniquePatients);
+            setFilteredRecords(uniquePatients);
+        } catch (error) {
+            console.error('Error fetching attended patients:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const applyFilters = (term = searchTerm, type = filterType) => {
+        let results = [...attendedRecords];
+
+        // Search by Name, UHID or Phone
+        if (term) {
+            results = results.filter(record => {
+                const p = record.patientId || record;
+                return p.name?.toLowerCase().includes(term.toLowerCase()) ||
+                p.uhid?.toLowerCase().includes(term.toLowerCase()) ||
+                p.phoneNumber?.includes(term);
+            });
+        }
+
+        // Time-based filtering (only for attended records which have createdAt)
+        if (source === 'doctor') {
+            const now = new Date();
+            const startOfToday = new Date(now.setHours(0, 0, 0, 0));
+            
+            if (type === 'today') {
+                results = results.filter(r => new Date(r.createdAt) >= startOfToday);
+            } else if (type === 'week') {
+                const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
+                results = results.filter(r => new Date(r.createdAt) >= startOfWeek);
+            } else if (type === 'month') {
+                const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+                results = results.filter(r => new Date(r.createdAt) >= startOfMonth);
+            }
+        }
+
+        // If we found a global patient, add it to the top
+        if (globalPatient) {
+            results = [globalPatient, ...results.filter(r => (r._id || r.patientId?._id) !== globalPatient._id)];
+        }
+
+        setFilteredRecords(results);
+    };
+
+    useEffect(() => {
+        applyFilters();
+    }, [searchTerm, filterType, attendedRecords, globalPatient]);
 
     const fetchPatientHistory = async (patientId) => {
         setLoadingHistory(true);
@@ -66,162 +135,300 @@ const PatientHistory = () => {
     };
 
     const handleSelectPatient = (patient) => {
-        setSelectedPatient(patient);
-        setSearchTerm('');
-        setShowResults(false);
-        fetchPatientHistory(patient._id);
+        const p = patient.patientId || patient;
+        setSelectedPatient(p);
+        fetchPatientHistory(p._id);
     };
 
-    const filteredPatients = patients.filter(p => 
-        p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-        (p.uhid && p.uhid.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
-
-    if (loading) return <div className="text-center p-10"><Loader2 className="animate-spin" /></div>;
+    if (loading) return <div className="text-center p-10"><Loader2 className="animate-spin text-emerald-500" size={40} /></div>;
 
     return (
         <div className="patient-history-container">
-            {!selectedPatient ? (
-                <div className="patient-search-section">
-                    <h2>Select Patient to View Record</h2>
-                    <div className="search-input-wrapper" style={{ marginTop: '20px' }}>
-                        <Search className="search-icon" size={18} />
-                        <input 
-                            type="text" 
-                            className="w-full p-3 pl-10 rounded-lg border border-gray-200"
-                            placeholder="Search by Name or UHID..."
-                            value={searchTerm}
-                            onChange={(e) => {
-                                setSearchTerm(e.target.value);
-                                setShowResults(true);
-                            }}
-                            onFocus={() => setShowResults(true)}
-                        />
-                    </div>
-                    {showResults && searchTerm && (
-                        <div className="options-dropdown mt-2 border rounded-lg shadow-lg bg-white overflow-hidden">
-                            {filteredPatients.length > 0 ? (
-                                filteredPatients.map(p => (
-                                    <div 
-                                        key={p._id} 
-                                        className="p-3 hover:bg-emerald-50 cursor-pointer flex justify-between items-center border-b last:border-0"
-                                        onClick={() => handleSelectPatient(p)}
-                                    >
-                                        <div>
-                                            <div className="font-bold text-gray-800">{p.name}</div>
-                                            <div className="text-xs text-gray-500">{p.uhid || 'No UHID'}</div>
-                                        </div>
-                                        <ChevronRight size={16} className="text-emerald-500" />
-                                    </div>
-                                ))
-                            ) : (
-                                <div className="p-3 text-gray-500 text-center">No patient found</div>
+            <AnimatePresence mode="wait">
+                {!selectedPatient ? (
+                    <motion.div 
+                        key="list"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        className="patient-records-section"
+                    >
+                        <div className="records-header">
+                            <div className="title-area">
+                                <h2>{source === 'receptionist' ? 'Namma Clinic Patient Directory' : 'Clinical Patient Records'}</h2>
+                                <p className="text-slate-500 text-sm">{source === 'receptionist' ? 'Manage and search all registered patients' : 'Access and manage patient clinical histories'}</p>
+                            </div>
+                            {source === 'doctor' && (
+                                <div className="filter-group-premium">
+                                    {['all', 'today', 'week', 'month'].map((type) => (
+                                        <button 
+                                            key={type}
+                                            className={`filter-btn-lux ${filterType === type ? 'active' : ''}`}
+                                            onClick={() => setFilterType(type)}
+                                        >
+                                            {type.charAt(0).toUpperCase() + type.slice(1)}
+                                        </button>
+                                    ))}
+                                </div>
                             )}
                         </div>
-                    )}
-                </div>
-            ) : (
-                <div className="history-content">
-                    <button className="flex items-center gap-2 text-emerald-600 mb-6 font-semibold hover:underline" onClick={() => setSelectedPatient(null)}>
-                        <ArrowLeft size={16} /> Back to Search
-                    </button>
 
-                    <div className="patient-info-header">
-                        <div className="p-main-info">
-                            <h2>{selectedPatient.name}</h2>
-                            <span className="uhid-badge">UHID: {selectedPatient.uhid || 'NOT_ASSIGNED'}</span>
-                        </div>
-                        <div className="p-side-details">
-                            <div className="detail-item">
-                                <span className="label">Age</span>
-                                <span className="value">{selectedPatient.age || 'N/A'}</span>
-                            </div>
-                            <div className="detail-item">
-                                <span className="label">Blood Group</span>
-                                <span className="value">{selectedPatient.bloodGroup || 'N/A'}</span>
-                            </div>
-                            <div className="detail-item">
-                                <span className="label">Phone</span>
-                                <span className="value">{selectedPatient.phoneNumber}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {loadingHistory ? (
-                        <div className="text-center p-20"><Loader2 className="animate-spin text-emerald-500" size={40} /></div>
-                    ) : (
-                        <div className="history-sections">
-                            {/* Vitals Section */}
-                            <div className="section-box">
-                                <h3><Activity className="text-emerald-500" /> Vitals History</h3>
-                                <div className="vitals-list">
-                                    {history.vitals.length > 0 ? history.vitals.map(v => (
-                                        <div key={v._id} className="vitals-entry">
-                                            <div className="entry-header">
-                                                <span>{new Date(v.createdAt).toLocaleString()}</span>
-                                                <span>By {v.recordedBy?.userName || 'Staff'}</span>
-                                            </div>
-                                            <div className="vitals-grid">
-                                                <div className="v-item"><small>BP</small><span>{v.bloodPressure?.systolic}/{v.bloodPressure?.diastolic}</span></div>
-                                                <div className="v-item"><small>Pulse</small><span>{v.pulse} bpm</span></div>
-                                                <div className="v-item"><small>Temp</small><span>{v.temperature}°C</span></div>
-                                                <div className="v-item"><small>SpO2</small><span>{v.oxygenLevel}%</span></div>
-                                            </div>
-                                        </div>
-                                    )) : <p className="text-gray-400 italic">No vitals recorded yet.</p>}
-                                </div>
-                            </div>
-
-                            {/* Prescriptions Section */}
-                            <div className="section-box">
-                                <h3><Pill className="text-emerald-500" /> Prescription History</h3>
-                                <div className="presc-list">
-                                    {history.prescriptions.length > 0 ? history.prescriptions.map(p => (
-                                        <div key={p._id} className="presc-entry">
-                                            <div className="entry-header">
-                                                <span>{new Date(p.createdAt).toLocaleDateString()}</span>
-                                                {p.isAIProcessed && <span className="ai-badge">AI GENERATED</span>}
-                                            </div>
-                                            <div className="p-meds">
-                                                {p.medications.map(m => m.drugName).join(', ')}
-                                            </div>
-                                            {p.digitalPrescriptionPdf && (
-                                                <a 
-                                                    href={`http://localhost:5000/${p.digitalPrescriptionPdf}`} 
-                                                    target="_blank" 
-                                                    className="btn-rx-view"
-                                                >
-                                                    <FileText size={14} /> View Prescription
-                                                </a>
-                                            )}
-                                        </div>
-                                    )) : <p className="text-gray-400 italic">No prescriptions found.</p>}
-                                </div>
-                            </div>
-
-                            {/* Consultations Section */}
-                            <div className="section-box" style={{ gridColumn: 'span 2' }}>
-                                <h3><Clipboard className="text-emerald-500" /> Consultation Notes</h3>
-                                <div className="consult-list">
-                                    {history.consultations.length > 0 ? history.consultations.map(c => (
-                                        <div key={c._id} className="consult-entry">
-                                            <div className="entry-header">
-                                                <span>{new Date(c.createdAt).toLocaleDateString()}</span>
-                                                <span>Dr. {c.doctorId?.userName}</span>
-                                            </div>
-                                            <div className="consult-details mt-2">
-                                                <p><strong>Subjective:</strong> {c.subjective}</p>
-                                                <p><strong>Assessment:</strong> {c.assessment}</p>
-                                                <p><strong>Plan:</strong> {c.plan}</p>
-                                            </div>
-                                        </div>
-                                    )) : <p className="text-gray-400 italic">No consultation records yet.</p>}
-                                </div>
+                        <div className="search-bar-premium mb-10">
+                            <div className="search-input-wrapper-lux">
+                                <Search className="search-icon-lux" size={20} />
+                                <input 
+                                    type="text" 
+                                    className="search-input-lux"
+                                    placeholder="Enter 10-digit phone number or patient name..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                                {searchTerm.length >= 10 && !isNaN(searchTerm) && (
+                                    <button 
+                                        className="global-search-btn"
+                                        style={{
+                                            background: '#10b981',
+                                            color: 'white',
+                                            padding: '8px 16px',
+                                            borderRadius: '8px',
+                                            marginLeft: '12px',
+                                            fontSize: '14px',
+                                            fontWeight: '600',
+                                            cursor: 'pointer'
+                                        }}
+                                        onClick={async () => {
+                                            try {
+                                                const res = await api.get(`/patients/search/${searchTerm}`);
+                                                if (res.data.success) {
+                                                    setGlobalPatient(res.data.data);
+                                                    setSearchTerm(''); // Clear search so results show
+                                                    alert("Patient found!");
+                                                }
+                                            } catch (err) {
+                                                alert("Patient not found in database.");
+                                            }
+                                        }}
+                                    >
+                                        Global Search
+                                    </button>
+                                )}
                             </div>
                         </div>
-                    )}
-                </div>
-            )}
+
+                        <div className="patient-grid-lux">
+                            {filteredRecords.length > 0 ? (
+                                filteredRecords.map((record, index) => {
+                                    const p = record.patientId || record;
+                                    return (
+                                        <motion.div 
+                                            key={record._id || p._id} 
+                                            initial={{ opacity: 0, scale: 0.95 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            transition={{ delay: index * 0.05 }}
+                                            className={`patient-card-premium ${globalPatient && globalPatient._id === p._id ? 'global-result' : ''}`}
+                                            onClick={() => handleSelectPatient(p)}
+                                        >
+                                            <div className="card-top">
+                                                <div className="p-avatar-lux">
+                                                    {p.profilePhoto ? (
+                                                        <img src={`http://localhost:5000/${p.profilePhoto}`} alt="" />
+                                                    ) : (
+                                                        <span>{p.name?.charAt(0)}</span>
+                                                    )}
+                                                </div>
+                                                <div className="p-identity">
+                                                    <h3>{p.name}</h3>
+                                                    <span className="uhid-tag">ID: {p.uhid || 'P-NEW'}</span>
+                                                </div>
+                                                <div className="arrow-icon">
+                                                    <ChevronRight size={18} />
+                                                </div>
+                                            </div>
+                                            
+                                            <div className="card-mid">
+                                                <div className="info-pill">
+                                                    <Activity size={12} />
+                                                    <span>{p.gender || 'N/A'} • {p.age || 'N/A'}Y</span>
+                                                </div>
+                                                <div className="info-pill">
+                                                    <Phone size={12} />
+                                                    <span>{p.phoneNumber}</span>
+                                                </div>
+                                                {record.createdAt && (
+                                                    <div className="info-pill">
+                                                        <Calendar size={12} />
+                                                        <span>{new Date(record.createdAt).toLocaleDateString()}</span>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <div className="card-footer-lux">
+                                                <button className="btn-action-glass">
+                                                    {source === 'doctor' ? 'Clinical History' : 'View Full Details'}
+                                                </button>
+                                            </div>
+                                        </motion.div>
+                                    );
+                                })
+                            ) : (
+                                <div className="no-records-lux">
+                                    <div className="empty-icon-box">
+                                        <User size={40} />
+                                    </div>
+                                    <p>No matching patient records found.</p>
+                                </div>
+                            )}
+                        </div>
+                    </motion.div>
+                ) : (
+                    <motion.div 
+                        key="detail"
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        className="history-content-lux"
+                    >
+                        <div className="detail-header-lux">
+                            <button className="btn-back-lux" onClick={() => setSelectedPatient(null)}>
+                                <ArrowLeft size={18} />
+                                <span>Back to Directory</span>
+                            </button>
+                            
+                            <div className="patient-profile-top">
+                                <div className="p-profile-main">
+                                    <div className="p-avatar-large">
+                                        {selectedPatient.profilePhoto ? (
+                                            <img src={`http://localhost:5000/${selectedPatient.profilePhoto}`} alt="" />
+                                        ) : (
+                                            <span>{selectedPatient.name.charAt(0)}</span>
+                                        )}
+                                    </div>
+                                    <div className="p-info-text">
+                                        <h2>{selectedPatient.name}</h2>
+                                        <div className="p-meta-tags">
+                                            <span className="uhid-tag-large">#{selectedPatient.uhid || 'NOT_ASSIGNED'}</span>
+                                            <span className="info-pill-lux">{selectedPatient.gender}</span>
+                                            <span className="info-pill-lux">{selectedPatient.age} Years</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="p-profile-stats-lux">
+                                    <div className="stat-unit">
+                                        <span className="label">Blood Group</span>
+                                        <span className="value text-rose-600">{selectedPatient.bloodGroup || 'N/A'}</span>
+                                    </div>
+                                    <div className="stat-unit">
+                                        <span className="label">Contact</span>
+                                        <span className="value">{selectedPatient.phoneNumber}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {loadingHistory ? (
+                            <div className="loader-overlay-lux">
+                                <Loader2 className="animate-spin text-emerald-500" size={48} />
+                                <p>Retrieving Clinical Timeline...</p>
+                            </div>
+                        ) : (
+                            <div className="history-grid-lux">
+                                {/* Vitals Timeline */}
+                                <div className="history-column">
+                                    <div className="column-header">
+                                        <div className="icon-badge vitals-bg"><Activity size={18} /></div>
+                                        <h3>Vitals History</h3>
+                                    </div>
+                                    <div className="timeline-container">
+                                        {history.vitals.length > 0 ? history.vitals.map((v, i) => (
+                                            <div key={v._id} className="timeline-item">
+                                                <div className="timeline-marker"></div>
+                                                <div className="timeline-content-lux">
+                                                    <div className="item-meta">
+                                                        <span>{new Date(v.createdAt).toLocaleString()}</span>
+                                                        <span className="staff-tag">By {v.recordedBy?.userName || 'Staff'}</span>
+                                                    </div>
+                                                    <div className="vitals-display-grid">
+                                                        <div className="v-box">BP <strong>{v.bloodPressure?.systolic}/{v.bloodPressure?.diastolic}</strong></div>
+                                                        <div className="v-box">Pulse <strong>{v.pulse}</strong></div>
+                                                        <div className="v-box">Temp <strong>{v.temperature}°C</strong></div>
+                                                        <div className="v-box">SpO2 <strong>{v.oxygenLevel}%</strong></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )) : <div className="empty-state-lux">No vitals recorded.</div>}
+                                    </div>
+                                </div>
+
+                                {/* Prescription Section */}
+                                <div className="history-column">
+                                    <div className="column-header">
+                                        <div className="icon-badge presc-bg"><Pill size={18} /></div>
+                                        <h3>Prescriptions</h3>
+                                    </div>
+                                    <div className="cards-stack">
+                                        {history.prescriptions.length > 0 ? history.prescriptions.map(p => (
+                                            <div key={p._id} className="presc-card-lux">
+                                                <div className="p-card-header">
+                                                    <span className="date">{new Date(p.createdAt).toLocaleDateString()}</span>
+                                                    {p.isAIProcessed && <span className="ai-status">AI Verified</span>}
+                                                </div>
+                                                <div className="meds-list">
+                                                    {p.medications.map((m, idx) => (
+                                                        <div key={idx} className="med-line">
+                                                            <div className="dot"></div>
+                                                            <span>{m.drugName}</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                                {p.digitalPrescriptionPdf && (
+                                                    <a href={`http://localhost:5000/${p.digitalPrescriptionPdf}`} target="_blank" className="btn-view-pdf-lux">
+                                                        <FileText size={14} /> Open Digital Rx
+                                                    </a>
+                                                )}
+                                            </div>
+                                        )) : <div className="empty-state-lux">No prescriptions found.</div>}
+                                    </div>
+                                </div>
+
+                                {/* Consultations */}
+                                <div className="history-column full-width">
+                                    <div className="column-header">
+                                        <div className="icon-badge consult-bg"><Clipboard size={18} /></div>
+                                        <h3>Consultation Records</h3>
+                                    </div>
+                                    <div className="consult-grid-lux">
+                                        {history.consultations.length > 0 ? history.consultations.map(c => (
+                                            <div key={c._id} className="consult-record-lux">
+                                                <div className="c-record-top">
+                                                    <div className="doctor-info">
+                                                        <User size={14} />
+                                                        <span>Dr. {c.doctorId?.userName}</span>
+                                                    </div>
+                                                    <span className="date">{new Date(c.createdAt).toLocaleDateString()}</span>
+                                                </div>
+                                                <div className="c-record-body">
+                                                    <div className="soap-item">
+                                                        <label>Subjective</label>
+                                                        <p>{c.subjective}</p>
+                                                    </div>
+                                                    <div className="soap-item">
+                                                        <label>Assessment</label>
+                                                        <p>{c.assessment}</p>
+                                                    </div>
+                                                    <div className="soap-item">
+                                                        <label>Plan</label>
+                                                        <p>{c.plan}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )) : <div className="empty-state-lux">No consultation history available.</div>}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };

@@ -8,7 +8,11 @@ import DigitalIDCard from '../components/DigitalIDCard';
 import Footer from '../components/Footer';
 import AIPrescriptionUpload from '../components/AIPrescriptionUpload';
 import PatientHistory from '../components/PatientHistory';
-import { LogOut, Edit, Trash2, Heart, Activity, FileText, Upload, Plus, Pill, Search, Users, Star, MessageSquare } from 'lucide-react';
+import { LogOut, Edit, Trash2, Heart, Activity, FileText, Upload, Plus, Pill, Search, Users, Star, MessageSquare, LayoutDashboard, Shield, TrendingUp } from 'lucide-react';
+import DashboardLayout from '../components/common/DashboardLayout';
+import StatCard from '../components/common/StatCard';
+import AIRevenueDashboard from '../components/AIRevenueDashboard';
+import AssignTaskButton from '../components/AssignTaskButton';
 
 import './AdminDashboard.css';
 
@@ -96,6 +100,8 @@ const AdminDashboard = () => {
         testName: '',
         testType: 'blood' // default
     });
+
+    const [selectedClinicForAnalytics, setSelectedClinicForAnalytics] = useState(null);
 
     useEffect(() => {
         fetchData();
@@ -835,57 +841,22 @@ const AdminDashboard = () => {
         </div>
     );
 
+    const sidebarLinks = [
+        { id: 'home', label: 'Overview', icon: LayoutDashboard },
+        { id: 'revenue', label: 'Revenue', icon: Activity },
+        { id: 'admins', label: 'Admins', icon: Shield },
+        { id: 'doctors', label: 'Doctors', icon: Activity },
+        { id: 'nurses', label: 'Nurses', icon: Heart },
+        { id: 'receptionists', label: 'Reception', icon: Users },
+        { id: 'patients', label: 'Patients', icon: Users },
+        { id: 'prescriptions', label: 'Prescriptions', icon: Pill },
+        { id: 'upload-prescription', label: 'Upload AI Rx', icon: Upload },
+        { id: 'reviews', label: 'Reviews', icon: Star },
+        { id: 'profile', label: 'Profile', icon: FileText }
+    ];
+
     return (
-        <div className={`admin-dashboard ${isDarkMode ? 'dark-mode' : ''}`}>
-            {/* Top Navigation */}
-            <nav className="top-navbar">
-                <div className="navbar-brand">
-                    <img src={logo} alt="Namma Clinic" className="navbar-logo" />
-                    <h2>Namma Clinic Admin</h2>
-                </div>
-
-                <div className="navbar-menu">
-                    {[
-                        { id: 'home', label: 'Overview' },
-                        { id: 'admins', label: 'Admins' },
-                        { id: 'doctors', label: 'Doctors' },
-                        { id: 'nurses', label: 'Nurses' },
-                        { id: 'receptionists', label: 'Reception' },
-                        { id: 'patients', label: 'Patients' },
-                        { id: 'prescriptions', label: 'Prescriptions' },
-                        { id: 'upload-prescription', label: 'Upload AI Rx' },
-                        { id: 'reviews', label: 'Reviews' },
-                        { id: 'profile', label: 'Profile' }
-                    ].map(tab => (
-                        <button
-                            key={tab.id}
-                            className={activeTab === tab.id ? 'active' : ''}
-                            onClick={() => setActiveTab(tab.id)}
-                        >
-                            {tab.label}
-                        </button>
-                    ))}
-                </div>
-
-                <div className="navbar-actions">
-                    <button onClick={toggleTheme} className="theme-toggle">
-                        {isDarkMode ? '☀️' : '🌙'}
-                    </button>
-                    <div className="user-profile">
-                        <img
-                            src={user.profilePhoto ? `http://localhost:5000/${user.profilePhoto}` : `https://ui-avatars.com/api/?name=${user.userName || user.name}&background=10b981&color=fff`}
-                            alt="Profile"
-                            className="nav-profile-img"
-                        />
-                        <span className="user-name">{user.userName || user.name}</span>
-                    </div>
-                    <button onClick={handleLogout} className="logout-icon-btn" title="Logout">
-                        <LogOut size={20} />
-                    </button>
-                </div>
-            </nav>
-
-            <div className="dashboard-main p-8 max-w-7xl mx-auto">
+        <DashboardLayout sidebarLinks={sidebarLinks} activeTab={activeTab} setActiveTab={setActiveTab}>
                 {isFormVisible && renderUserForm()}
                 {isPrescriptionFormVisible && renderPrescriptionForm()}
                 {isVitalsFormVisible && renderVitalsForm()}
@@ -895,35 +866,47 @@ const AdminDashboard = () => {
                 {activeTab === 'home' && (
                     <div className="home-content">
                         {/* Welcome Banner */}
-                        <div className="welcome-banner">
+                        <div className="welcome-banner mb-6">
                             <div className="banner-text">
-                                <h1>Namma Clinic Command Center 🛡️</h1>
-                                <p>System-wide monitoring and resource management</p>
-                            </div>
-                            <div className="banner-icon-bg">
-                                <Activity size={100} />
+                                <h1 className="text-2xl font-bold text-white flex items-center gap-2">Namma Clinic Command Center 🛡️</h1>
+                                <p className="text-white opacity-90">System-wide monitoring and resource management</p>
                             </div>
                         </div>
 
                         {/* Stats Grid */}
-                        <div className="stats-grid">
-                            {[
-                                { label: 'Active Records', value: prescriptions.length > 0 ? prescriptions.length : '1', icon: '📄', sub: prescriptions.length > 0 ? '' : 'Sample Record' },
-                                { label: 'Medical Staff', value: doctors.length + nurses.length > 0 ? doctors.length + nurses.length : '1', icon: '🩺', sub: doctors.length + nurses.length > 0 ? '' : 'Sample: Dr. Smith' },
-                                { label: 'Total Patients', value: patients.length > 0 ? patients.length : '1', icon: '👥', sub: patients.length > 0 ? '' : 'Sample: Jane Doe' },
-                                { label: 'System Admins', value: admins.length > 0 ? admins.length : '1', icon: '🛡️', sub: admins.length > 0 ? '' : 'System Root' }
-                            ].map((stat, i) => (
-                                <div key={i} className="stat-card">
-                                    <div className="stat-info">
-                                        <h3>{stat.label}</h3>
-                                        <div className="stat-value-row">
-                                            <p className="stat-number">{stat.value}</p>
-                                            {stat.sub && <span className="stat-subtext">{stat.sub}</span>}
-                                        </div>
-                                    </div>
-                                    <div className="stat-icon">{stat.icon}</div>
-                                </div>
-                            ))}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                            <StatCard 
+                                icon={FileText} 
+                                number={prescriptions.length > 0 ? prescriptions.length : '1'} 
+                                label="Active Records" 
+                                subtextIcon={FileText} 
+                                subtext={prescriptions.length > 0 ? 'Total prescriptions' : 'Sample Record'} 
+                                colorClass="text-blue-500"
+                            />
+                            <StatCard 
+                                icon={Activity} 
+                                number={doctors.length + nurses.length > 0 ? doctors.length + nurses.length : '1'} 
+                                label="Medical Staff" 
+                                subtextIcon={Activity} 
+                                subtext={doctors.length + nurses.length > 0 ? 'Doctors & Nurses' : 'Sample: Dr. Smith'} 
+                                colorClass="text-emerald-500"
+                            />
+                            <StatCard 
+                                icon={Users} 
+                                number={patients.length > 0 ? patients.length : '1'} 
+                                label="Total Patients" 
+                                subtextIcon={Users} 
+                                subtext={patients.length > 0 ? 'Registered patients' : 'Sample: Jane Doe'} 
+                                colorClass="text-purple-500"
+                            />
+                            <StatCard 
+                                icon={Shield} 
+                                number={admins.length > 0 ? admins.length : '1'} 
+                                label="System Admins" 
+                                subtextIcon={Shield} 
+                                subtext={admins.length > 0 ? 'Active admins' : 'System Root'} 
+                                colorClass="text-red-500"
+                            />
                         </div>
 
                         {/* Quick Actions */}
@@ -966,8 +949,16 @@ const AdminDashboard = () => {
                                 >
                                     📝 Add Receptionist
                                 </button>
+                                <AssignTaskButton />
                             </div>
                         </div>
+                    </div>
+                )}
+
+                {/* REVENUE TAB */}
+                {activeTab === 'revenue' && (
+                    <div className="content-section">
+                        <AIRevenueDashboard clinicId={selectedClinicForAnalytics} />
                     </div>
                 )}
 
@@ -1106,6 +1097,17 @@ const AdminDashboard = () => {
 
                                     <div className="card-actions relative group-hover:opacity-100 transition-opacity">
                                         <div className="flex gap-2">
+                                            <button
+                                                onClick={() => {
+                                                    setSelectedClinicForAnalytics(staff._id);
+                                                    setActiveTab('revenue');
+                                                    window.scrollTo(0, 0);
+                                                }}
+                                                className="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors flex items-center gap-1"
+                                                title="View Revenue Analytics"
+                                            >
+                                                <TrendingUp size={14} /> Analytics
+                                            </button>
                                             <button
                                                 onClick={() => handleEditUser(staff, staff.userType)}
                                                 className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
@@ -1348,7 +1350,6 @@ const AdminDashboard = () => {
                         </div>
                     </div>
                 )}
-
                 <Footer links={[
                     { label: 'Dashboard', onClick: () => setActiveTab('dashboard') },
                     { label: 'Users', onClick: () => setActiveTab('users') },
@@ -1364,8 +1365,7 @@ const AdminDashboard = () => {
                     { label: 'Reports', onClick: () => setActiveTab('reports') },
                     { label: 'Settings', onClick: () => setActiveTab('settings') }
                 ]} />
-            </div>
-        </div>
+        </DashboardLayout>
     );
 };
 

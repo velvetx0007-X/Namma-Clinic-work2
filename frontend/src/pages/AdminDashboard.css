@@ -156,8 +156,8 @@
 
 /* Main Content */
 .dashboard-main {
-    padding: 30px;
-    max-width: 1400px;
+    padding: 48px;
+    max-width: 1600px;
     margin: 0 auto;
 }
 
@@ -779,6 +779,10 @@
 
     .stats-grid {
         grid-template-columns: 1fr;
+    }
+
+    .dashboard-main {
+        padding: 24px;
     }
 
     .action-buttons,

@@ -1,0 +1,302 @@
+.revenue-dashboard {
+    padding: 24px;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.revenue-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+}
+
+.header-left h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--action-primary), #6366f1);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+}
+
+.header-left p {
+    color: #94a3b8;
+    font-size: 1rem;
+}
+
+.header-right {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.period-selector {
+    display: flex;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 4px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.period-btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: #94a3b8;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.period-btn:hover {
+    color: #fff;
+}
+
+.period-btn.active {
+    background: var(--action-primary);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(20, 184, 166, 0.3);
+}
+
+.btn-export {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: #fff;
+    color: #1e293b;
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-export:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+/* Stats Cards */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+.stat-card.premium {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s;
+}
+
+.stat-card.premium:hover {
+    border-color: var(--action-primary);
+    transform: translateY(-5px);
+}
+
+.stat-icon-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.icon-box-rev {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-box-rev.blue { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+.icon-box-rev.green { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+.icon-box-rev.purple { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
+
+.growth-pill {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.growth-pill.up { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+.growth-pill.down { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+
+.stat-main .label {
+    color: #94a3b8;
+    font-size: 0.875rem;
+    margin-bottom: 8px;
+}
+
+.stat-main .value {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #fff;
+}
+
+.stat-footer {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #64748b;
+    font-size: 0.75rem;
+}
+
+/* Charts */
+.charts-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.main-chart-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    padding: 32px;
+}
+
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 32px;
+}
+
+.chart-title h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 4px;
+}
+
+.chart-title p {
+    color: #64748b;
+    font-size: 0.875rem;
+}
+
+.chart-legend {
+    display: flex;
+    gap: 24px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #94a3b8;
+    font-size: 0.875rem;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.dot.blue { background: var(--action-primary); }
+.dot.light { background: rgba(255, 255, 255, 0.2); }
+
+.main-chart-card {
+    margin-bottom: 24px;
+}
+
+.chart-card, .growth-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    padding: 24px;
+}
+
+.chart-card h3, .growth-card h3 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 24px;
+}
+
+.progress-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.progress-item .progress-info {
+    display: flex;
+    justify-content: space-between;
+    color: #94a3b8;
+    font-size: 0.875rem;
+    margin-bottom: 8px;
+}
+
+.progress-bar-bg {
+    height: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 1s ease-out;
+}
+
+/* Loading State */
+.revenue-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    gap: 20px;
+}
+
+.loader {
+    width: 48px;
+    height: 48px;
+    border: 5px solid rgba(255, 255, 255, 0.1);
+    border-top-color: var(--action-primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+    .revenue-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+    }
+    
+    .header-right {
+        width: 100%;
+        justify-content: space-between;
+    }
+}

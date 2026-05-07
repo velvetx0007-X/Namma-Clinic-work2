@@ -3,76 +3,42 @@
 @tailwind utilities;
 
 :root {
-  /* Accessibility: Base font size increased for better readability */
-  font-size: 18px;
-  --bg-primary: #f8f9fa;
-  --bg-secondary: #f0fdf4;
-  --bg-tertiary: #dcfce7;
-  --bg-gradient: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
-  /* Menthe to Sage */
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #FFFFFF;
+  --bg-tertiary: #F9FAFB;
+  
+  --text-primary: #333333;
+  --text-secondary: #475569;
+  --text-tertiary: #757575;
 
-  --text-primary: #37474f;
-  --text-secondary: #546e7a;
-  --text-tertiary: #78909c;
+  --accent-primary: #1E88E5; /* Blue for Nav/Links */
+  --accent-secondary: #1E88E5;
+  --accent-light: rgba(30, 136, 229, 0.05);
 
-  --accent-primary: #059669;
-  /* Emerald 600 */
-  --accent-secondary: #047857;
-  /* Emerald 700 */
-  --accent-light: rgba(5, 150, 105, 0.05);
+  --action-primary: #E53935; /* Red for Primary Buttons */
+  --action-hover: #D32F2F;
 
-  --border-color: #e0e0e0;
-  --shadow-sm: 0 4px 12px rgba(5, 150, 105, 0.12);
-  --shadow-md: 0 4px 20px rgba(5, 150, 105, 0.12);
-  --shadow-lg: 0 4px 20px rgba(5, 150, 105, 0.15);
+  --medical-green: #43A047; /* Medical Green */
+  --border-color: #E0E0E0; /* Light Grey for Borders */
+  
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.1);
 
-  --input-bg: #ffffff;
-  --input-border: #e0e0e0;
+  --input-bg: #FFFFFF;
+  --input-border: #E0E0E0;
 
-  --status-scheduled-bg: #e3f2fd;
-  --status-scheduled-text: #1976d2;
-  --status-completed-bg: #e8f5e9;
-  --status-completed-text: #43a047;
-  --status-cancelled-bg: #ffebee;
-  --status-cancelled-text: #e53935;
-  --status-pending-bg: #fef3c7;
-  --status-pending-text: #92400e;
+  --status-completed-bg: #E8F5E9;
+  --status-completed-text: #43A047;
+  --status-cancelled-bg: #FFEBEE;
+  --status-cancelled-text: #E53935;
+  --status-scheduled-bg: #E3F2FD;
+  --status-scheduled-text: #1E88E5;
+  --status-pending-bg: #FFF3E0;
+  --status-pending-text: #F57C00;
 }
 
-[data-theme='dark'] {
-  /* Dark Mode Variables */
-  --bg-primary: #011611;
-  --bg-secondary: #022c22;
-  --bg-tertiary: #043c2c;
-  --bg-gradient: linear-gradient(135deg, #011611 0%, #043c2c 100%);
 
-  --text-primary: #ecfdf5;
-  --text-secondary: #a7f3d0;
-  --text-tertiary: #6ee7b7;
-
-  --accent-primary: #34d399;
-  /* Emerald 400 */
-  --accent-secondary: #6ee7b7;
-  /* Emerald 300 */
-  --accent-light: rgba(52, 211, 153, 0.1);
-
-  --border-color: #424242;
-  --shadow-sm: 0 4px 12px rgba(0, 20, 10, 0.5);
-  --shadow-md: 0 4px 20px rgba(0, 20, 10, 0.6);
-  --shadow-lg: 0 4px 20px rgba(0, 20, 10, 0.7);
-
-  --input-bg: #2d2d2d;
-  --input-border: #424242;
-
-  --status-scheduled-bg: rgba(25, 118, 210, 0.2);
-  --status-scheduled-text: #90caf9;
-  --status-completed-bg: rgba(67, 160, 71, 0.2);
-  --status-completed-text: #a5d6a7;
-  --status-cancelled-bg: rgba(229, 57, 53, 0.2);
-  --status-cancelled-text: #ef9a9a;
-  --status-pending-bg: rgba(245, 158, 11, 0.2);
-  --status-pending-text: #fbbf24;
-}
 
 @keyframes blob {
   0% {
@@ -106,7 +72,7 @@
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  font-family: 'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -136,6 +102,16 @@ textarea {
   width: 100%;
 }
 
+select {
+  padding-right: 40px; /* Space for arrow */
+}
+
+::placeholder {
+  color: #94a3b8;
+  opacity: 1;
+  text-align: left;
+}
+
 input:focus,
 select:focus,
 textarea:focus {
@@ -145,22 +121,22 @@ textarea:focus {
 }
 
 *:focus-visible {
-  outline: 3px solid #10b981;
+  outline: 3px solid var(--accent-primary);
   outline-offset: 2px;
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #059669 0%, #0d9488 100%);
-  /* Emerald to Teal */
+  background: var(--accent-primary);
   color: white;
   padding: 12px 24px;
   border: none;
-  box-shadow: 0 4px 15px rgba(5, 150, 105, 0.2);
+  box-shadow: 0 4px 15px rgba(30, 136, 229, 0.2);
 }
 
 .btn-primary:hover {
+  background: #1976D2; /* Darker blue for hover */
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(5, 150, 105, 0.3);
+  box-shadow: 0 8px 25px rgba(30, 136, 229, 0.3);
 }
 
 .btn-secondary {

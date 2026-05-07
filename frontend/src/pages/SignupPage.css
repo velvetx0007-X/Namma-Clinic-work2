@@ -5,7 +5,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  background: linear-gradient(135deg, var(--action-primary) 0%, var(--action-hover) 100%);
   padding: 20px;
 }
 
@@ -72,14 +72,14 @@
 }
 
 .role-tab:hover {
-  background: rgba(102, 126, 234, 0.1);
-  color: #10b981;
+  background: var(--bg-tertiary);
+  color: var(--action-primary);
 }
 
 .role-tab.active {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  background: var(--action-primary);
   color: white;
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+  box-shadow: 0 4px 12px rgba(255, 59, 59, 0.2);
 }
 
 /* Form Styling */
@@ -120,8 +120,8 @@
 .form-group input:focus,
 .form-group select:focus {
   outline: none;
-  border-color: #10b981;
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+  border-color: var(--action-primary);
+  box-shadow: 0 0 0 3px rgba(255, 59, 59, 0.1);
 }
 
 .form-group input::placeholder,
@@ -210,7 +210,7 @@
 }
 
 .login-link a:hover {
-  color: #059669;
+  color: var(--action-primary);
   text-decoration: underline;
 }
 
@@ -241,7 +241,7 @@
 /* Verification Styles */
 .verify-btn {
   padding: 8px 16px;
-  background: #059669;
+  background: var(--action-primary);
   color: white;
   border: none;
   border-radius: 8px;
@@ -253,7 +253,7 @@
 }
 
 .verify-btn:hover:not(:disabled) {
-  background: #047857;
+  background: var(--action-hover);
 }
 
 .verify-btn:disabled {
@@ -263,10 +263,10 @@
 }
 
 .otp-group {
-  background: rgba(124, 58, 237, 0.05);
+  background: var(--bg-tertiary);
   padding: 15px;
   border-radius: 12px;
-  border: 1px dashed #059669;
+  border: 1px dashed var(--action-primary);
   animation: fadeIn 0.3s ease-out;
 }
 

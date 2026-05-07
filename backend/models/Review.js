@@ -17,6 +17,15 @@ const ReviewSchema = new mongoose.Schema({
         min: 1,
         max: 5
     },
+    // Granular Ratings
+    communication: { type: Number, min: 1, max: 5 },
+    treatment: { type: Number, min: 1, max: 5 },
+    waitingTime: { type: Number, min: 1, max: 5 },
+    
+    // Additional Feedback
+    recommend: { type: Boolean, default: true },
+    issueResolved: { type: Boolean, default: true },
+    
     comment: {
         type: String,
         required: true

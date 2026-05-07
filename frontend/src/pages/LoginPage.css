@@ -53,7 +53,7 @@
 
 
 .submit-btn {
-    background-color: #3498db;
+    /* Tailwind classes handle background */
     color: white;
     padding: 12px;
     border: none;
@@ -61,26 +61,23 @@
     font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.submit-btn:hover {
-    background-color: #2980b9;
+    transition: all 0.3s;
 }
 
 .submit-btn:disabled {
-    background-color: #bdc3c7;
+    background: var(--bg-tertiary);
     cursor: not-allowed;
+    opacity: 0.7;
 }
 
 .signup-link {
     text-align: center;
     margin-top: 1.5rem;
-    color: #7f8c8d;
+    color: var(--text-secondary);
 }
 
 .signup-link a {
-    color: #3498db;
+    color: var(--action-primary);
     text-decoration: none;
     font-weight: 600;
 }
@@ -94,21 +91,21 @@
 
 .toggle-btn {
     padding: 8px 16px;
-    border: 1px solid #3498db;
+    border: 1px solid var(--action-primary);
     background: transparent;
-    color: #3498db;
+    color: var(--action-primary);
     border-radius: 20px;
     cursor: pointer;
     transition: all 0.3s ease;
 }
 
 .toggle-btn.active {
-    background: #3498db;
+    background: var(--action-primary);
     color: white;
 }
 
 .toggle-btn:hover {
-    background: #2980b9;
+    background: var(--action-hover);
     color: white;
 }
 

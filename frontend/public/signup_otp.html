@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup | Namma Clinic</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-red: #E53935;
+            --primary-blue: #1E88E5;
+            --medical-green: #43A047;
+            --light-grey: #E0E0E0;
+            --bg-white: #FFFFFF;
+            --text-dark: #333333;
+            --text-muted: #757575;
+            --font-main: 'Inter', sans-serif;
+            --border-radius: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-main);
+        }
+
+        body {
+            background-color: #f8f9fa; /* Slight off-white for contrast with modal */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .modal-container {
+            background: var(--bg-white);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+            width: 100%;
+            max-width: 480px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        h2 {
+            margin-bottom: 8px;
+            color: var(--text-dark);
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        p.step-subtitle {
+            color: var(--text-muted);
+            margin-bottom: 24px;
+            font-size: 14px;
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding: 0 10px;
+        }
+
+        .progress-step {
+            width: 100%;
+            height: 4px;
+            background: var(--light-grey);
+            margin: 0 4px;
+            border-radius: 2px;
+            transition: var(--transition);
+        }
+
+        .progress-step.active {
+            background: var(--primary-blue);
+        }
+
+        .progress-step.completed {
+            background: var(--medical-green);
+        }
+
+        /* Form Groups & Floating Labels */
+        .form-group {
+            position: relative;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-input {
+            width: 100%;
+            height: 56px;
+            padding: 20px 16px 6px;
+            border: 1px solid var(--light-grey);
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            background: var(--bg-white);
+            transition: var(--transition);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 4px rgba(30, 136, 229, 0.1);
+        }
+
+        .form-label {
+            position: absolute;
+            top: 18px;
+            left: 16px;
+            font-size: 16px;
+            color: var(--text-muted);
+            transition: var(--transition);
+            pointer-events: none;
+        }
+
+        .form-input:focus ~ .form-label,
+        .form-input:not(:placeholder-shown) ~ .form-label {
+            top: 8px;
+            left: 16px;
+            font-size: 11px;
+            color: var(--primary-blue);
+            font-weight: 600;
+        }
+
+        /* Country Code & Phone Group */
+        .phone-input-group {
+            display: flex;
+            gap: 12px;
+        }
+
+        .country-select {
+            width: 100px;
+            height: 56px;
+            padding: 0 12px;
+            border: 1px solid var(--light-grey);
+            border-radius: var(--border-radius);
+            font-size: 14px;
+            background: var(--bg-white);
+            cursor: pointer;
+        }
+
+        /* Buttons */
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: var(--border-radius);
+            font-weight: 700;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 10px;
+        }
+
+        .btn-primary {
+            background: var(--primary-red);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #d32f2f;
+            transform: translateY(-1px);
+            box-shadow: 0 8px 16px rgba(229, 57, 53, 0.2);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary-blue);
+            font-size: 14px;
+            margin-top: 15px;
+        }
+
+        /* OTP Input Boxes */
+        .otp-inputs {
+            display: flex;
+            justify-content: space-between;
+            margin: 24px 0;
+            gap: 8px;
+        }
+
+        .otp-box {
+            width: 100%;
+            height: 60px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: 700;
+            border: 2px solid var(--light-grey);
+            border-radius: 10px;
+            transition: var(--transition);
+        }
+
+        .otp-box:focus {
+            border-color: var(--primary-blue);
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(30, 136, 229, 0.1);
+        }
+
+        /* Helpers */
+        .alert {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+            text-align: left;
+        }
+
+        .alert-error { background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
+        .alert-success { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+
+        .hidden { display: none !important; }
+
+        .timer {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin: 10px 0;
+        }
+
+        .resend-link {
+            color: var(--primary-blue);
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            display: none;
+        }
+
+        /* Navigation Links */
+        .nav-link {
+            color: var(--primary-blue);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .nav-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .step-content {
+            animation: fadeIn 0.4s ease forwards;
+        }
+    </style>
+</head>
+<body>
+    <div class="modal-container">
+        <!-- Progress Indicator -->
+        <div class="progress-bar">
+            <div class="progress-step active" id="p-1"></div>
+            <div class="progress-step" id="p-2"></div>
+            <div class="progress-step" id="p-3"></div>
+            <div class="progress-step" id="p-4"></div>
+            <div class="progress-step" id="p-5"></div>
+        </div>
+
+        <!-- Step 1: Personal Details -->
+        <div id="step-1" class="step-content">
+            <h2>Welcome to Namma Clinic</h2>
+            <p class="step-subtitle">Let's start with your basic details</p>
+            <div id="alert-1" class="alert alert-error"></div>
+            <div class="form-group">
+                <input type="text" id="name" class="form-input" placeholder=" " required>
+                <label class="form-label">Full Name</label>
+            </div>
+            <div class="form-group">
+                <input type="password" id="password" class="form-input" placeholder=" " required>
+                <label class="form-label">Create Password</label>
+            </div>
+            <button class="btn btn-primary" onclick="nextStep(2)">Next: Contact Details</button>
+            <p style="margin-top: 20px; font-size: 14px;">Already have an account? <a href="#" class="nav-link">Login</a></p>
+        </div>
+
+        <!-- Step 2: Contact Information -->
+        <div id="step-2" class="step-content hidden">
+            <h2>Contact Information</h2>
+            <p class="step-subtitle">We'll use these for verification</p>
+            <div id="alert-2" class="alert alert-error"></div>
+            <div class="form-group">
+                <input type="email" id="email" class="form-input" placeholder=" " required>
+                <label class="form-label">Email Address</label>
+            </div>
+            <div class="form-group">
+                <label class="form-label" style="top: -20px; font-size: 12px; font-weight: 600; color: var(--text-muted);">Mobile Number</label>
+                <div class="phone-input-group">
+                    <select id="country-code" class="country-select">
+                        <option value="+91" selected>🇮🇳 +91</option>
+                        <option value="+1">🇺🇸 +1</option>
+                        <option value="+44">🇬🇧 +44</option>
+                        <option value="+971">🇦🇪 +971</option>
+                    </select>
+                    <input type="tel" id="phone" class="form-input" placeholder="9876543210" required>
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="handleContactSubmit()">Next: Verify Email</button>
+            <button class="btn btn-secondary" onclick="prevStep(1)">Go Back</button>
+        </div>
+
+        <!-- Step 3: Email Verification -->
+        <div id="step-3" class="step-content hidden">
+            <h2>Email Verification</h2>
+            <p class="step-subtitle">Enter the 6-digit code sent to <br><b id="user-email-display"></b></p>
+            <div id="alert-3" class="alert alert-error"></div>
+            <div class="otp-inputs" id="email-otp-group">
+                <input type="text" class="otp-box" maxlength="1" oninput="moveToNext(this, 1)" onkeydown="moveBack(this, 1)">
+                <input type="text" class="otp-box" maxlength="1" oninput="moveToNext(this, 1)" onkeydown="moveBack(this, 1)">
+                <input type="text" class="otp-box" maxlength="1" oninput="moveToNext(this, 1)" onkeydown="moveBack(this, 1)">
+                <input type="text" class="otp-box" maxlength="1" oninput="moveToNext(this, 1)" onkeydown="moveBack(this, 1)">
+                <input type="text" class="otp-box" maxlength="1" oninput="moveToNext(this, 1)" onkeydown="moveBack(this, 1)">
+                <input type="text" class="otp-box" maxlength="1" oninput="moveToNext(this, 1)" onkeydown="moveBack(this, 1)">
+            </div>
+            <div class="timer" id="email-timer">Expires in: 05:00</div>
+            <a class="resend-link" id="resend-email" onclick="sendOTPRequest('email')">Resend Code</a>
+            <button class="btn btn-primary" onclick="verifyOTP('email')">Verify Email</button>
+        </div>
+
+        <!-- Step 4: Phone Verification -->
+        <div id="step-4" class="step-content hidden">
+            <h2>Phone Verification</h2>
+            <p class="step-subtitle">Enter the 6-digit code sent to <br><b id="user-phone-display"></b></p>
+            <div id="alert-4" class="alert alert-error"></div>
+            <div class="otp-inputs" id="phone-otp-group">
+                <input type="text" class="otp-box" maxlength="1" oninput="moveToNext(this, 2)" onkeydown="moveBack(this, 2)">
+                <input type="text" class="otp-box" maxlength="1" oninput="moveToNext(this, 2)" onkeydown="moveBack(this, 2)">
+                <input type="text" class="otp-box" maxlength="1" oninput="moveToNext(this, 2)" onkeydown="moveBack(this, 2)">
+                <input type="text" class="otp-box" maxlength="1" oninput="moveToNext(this, 2)" onkeydown="moveBack(this, 2)">
+                <input type="text" class="otp-box" maxlength="1" oninput="moveToNext(this, 2)" onkeydown="moveBack(this, 2)">
+                <input type="text" class="otp-box" maxlength="1" oninput="moveToNext(this, 2)" onkeydown="moveBack(this, 2)">
+            </div>
+            <div class="timer" id="phone-timer">Expires in: 05:00</div>
+            <a class="resend-link" id="resend-phone" onclick="sendOTPRequest('phone')">Resend Code</a>
+            <button class="btn btn-primary" onclick="verifyOTP('phone')">Verify & Complete</button>
+        </div>
+
+        <!-- Step 5: Success -->
+        <div id="step-5" class="step-content hidden">
+            <div style="margin: 20px 0;">
+                <svg width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="12" fill="#E8F5E9"/>
+                    <path d="M7 12L10 15L17 8" stroke="#43A047" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <h2 class="medical-green-text">Account Verified!</h2>
+            <p class="step-subtitle">You have successfully joined Namma Clinic. Welcome home!</p>
+            <button class="btn btn-primary" onclick="window.location.reload()">Go to Dashboard</button>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        const apiBase = 'http://localhost:5000/api/auth';
+        
+        let emailTimer, phoneTimer;
+        let emailTimeRemaining = 300, phoneTimeRemaining = 300;
+
+        function nextStep(step) {
+            if (step === 2) {
+                const name = document.getElementById('name').value;
+                const pass = document.getElementById('password').value;
+                if (!name || !pass) {
+                    showLocalAlert(1, "Please fill in all details");
+                    return;
+                }
+            }
+
+            document.getElementById(`step-${currentStep}`).classList.add('hidden');
+            document.getElementById(`step-${step}`).classList.remove('hidden');
+            
+            // Progress bar update
+            const oldStep = document.getElementById(`p-${currentStep}`);
+            oldStep.classList.remove('active');
+            oldStep.classList.add('completed');
+            
+            currentStep = step;
+            document.getElementById(`p-${currentStep}`).classList.add('active');
+        }
+
+        function prevStep(step) {
+            document.getElementById(`step-${currentStep}`).classList.add('hidden');
+            document.getElementById(`step-${step}`).classList.remove('hidden');
+            
+            const pStep = document.getElementById(`p-${currentStep}`);
+            pStep.classList.remove('active');
+            
+            currentStep = step;
+            document.getElementById(`p-${currentStep}`).classList.remove('completed');
+            document.getElementById(`p-${currentStep}`).classList.add('active');
+        }
+
+        async function handleContactSubmit() {
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const code = document.getElementById('country-code').value;
+            
+            if (!email || !phone) {
+                showLocalAlert(2, "Required fields are missing");
+                return;
+            }
+
+            document.getElementById('user-email-display').innerText = email;
+            document.getElementById('user-phone-display').innerText = code + " " + phone;
+
+            // Trigger Email OTP first
+            const success = await sendOTPRequest('email');
+            if (success) nextStep(3);
+        }
+
+        async function sendOTPRequest(type) {
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('country-code').value + document.getElementById('phone').value;
+            
+            const endpoint = type === 'email' ? '/send-email-otp' : '/send-phone-otp';
+            const body = type === 'email' ? { email } : { phoneNumber: phone };
+
+            try {
+                const res = await fetch(apiBase + endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    showLocalAlert(type === 'email' ? 3 : 4, `OTP sent successfully!`, 'success');
+                    if (data.otp) { // DEV MODE Helper
+                        console.log(`[DEV] ${type} OTP: ${data.otp}`);
+                        showLocalAlert(type === 'email' ? 3 : 4, `[DEV MODE] OTP: ${data.otp}`, 'success');
+                    }
+                    startTimer(type);
+                    return true;
+                } else {
+                    showLocalAlert(currentStep, data.message || "Error sending OTP");
+                    return false;
+                }
+            } catch (err) {
+                showLocalAlert(currentStep, "Server connection failed");
+                return false;
+            }
+        }
+
+        async function verifyOTP(type) {
+            const container = document.getElementById(`${type}-otp-group`);
+            const boxes = container.querySelectorAll('.otp-box');
+            const otp = Array.from(boxes).map(b => b.value).join('');
+            
+            if (otp.length < 6) {
+                showLocalAlert(type === 'email' ? 3 : 4, "Enter 6 digits");
+                return;
+            }
+
+            const identifier = type === 'email' ? document.getElementById('email').value : (document.getElementById('country-code').value + document.getElementById('phone').value);
+
+            try {
+                const res = await fetch(apiBase + '/verify-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ identifier, type, otp })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    if (type === 'email') {
+                        // Move to Phone OTP next
+                        const success = await sendOTPRequest('phone');
+                        if (success) nextStep(4);
+                    } else {
+                        // Finalize Signup
+                        await completeSignup();
+                    }
+                } else {
+                    showLocalAlert(type === 'email' ? 3 : 4, data.message);
+                }
+            } catch (err) {
+                showLocalAlert(currentStep, "Verification failed");
+            }
+        }
+
+        async function completeSignup() {
+            const signupData = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                phoneNumber: document.getElementById('country-code').value + document.getElementById('phone').value,
+                password: document.getElementById('password').value
+            };
+
+            try {
+                const res = await fetch(apiBase + '/signup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(signupData)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    nextStep(5);
+                } else {
+                    showLocalAlert(4, data.message);
+                }
+            } catch (e) {
+                showLocalAlert(4, "Signup failed at final stage");
+            }
+        }
+
+        function startTimer(type) {
+            const timerId = type === 'email' ? 'email-timer' : 'phone-timer';
+            const resendId = type === 'email' ? 'resend-email' : 'resend-phone';
+            let time = 300;
+            
+            const display = document.getElementById(timerId);
+            const resend = document.getElementById(resendId);
+            
+            resend.style.display = 'none';
+            
+            const interval = setInterval(() => {
+                const m = Math.floor(time / 60);
+                const s = time % 60;
+                display.innerText = `Expires in: ${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+                
+                if (time <= 270) resend.style.display = 'inline-block'; // Resend after 30s
+                
+                if (time <= 0) {
+                    clearInterval(interval);
+                    display.innerText = "OTP Expired";
+                }
+                time--;
+            }, 1000);
+            
+            if (type === 'email') emailTimer = interval;
+            else phoneTimer = interval;
+        }
+
+        function moveToNext(input, step) {
+            if (input.value.length === 1) {
+                const next = input.nextElementSibling;
+                if (next) next.focus();
+            }
+        }
+
+        function moveBack(input, step) {
+            if (event.key === "Backspace" && input.value.length === 0) {
+                const prev = input.previousElementSibling;
+                if (prev) prev.focus();
+            }
+        }
+
+        function showLocalAlert(stepIdx, msg, type = 'error') {
+            const alert = document.getElementById(`alert-${stepIdx}`);
+            if (!alert) return;
+            alert.innerText = msg;
+            alert.className = `alert alert-${type}`;
+            alert.style.display = 'block';
+            setTimeout(() => { alert.style.display = 'none'; }, 6000);
+        }
+    </script>
+</body>
+</html>

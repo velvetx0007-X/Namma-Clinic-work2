@@ -39,6 +39,20 @@ const appointmentSchema = new mongoose.Schema({
     },
     queueNumber: {
         type: Number
+    },
+    comment: {
+        type: String,
+        trim: true,
+        default: ''
+    },
+    confirmedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        refPath: 'confirmerModel'
+    },
+    confirmerModel: {
+        type: String,
+        enum: ['Clinic', 'Admin'],
+        default: 'Clinic'
     }
 }, {
     timestamps: true

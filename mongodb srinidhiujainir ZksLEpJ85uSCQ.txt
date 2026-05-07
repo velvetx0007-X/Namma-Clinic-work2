@@ -1,0 +1,9 @@
+mongodb://srinidhiujaini:rZksLEpJ85uSCQ0B@health-one-shard-00-00.5c3izhx.mongodb.net:27017,health-one-shard-00-01.5c3izhx.mongodb.net:27017,health-one-shard-00-02.5c3izhx.mongodb.net:27017/namma-clinic?ssl=true&replicaSet=atlas-XXXXX-shard-0&authSource=admin&retryWrites=true&w=majority
+ 
+   mongodb://srinidhiujaini:rZksLEpJ85uSCQ0B@health-one-shard-00-00.5c3izhx.mongodb.net:27017,health-one-shard-00-01.5c3izhx.mongodb.net:27017,health-one-shard-00-02.5c3izhx.mongodb.net:27017/namma-clinic?ssl=true&replicaSet=atlas-XXXXX-shard-0&authSource=admin&retryWrites=true&w=majority
+
+
+
+
+
+mongodb+srv://srinidhiujaini:rZksLEpJ85uSCQ0B@health-one.5c3izhx.mongodb.net/?appName=Health-one

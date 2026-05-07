@@ -1,0 +1,63 @@
+.phone-group {
+    position: relative;
+    margin-bottom: 32px; /* Increased vertical spacing as requested */
+    width: 100%;
+}
+
+.phone-input-container {
+    display: flex;
+    position: relative;
+    width: 100%;
+    height: 60px; /* Slightly taller for better touch targets */
+    border: 1px solid #E0E0E0;
+    border-radius: 12px;
+    background: #FFFFFF;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.phone-input-container:focus-within {
+    border-color: #1E88E5;
+    box-shadow: 0 0 0 4px rgba(30, 136, 229, 0.1);
+}
+
+.country-dropdown {
+    width: 90px;
+    padding: 0 8px;
+    border: none;
+    border-right: 1px solid #E0E0E0;
+    background: #F9F9F9;
+    font-size: 14px;
+    font-weight: 700;
+    color: #333;
+    outline: none;
+    cursor: pointer;
+}
+
+.phone-field {
+    flex: 1;
+    padding: 24px 16px 8px;
+    border: none;
+    font-size: 16px;
+    background: transparent;
+    outline: none;
+}
+
+.phone-label {
+    position: absolute;
+    top: 20px;
+    left: 106px; /* Offset by dropdown width */
+    font-size: 16px;
+    color: #757575;
+    transition: all 0.3s ease;
+    pointer-events: none;
+}
+
+.phone-field:focus ~ .phone-label,
+.phone-field:not(:placeholder-shown) ~ .phone-label {
+    top: 8px;
+    left: 106px;
+    font-size: 12px;
+    color: #1E88E5;
+    font-weight: 600;
+}

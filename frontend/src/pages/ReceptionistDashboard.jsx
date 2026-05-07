@@ -32,10 +32,15 @@ import {
     Save,
     CheckCircle,
     Search,
-    Upload
+    Upload,
+    AlertCircle
 } from 'lucide-react';
+import DashboardLayout from '../components/common/DashboardLayout';
+import StatCard from '../components/common/StatCard';
 import AIPrescriptionUpload from '../components/AIPrescriptionUpload';
 import PatientHistory from '../components/PatientHistory';
+import ProfileSettings from '../components/ProfileSettings';
+import AssignTaskButton from '../components/AssignTaskButton';
 import './ReceptionistDashboard.css';
 
 const ReceptionistDashboard = () => {
@@ -51,14 +56,10 @@ const ReceptionistDashboard = () => {
     const [prescriptions, setPrescriptions] = useState([]);
     const [labTests, setLabTests] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [profileDetails, setProfileDetails] = useState({
-        employeeCode: user.employeeCode || '',
-        age: user.age || ''
-    });
+    const [selectedPatientForPrescription, setSelectedPatientForPrescription] = useState('');
 
     // Prescription Upload State
     const [isUploading, setIsUploading] = useState(false);
-    const [selectedPatientForPrescription, setSelectedPatientForPrescription] = useState('');
     const [selectedDoctorForPrescription, setSelectedDoctorForPrescription] = useState('');
     const [prescriptionSearchTerm, setPrescriptionSearchTerm] = useState('');
 
@@ -154,7 +155,8 @@ const ReceptionistDashboard = () => {
     const fetchTodayQueue = async () => {
         setLoading(true);
         try {
-            const today = new Date().toISOString().split('T')[0];
+            const date = new Date();
+            const today = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
             const response = await api.get('/appointments');
             const todayAppts = response.data.data.filter(apt =>
                 apt.appointmentDate.startsWith(today)
@@ -305,120 +307,73 @@ const ReceptionistDashboard = () => {
         }
     };
 
+
     const handleLogout = () => {
         logout();
         navigate('/login');
     };
 
     const todayAppointments = appointments.filter(apt => {
-        const today = new Date().toISOString().split('T')[0];
+        const date = new Date();
+        const today = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
         return apt.appointmentDate.startsWith(today);
     });
 
-    return (
-        <div className="receptionist-dashboard">
-            {/* Top Navigation Bar */}
-            <nav className="top-navbar">
-                <div className="navbar-brand">
-                    <img src={logo} alt="Namma Clinic" className="navbar-logo" />
-                    <h2>Namma Clinic</h2>
-                </div>
-                <div className="navbar-menu">
-                    <button
-                        className={activeTab === 'home' ? 'active' : ''}
-                        onClick={() => setActiveTab('home')}
-                    >
-                        <LayoutDashboard size={18} />
-                        <span>Home</span>
-                    </button>
-                    <button
-                        className={activeTab === 'patients' ? 'active' : ''}
-                        onClick={() => setActiveTab('patients')}
-                    >
-                        <Users size={18} />
-                        <span>Patients</span>
-                    </button>
-                    <button
-                        className={activeTab === 'upload-prescription' ? 'active' : ''}
-                        onClick={() => setActiveTab('upload-prescription')}
-                    >
-                        <Upload size={18} />
-                        <span>Upload AI Rx</span>
-                    </button>
-                    <button
-                        className={activeTab === 'appointments' ? 'active' : ''}
-                        onClick={() => setActiveTab('appointments')}
-                    >
-                        <Calendar size={18} />
-                        <span>Appointments</span>
-                    </button>
-                    <button
-                        className={activeTab === 'queue' ? 'active' : ''}
-                        onClick={() => setActiveTab('queue')}
-                    >
-                        <List size={18} />
-                        <span>Queue</span>
-                    </button>
-                    <button
-                        className={activeTab === 'profile' ? 'active' : ''}
-                        onClick={() => setActiveTab('profile')}
-                    >
-                        <User size={18} />
-                        <span>Profile</span>
-                    </button>
-                </div>
-                <div className="navbar-actions">
-                    <button onClick={toggleTheme} className="theme-toggle">
-                        {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
-                    </button>
-                    <div className="user-profile">
-                        <img
-                            src={user.profilePhoto ? `http://localhost:5000/${user.profilePhoto}` : `https://ui-avatars.com/api/?name=${user.userName || user.name}&background=10b981&color=fff`}
-                            alt="Profile"
-                            className="nav-profile-img"
-                        />
-                        <span className="user-name">Receptionist {user.userName || user.name}</span>
-                    </div>
-                    <button onClick={handleLogout} className="logout-button">
-                        <LogOut size={18} />
-                        <span>Logout</span>
-                    </button>
-                </div>
-            </nav>
+    const sidebarLinks = [
+        { id: 'home', label: 'Home', icon: LayoutDashboard },
+        { id: 'patients', label: 'Patients', icon: Users },
+        { id: 'upload-prescription', label: 'Upload AI Rx', icon: Upload },
+        { id: 'appointments', label: 'Appointments', icon: Calendar },
+        { id: 'queue', label: 'Queue', icon: List },
+        { id: 'profile', label: 'Profile', icon: User }
+    ];
 
-            {/* Main Content */}
-            <div className="dashboard-main">
+    return (
+        <DashboardLayout sidebarLinks={sidebarLinks} activeTab={activeTab} setActiveTab={setActiveTab}>
 
                 {/* HOME TAB */}
                 {activeTab === 'home' && (
                     <div className="home-content">
-                        <div className="welcome-banner">
-                            <h1>Welcome, Receptionist {user.userName || user.name}! <Activity className="inline-icon" /></h1>
-                            <p>Daily clinic operations and patient flow management</p>
+                        <div className="welcome-banner mb-6">
+                            <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+                                Welcome, Receptionist {user.userName || user.name}! <Activity className="text-white opacity-80" size={24} />
+                            </h1>
+                            <p className="text-white opacity-90">Daily clinic operations and patient flow management</p>
                         </div>
 
-                        <div className="stats-grid">
-                            <div className="stat-card">
-                                <h3>Total Appointments</h3>
-                                <p className="stat-number">{appointments.length}</p>
-                                <div className="stat-footer">
-                                    <Calendar size={14} /> <span>{new Date().toLocaleDateString()}</span>
-                                </div>
-                            </div>
-                            <div className="stat-card">
-                                <h3>Registered Patients</h3>
-                                <p className="stat-number">{patients.length}</p>
-                                <div className="stat-footer">
-                                    <Users size={14} /> <span>All-time total</span>
-                                </div>
-                            </div>
-                            <div className="stat-card">
-                                <h3>Active Queue</h3>
-                                <p className="stat-number">{queue.length}</p>
-                                <div className="stat-footer">
-                                    <Clock size={14} /> <span>Waiting now</span>
-                                </div>
-                            </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                            <StatCard 
+                                icon={Calendar} 
+                                number={appointments.length} 
+                                label="Total Appointments" 
+                                subtextIcon={Calendar} 
+                                subtext={new Date().toLocaleDateString()} 
+                                colorClass="text-blue-500"
+                            />
+                            <StatCard 
+                                icon={Users} 
+                                number={patients.length} 
+                                label="Registered Patients" 
+                                subtextIcon={Users} 
+                                subtext="All-time total" 
+                                colorClass="text-emerald-500"
+                            />
+                            <StatCard 
+                                icon={Clock} 
+                                number={queue.length} 
+                                label="Active Queue" 
+                                subtextIcon={Clock} 
+                                subtext="Waiting now" 
+                                colorClass="text-amber-500"
+                            />
+                            <StatCard 
+                                icon={Activity} 
+                                number={`₹${appointments.filter(a => a.status === 'completed').length * 500}`} 
+                                label="Today's Revenue" 
+                                subtextIcon={Activity} 
+                                subtext="Est. Earnings" 
+                                colorClass="text-purple-500"
+                            />
                         </div>
 
                         <div className="quick-actions">
@@ -436,6 +391,7 @@ const ReceptionistDashboard = () => {
                                     <List />
                                     <span>Manage Queue</span>
                                 </button>
+                                <AssignTaskButton />
                             </div>
                         </div>
                     </div>
@@ -663,8 +619,8 @@ const ReceptionistDashboard = () => {
                 {/* PATIENTS TAB */}
                 {activeTab === 'patients' && (
                     <div className="content-section">
-                        <h1><Users className="header-icon" /> Manage Patient Records</h1>
-                        <PatientHistory />
+                        <h1><Users className="header-icon" /> Namma Clinic Patient Directory</h1>
+                        <PatientHistory source="receptionist" />
                     </div>
                 )}
 
@@ -702,94 +658,159 @@ const ReceptionistDashboard = () => {
 
                 {/* PROFILE TAB */}
                 {activeTab === 'profile' && (
-                    <div className="profile-content">
-                        <div className="section-header">
-                            <User size={24} className="header-icon" />
-                            <h1>Receptionist Profile</h1>
-                        </div>
-                        <div className="profile-top-grid">
-                            <div className="id-card-section">
-                                <div className="section-header">
-                                    <ClipboardList size={18} />
-                                    <h3>Digital ID Card</h3>
-                                </div>
-                                <DigitalIDCard user={user} onEdit={handleEditCardClick} />
-                            </div>
-                            <div className="profile-details-section" ref={editRef}>
-                                <div className="section-header">
-                                    <Settings size={20} />
-                                    <h2>Profile Settings</h2>
-                                </div>
-
-                                <div className="upload-photo-card">
-                                    <h3><UserPlus size={16} /> Update Profile Photo</h3>
-                                    <div className="upload-input-group">
-                                        <input type="file" onChange={(e) => setUploadFile(e.target.files[0])} />
-                                    </div>
-                                    <button
-                                        className="btn-primary"
-                                        onClick={async () => {
-                                            if (!uploadFile) return;
-                                            const formData = new FormData();
-                                            formData.append('profilePhoto', uploadFile);
-                                            formData.append('userId', user.id);
-                                            formData.append('role', 'clinic');
-                                            try {
-                                                const res = await api.post('/users/profile-photo', formData);
-                                                updateUser(res.data.data);
-                                                alert('Uploaded successfully!');
-                                                setUploadFile(null);
-                                            } catch (err) { alert('Failed'); }
-                                        }}
-                                    >
-                                        <Plus size={18} />
-                                        <span>Upload Photo</span>
-                                    </button>
-                                </div>
-
-                                <div className="additional-fields-form">
-                                    <h3><FileText size={18} /> Professional Details</h3>
-                                    <div className="form-group">
-                                        <label>Employee Code</label>
-                                        <input
-                                            type="text"
-                                            value={profileDetails.employeeCode}
-                                            onChange={(e) => setProfileDetails({ ...profileDetails, employeeCode: e.target.value })}
-                                            placeholder="Enter Code"
-                                        />
-                                    </div>
-                                    <div className="form-group">
-                                        <label>Age</label>
-                                        <input
-                                            type="number"
-                                            value={profileDetails.age}
-                                            onChange={(e) => setProfileDetails({ ...profileDetails, age: e.target.value })}
-                                            placeholder="Your age"
-                                        />
-                                    </div>
-                                    <button
-                                        className="btn-primary"
-                                        onClick={async () => {
-                                            try {
-                                                const res = await api.put('/users/profile', {
-                                                    userId: user.id,
-                                                    role: 'clinic',
-                                                    ...profileDetails
-                                                });
-                                                updateUser(res.data.data);
-                                                alert('Details saved!');
-                                            } catch (err) { alert('Failed to save'); }
-                                        }}
-                                    >
-                                        <Save size={18} />
-                                        <span>Save Professional Details</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+                    <div className="profile-tab-container">
+                        <ProfileSettings showDigitalId={true} />
                     </div>
                 )}
-            </div>
+            
+            {/* NEW APPOINTMENT MODAL */}
+            {showNewAppointment && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h2>Book New Appointment</h2>
+                            <button onClick={() => setShowNewAppointment(false)} className="close-btn"><X /></button>
+                        </div>
+                        <div className="modal-form">
+                            <div className="form-group">
+                                <label>Patient Name</label>
+                                <input
+                                    list="patient-names"
+                                    required
+                                    value={newAppointment.patientName}
+                                    onChange={(e) => setNewAppointment({ ...newAppointment, patientName: e.target.value })}
+                                    placeholder="Search or Select Patient"
+                                />
+                                <datalist id="patient-names">
+                                    {patients.map(p => <option key={p._id} value={p.name} />)}
+                                </datalist>
+                            </div>
+                            <div className="form-group">
+                                <label>Doctor Name</label>
+                                <input
+                                    list="doctor-names"
+                                    required
+                                    value={newAppointment.doctorName}
+                                    onChange={(e) => setNewAppointment({ ...newAppointment, doctorName: e.target.value })}
+                                    placeholder="Search or Select Doctor"
+                                />
+                                <datalist id="doctor-names">
+                                    {clinics.map(d => <option key={d._id} value={d.userName} />)}
+                                </datalist>
+                            </div>
+                            <div className="form-row">
+                                <div className="form-group">
+                                    <label>Date</label>
+                                    <input
+                                        type="date"
+                                        required
+                                        value={newAppointment.appointmentDate}
+                                        onChange={(e) => setNewAppointment({ ...newAppointment, appointmentDate: e.target.value })}
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label>Time</label>
+                                    <input
+                                        type="time"
+                                        required
+                                        value={newAppointment.appointmentTime}
+                                        onChange={(e) => setNewAppointment({ ...newAppointment, appointmentTime: e.target.value })}
+                                    />
+                                </div>
+                            </div>
+                            <div className="form-group">
+                                <label>Consultation Type</label>
+                                <select
+                                    value={newAppointment.type}
+                                    onChange={(e) => setNewAppointment({ ...newAppointment, type: e.target.value })}
+                                >
+                                    <option value="consultation">Consultation</option>
+                                    <option value="follow-up">Follow-up</option>
+                                    <option value="surgery">Surgery</option>
+                                    <option value="emergency">Emergency</option>
+                                </select>
+                            </div>
+                            <div className="form-group">
+                                <label>Chief Complaint</label>
+                                <textarea
+                                    value={newAppointment.chiefComplaint}
+                                    onChange={(e) => setNewAppointment({ ...newAppointment, chiefComplaint: e.target.value })}
+                                    placeholder="Briefly describe the patient's issue"
+                                />
+                            </div>
+                            <button onClick={bookAppointment} className="btn-primary w-full mt-4">Confirm Booking</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* QUICK ADD PATIENT MODAL */}
+            {showQuickAddPatient && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h2>Register New Patient</h2>
+                            <button onClick={() => setShowQuickAddPatient(false)} className="close-btn"><X /></button>
+                        </div>
+                        <div className="modal-form">
+                            <div className="form-row">
+                                <div className="form-group">
+                                    <label>Full Name</label>
+                                    <input
+                                        type="text"
+                                        required
+                                        value={quickPatient.name}
+                                        onChange={(e) => setQuickPatient({ ...quickPatient, name: e.target.value })}
+                                        placeholder="Patient's Full Name"
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label>Phone Number</label>
+                                    <input
+                                        type="tel"
+                                        required
+                                        value={quickPatient.phoneNumber}
+                                        onChange={(e) => setQuickPatient({ ...quickPatient, phoneNumber: e.target.value })}
+                                        placeholder="10-digit mobile"
+                                    />
+                                </div>
+                            </div>
+                            <div className="form-row mt-4">
+                                <div className="form-group">
+                                    <label>Age</label>
+                                    <input
+                                        type="number"
+                                        required
+                                        value={quickPatient.age}
+                                        onChange={(e) => setQuickPatient({ ...quickPatient, age: e.target.value })}
+                                        placeholder="Age"
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label>Blood Group</label>
+                                    <input
+                                        type="text"
+                                        value={quickPatient.bloodGroup}
+                                        onChange={(e) => setQuickPatient({ ...quickPatient, bloodGroup: e.target.value })}
+                                        placeholder="e.g. A+, O-"
+                                    />
+                                </div>
+                            </div>
+                            <div className="form-group mt-4">
+                                <label>Email (Optional)</label>
+                                <input
+                                    type="email"
+                                    value={quickPatient.email}
+                                    onChange={(e) => setQuickPatient({ ...quickPatient, email: e.target.value })}
+                                    placeholder="email@example.com"
+                                />
+                            </div>
+                            <button onClick={addQuickPatient} className="btn-primary w-full mt-6">Register & Continue</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <Footer links={[
                 { label: 'AI Upload', onClick: () => setActiveTab('upload-prescription') },
                 { label: 'Booking', onClick: () => setActiveTab('appointments') },
@@ -797,7 +818,7 @@ const ReceptionistDashboard = () => {
                 { label: 'Queue', onClick: () => setActiveTab('queue') },
                 { label: 'Profile', onClick: () => setActiveTab('profile') }
             ]} />
-        </div >
+        </DashboardLayout>
     );
 };
 
