@@ -49,6 +49,7 @@ const ReceptionistDashboard = () => {
     const [queue, setQueue] = useState([]);
     const [prescriptions, setPrescriptions] = useState([]);
     const [labTests, setLabTests] = useState([]);
+    const [loading, setLoading] = useState(false);
     const [selectedPatientForPrescription, setSelectedPatientForPrescription] = useState('');
 
     // Prescription Upload State

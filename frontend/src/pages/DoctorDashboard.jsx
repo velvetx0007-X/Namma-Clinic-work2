@@ -12,14 +12,17 @@ import ProfileSettings from '../components/ProfileSettings';
 
 import {
     LayoutDashboard,
+    ClipboardList,
     Calendar,
     Activity,
     Users,
     User,
     LogOut,
     Plus,
+    Save,
     Stethoscope,
     Pill,
+    FileText,
     MapPin,
     Phone,
     Clock,
@@ -29,6 +32,7 @@ import {
     Menu,
     X,
     CheckCircle,
+    AlertCircle,
     Upload,
     Eye
 } from 'lucide-react';
@@ -53,6 +57,7 @@ const DoctorDashboard = () => {
     const [selectedPrescription, setSelectedPrescription] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
     const [editPrescriptionData, setEditPrescriptionData] = useState(null);
+    const [loading, setLoading] = useState(false);
     const editRef = useRef(null);
 
     const [consultation, setConsultation] = useState({

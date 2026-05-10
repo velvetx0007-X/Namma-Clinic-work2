@@ -8,7 +8,7 @@ import ProfileSettings from '../components/ProfileSettings';
 import Footer from '../components/Footer';
 import AIPrescriptionUpload from '../components/AIPrescriptionUpload';
 import PatientHistory from '../components/PatientHistory';
-import { LogOut, Edit, Trash2, Heart, Activity, Upload, Plus, Pill, Users, Star, MessageSquare, LayoutDashboard, Shield, TrendingUp } from 'lucide-react';
+import { LogOut, Edit, Trash2, Heart, Activity, FileText, Upload, Plus, Pill, Users, Star, MessageSquare, LayoutDashboard, Shield, TrendingUp } from 'lucide-react';
 import DashboardLayout from '../components/common/DashboardLayout';
 import DashboardGreeting from '../components/common/DashboardGreeting';
 import StatCard from '../components/common/StatCard';
