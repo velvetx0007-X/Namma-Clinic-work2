@@ -1,97 +1,58 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Twitter, Linkedin, Facebook, Github, Heart } from 'lucide-react';
+import { Heart } from 'lucide-react';
 import logo from '../../assets/logo.jpg';
 import BrandText from '../common/BrandText';
 
-const LandingFooter = () => {
-  return (
-    <footer className="bg-white border-t border-gray-100 pt-24 lg:pt-32 pb-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-16 mb-20">
-          <div className="space-y-8">
-            <Link to="/" className="flex items-center gap-3">
-              <img 
-                src={logo} 
-                alt="NAMMA CLINIC Logo" 
-                className="w-12 h-12 rounded-lg object-contain shadow-sm" 
-              />
-              <BrandText className="text-xl" />
-            </Link>
-            <p className="text-gray-500 leading-relaxed max-w-xs">
-              Empowering clinics with AI-powered tools for better patient outcomes and efficient clinical workflows.
-            </p>
-            <div className="flex gap-4">
-              {[Twitter, Linkedin, Facebook, Github].map((Icon, i) => (
-                <a key={i} href="#home" className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:bg-blue-600 hover:text-white transition-all">
-                  <Icon size={18} />
-                </a>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <h4 className="text-sm font-bold text-gray-900 uppercase tracking-widest mb-6">Platform</h4>
-            <ul className="space-y-4">
-              {[
-                { name: 'Features', id: 'features' },
-                { name: 'Solutions', id: 'solutions' },
-                { name: 'AI Assistant', id: 'ai-assistant' },
-                { name: 'Wellness Tracking', id: 'wellness-tracking' }
-              ].map((item) => (
-                <li key={item.name}>
-                  <a href={`#${item.id}`} className="text-gray-500 hover:text-blue-600 transition-colors">{item.name}</a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="text-sm font-bold text-gray-900 uppercase tracking-widest mb-6">Resources</h4>
-            <ul className="space-y-4">
-              {[
-                { name: 'Documentation', id: 'documentation' },
-                { name: 'API Reference', id: 'api-reference' },
-                { name: 'Case Studies', id: 'case-studies' },
-                { name: 'Blog', id: 'blog' },
-                { name: 'Community', id: 'community' }
-              ].map((item) => (
-                <li key={item.name}>
-                  <a href={`#${item.id}`} className="text-gray-500 hover:text-blue-600 transition-colors">{item.name}</a>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="text-sm font-bold text-gray-900 uppercase tracking-widest mb-6">Company</h4>
-            <ul className="space-y-4">
-              {[
-                { name: 'About Us', id: 'about-us' },
-                { name: 'Careers', id: 'careers' },
-                { name: 'Privacy Policy', id: 'privacy-policy' },
-                { name: 'Terms of Service', id: 'terms-of-service' },
-                { name: 'Security', id: 'security' }
-              ].map((item) => (
-                <li key={item.name}>
-                  <a href={`#${item.id}`} className="text-gray-500 hover:text-blue-600 transition-colors">{item.name}</a>
-                </li>
-              ))}
-            </ul>
-          </div>
+const LandingFooter = () => (
+  <footer className="nc-footer">
+    <div className="nc-footer-inner">
+      <div className="nc-footer-grid">
+        <div className="nc-footer-brand">
+          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', textDecoration: 'none' }}>
+            <img src={logo} alt="NAMMA CLINIC" style={{ width: 40, height: 40, borderRadius: 12, objectFit: 'contain' }} />
+            <BrandText className="text-lg" />
+          </Link>
+          <p>AI-powered healthcare management for modern clinics, doctors, and patients.</p>
         </div>
 
-        <div className="pt-10 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-6">
-          <p className="text-gray-400 text-sm">
-            © {new Date().getFullYear()} NAMMA CLINIC. All rights reserved.
-          </p>
-          <p className="text-gray-400 text-sm flex items-center gap-1">
-            Made with <Heart size={14} className="text-red-500 fill-current" /> for a healthier world.
-          </p>
+        <div className="nc-footer-col">
+          <h4>Platform</h4>
+          <ul>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#solutions">Solutions</a></li>
+            <li><a href="#ai">AI Assistant</a></li>
+            <li><a href="#showcase">Product</a></li>
+          </ul>
+        </div>
+
+        <div className="nc-footer-col">
+          <h4>Resources</h4>
+          <ul>
+            <li><a href="#faq">FAQ</a></li>
+            <li><a href="#contact">Contact</a></li>
+            <li><a href="#testimonials">Testimonials</a></li>
+          </ul>
+        </div>
+
+        <div className="nc-footer-col">
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="#privacy">Privacy Policy</a></li>
+            <li><a href="#terms">Terms of Service</a></li>
+            <li><a href="#security">Security</a></li>
+          </ul>
         </div>
       </div>
-    </footer>
-  );
-};
+
+      <div className="nc-footer-bottom">
+        <p>&copy; {new Date().getFullYear()} NAMMA CLINIC. All rights reserved.</p>
+        <p style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+          Made with <Heart size={12} style={{ color: '#ef4444' }} /> for a healthier world.
+        </p>
+      </div>
+    </div>
+  </footer>
+);
 
 export default LandingFooter;

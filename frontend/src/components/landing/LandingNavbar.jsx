@@ -1,132 +1,70 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, ChevronRight } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import logo from '../../assets/logo.jpg';
 import BrandText from '../common/BrandText';
 
 const LandingNavbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    const onScroll = () => setIsScrolled(window.scrollY > 30);
+    window.addEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  const navLinks = [
+  const links = [
     { name: 'Features', href: '#features' },
     { name: 'Solutions', href: '#solutions' },
-    { name: 'Benefits', href: '#benefits' },
-    { name: 'Showcase', href: '#showcase' },
-    { name: 'Resources', href: '#resources' },
+    { name: 'Product', href: '#showcase' },
+    { name: 'AI', href: '#ai' },
     { name: 'FAQ', href: '#faq' },
+    { name: 'Contact', href: '#contact' },
   ];
 
   return (
-    <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled
-          ? 'bg-white/90 backdrop-blur-md shadow-lg py-3'
-          : 'bg-transparent py-5'
-      }`}
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center">
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-3 group">
-            <img 
-              src={logo} 
-              alt="NAMMA CLINIC Logo" 
-              className="w-12 h-12 rounded-lg object-contain shadow-sm group-hover:scale-105 transition-transform duration-300" 
-            />
-            <BrandText className="text-xl lg:text-2xl" />
-          </Link>
+    <nav className={`nc-navbar ${isScrolled ? 'scrolled' : ''}`}>
+      <div className="nc-navbar-inner">
+        <Link to="/" className="nc-nav-brand">
+          <img src={logo} alt="NAMMA CLINIC" />
+          <BrandText className="text-lg" />
+        </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors"
-              >
-                {link.name}
-              </a>
-            ))}
-          </div>
+        <ul className="nc-nav-links">
+          {links.map(l => (
+            <li key={l.name}><a href={l.href}>{l.name}</a></li>
+          ))}
+        </ul>
 
-          {/* CTA Buttons */}
-          <div className="hidden md:flex items-center gap-4">
-            <Link
-              to="/login"
-              className="px-5 py-2 text-sm font-semibold text-gray-700 hover:text-blue-600 transition-colors"
-            >
-              Login
-            </Link>
-            <Link
-              to="/signup"
-              className="px-6 py-2.5 bg-blue-600 text-white text-sm font-bold rounded-full shadow-lg shadow-blue-200 hover:bg-blue-700 hover:shadow-xl hover:-translate-y-0.5 transition-all flex items-center gap-2"
-            >
-              Get Started <ChevronRight size={16} />
-            </Link>
-          </div>
-
-          {/* Mobile Menu Toggle */}
-          <div className="md:hidden">
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="p-2 text-gray-600 hover:text-blue-600 transition-colors"
-            >
-              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
-          </div>
+        <div className="nc-nav-cta">
+          <Link to="/login" className="nc-btn-ghost">Log In</Link>
+          <Link to="/signup" className="nc-btn-primary">Get Started</Link>
         </div>
+
+        <button className="nc-mobile-toggle" onClick={() => setMobileOpen(!mobileOpen)}>
+          {mobileOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
       </div>
 
-      {/* Mobile Menu */}
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-white border-t border-gray-100 overflow-hidden"
-          >
-            <div className="px-4 py-6 space-y-4">
-              {navLinks.map((link) => (
-                <a
-                  key={link.name}
-                  href={link.href}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="block text-lg font-medium text-gray-700 hover:text-blue-600"
-                >
-                  {link.name}
-                </a>
-              ))}
-              <div className="pt-4 flex flex-col gap-3">
-                <Link
-                  to="/login"
-                  className="w-full py-3 text-center font-semibold text-gray-700 border border-gray-200 rounded-xl"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Login
-                </Link>
-                <Link
-                  to="/signup"
-                  className="w-full py-3 text-center font-bold text-white bg-blue-600 rounded-xl shadow-lg"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Get Started
-                </Link>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {mobileOpen && (
+        <div style={{
+          position: 'absolute', top: '100%', left: 0, right: 0,
+          background: 'rgba(6,8,15,0.95)', backdropFilter: 'blur(20px)',
+          borderTop: '1px solid rgba(255,255,255,0.06)', padding: '24px'
+        }}>
+          {links.map(l => (
+            <a key={l.name} href={l.href}
+              onClick={() => setMobileOpen(false)}
+              style={{ display: 'block', padding: '12px 0', color: '#94a3b8', fontSize: '16px', fontWeight: 500, textDecoration: 'none', borderBottom: '1px solid rgba(255,255,255,0.04)' }}
+            >{l.name}</a>
+          ))}
+          <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+            <Link to="/login" className="nc-btn-ghost" onClick={() => setMobileOpen(false)}>Log In</Link>
+            <Link to="/signup" className="nc-btn-primary" onClick={() => setMobileOpen(false)}>Get Started</Link>
+          </div>
+        </div>
+      )}
     </nav>
   );
 };

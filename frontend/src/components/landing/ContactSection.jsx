@@ -1,249 +1,101 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, Phone, MapPin, Send, MessageSquare, Building2, User, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, MessageSquare, User, Building2, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 import api from '../../api/axiosInstance';
 
 const ContactSection = () => {
-  const [formData, setFormData] = useState({
-    fullName: '',
-    clinicName: '',
-    email: '',
-    phoneNumber: '',
-    message: ''
-  });
+  const [formData, setFormData] = useState({ fullName: '', clinicName: '', email: '', phoneNumber: '', message: '' });
+  const [status, setStatus] = useState({ loading: false, success: false, error: null });
 
-  const [status, setStatus] = useState({
-    loading: false,
-    success: false,
-    error: null
-  });
-
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
+  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Simple frontend validation
     if (!formData.fullName || !formData.email || !formData.message) {
       setStatus({ ...status, error: 'Please fill in all required fields.' });
       return;
     }
-
     setStatus({ loading: true, success: false, error: null });
-
     try {
-      // Calling the real backend endpoint we just created
       const response = await api.post('/contact', formData);
-      
       if (response.data.success) {
         setStatus({ loading: false, success: true, error: null });
-        setFormData({
-          fullName: '',
-          clinicName: '',
-          email: '',
-          phoneNumber: '',
-          message: ''
-        });
-      } else {
-        throw new Error(response.data.message || 'Something went wrong');
-      }
+        setFormData({ fullName: '', clinicName: '', email: '', phoneNumber: '', message: '' });
+      } else throw new Error(response.data.message || 'Something went wrong');
     } catch (err) {
-      console.error('Contact submit error:', err);
-      setStatus({ 
-        loading: false, 
-        success: false, 
-        error: err.response?.data?.message || 'Failed to send message. Please try again later.' 
-      });
+      setStatus({ loading: false, success: false, error: err.response?.data?.message || 'Failed to send message.' });
     }
   };
 
-  return (
-    <section id="contact" className="py-24 lg:py-32 bg-slate-50 relative overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
-          <div>
-            <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              className="mb-12"
-            >
-              <h2 className="text-4xl lg:text-5xl font-extrabold text-gray-900 mb-8 leading-tight">Ready to <span className="text-blue-700">Transform</span> Your Clinic?</h2>
-              <p className="text-xl text-gray-600 leading-relaxed max-w-xl">
-                Join the network of modern healthcare providers using NAMMA CLINIC. 
-                Our team will help you digitize your patient records and optimize your daily clinical operations.
-              </p>
-            </motion.div>
+  const inputStyle = {
+    width: '100%', padding: '14px 16px', borderRadius: '12px', fontSize: '14px',
+    background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
+    color: '#fff', outline: 'none', fontFamily: 'Inter, sans-serif',
+    transition: 'border-color 0.3s',
+  };
 
-            <div className="space-y-8">
+  return (
+    <section className="nc-section" id="contact" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+      <div className="nc-section-inner">
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '80px', alignItems: 'start' }}>
+          <div>
+            <div className="nc-section-header">
+              <div className="nc-section-tag emerald">Contact</div>
+              <h2 className="nc-section-title">Ready to Transform Your Clinic?</h2>
+              <p className="nc-section-subtitle">Our team will help you digitize patient records and optimize clinical operations.</p>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               {[
-                { icon: <Mail className="text-blue-700" />, label: "Support Email", value: "zuhvix.tech@gmail.com" },
-                { icon: <Phone className="text-blue-700" />, label: "Clinic Hotline", value: "+91 63827 15355" },
-                { icon: <MapPin className="text-blue-700" />, label: "Headquarters", value: "Tamil Nadu, India" },
+                { icon: <Mail size={20} />, label: 'Email', value: 'zuhvix.tech@gmail.com' },
+                { icon: <Phone size={20} />, label: 'Phone', value: '+91 63827 15355' },
+                { icon: <MapPin size={20} />, label: 'Location', value: 'Tamil Nadu, India' },
               ].map((item, i) => (
-                <div key={i} className="flex items-center gap-5">
-                  <div className="w-12 h-12 bg-white rounded-xl shadow-sm border border-gray-100 flex items-center justify-center">
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(59,130,246,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#3b82f6' }}>
                     {item.icon}
                   </div>
                   <div>
-                    <div className="text-xs font-bold text-gray-400 uppercase tracking-widest">{item.label}</div>
-                    <div className="text-lg font-bold text-gray-900">{item.value}</div>
+                    <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#64748b' }}>{item.label}</div>
+                    <div style={{ fontSize: 15, fontWeight: 600, color: '#fff' }}>{item.value}</div>
                   </div>
                 </div>
               ))}
             </div>
-
-            <div className="mt-12 p-8 rounded-[2rem] bg-gradient-to-br from-blue-700 to-indigo-800 text-white relative overflow-hidden shadow-xl shadow-blue-200">
-              <div className="absolute top-[-20%] right-[-20%] w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
-              <h4 className="text-xl font-bold mb-2 relative z-10">24/7 Deployment Support</h4>
-              <p className="text-blue-100 relative z-10">Our technical specialists ensure a smooth transition with zero downtime for your medical practice.</p>
-            </div>
           </div>
 
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            className="bg-white rounded-[2.5rem] border border-gray-100 p-8 md:p-12 shadow-2xl relative"
-          >
-            <AnimatePresence mode="wait">
-              {status.success ? (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  className="text-center py-12"
-                >
-                  <div className="w-20 h-20 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <CheckCircle2 size={48} />
+          <div style={{ padding: '40px', borderRadius: '24px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+            {status.success ? (
+              <div style={{ textAlign: 'center', padding: '40px 0' }}>
+                <CheckCircle2 size={48} style={{ color: '#10b981', margin: '0 auto 16px' }} />
+                <h3 style={{ fontSize: 24, fontWeight: 700, color: '#fff', marginBottom: 8 }}>Message Sent!</h3>
+                <p style={{ color: '#64748b', marginBottom: 24 }}>A NAMMA CLINIC representative will contact you within 24 hours.</p>
+                <button onClick={() => setStatus({ ...status, success: false })} className="nc-btn-primary">Send Another</button>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <h3 style={{ fontSize: 20, fontWeight: 700, color: '#fff', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <MessageSquare size={20} style={{ color: '#3b82f6' }} /> Request a Demo
+                </h3>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                  <input style={inputStyle} name="fullName" value={formData.fullName} onChange={handleChange} placeholder="Full Name *" required />
+                  <input style={inputStyle} name="email" value={formData.email} onChange={handleChange} placeholder="Email *" type="email" required />
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                  <input style={inputStyle} name="clinicName" value={formData.clinicName} onChange={handleChange} placeholder="Clinic Name" />
+                  <input style={inputStyle} name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} placeholder="Phone" />
+                </div>
+                <textarea style={{ ...inputStyle, minHeight: 100, resize: 'vertical' }} name="message" value={formData.message} onChange={handleChange} placeholder="Tell us about your clinic's needs... *" required />
+                {status.error && (
+                  <div style={{ padding: '12px 16px', borderRadius: 12, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.15)', color: '#ef4444', fontSize: 13, display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <AlertCircle size={16} /> {status.error}
                   </div>
-                  <h3 className="text-3xl font-bold text-gray-900 mb-4">Message Sent!</h3>
-                  <p className="text-gray-600 mb-8 max-w-sm mx-auto text-lg leading-relaxed">
-                    Thank you for reaching out. A NAMMA CLINIC representative will contact you at <b>{formData.email}</b> within 24 hours.
-                  </p>
-                  <button 
-                    onClick={() => setStatus({ ...status, success: false })}
-                    className="px-8 py-3 bg-blue-700 text-white font-bold rounded-xl hover:bg-blue-800 transition-colors"
-                  >
-                    Send Another Message
-                  </button>
-                </motion.div>
-              ) : (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                >
-                  <h3 className="text-2xl font-bold text-gray-900 mb-8 flex items-center gap-2">
-                    <MessageSquare className="text-blue-700" /> Request a Live Demo
-                  </h3>
-
-                  <form className="space-y-6" onSubmit={handleSubmit}>
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
-                          <User size={14} className="text-blue-700" /> Full Name *
-                        </label>
-                        <input 
-                          type="text" 
-                          name="fullName"
-                          value={formData.fullName}
-                          onChange={handleChange}
-                          placeholder="Dr. Rajesh Kumar" 
-                          className="bg-gray-50 border-gray-100 focus:bg-white focus:ring-2 focus:ring-blue-500/20" 
-                          required
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
-                          <Mail size={14} className="text-blue-700" /> Email Address *
-                        </label>
-                        <input 
-                          type="email" 
-                          name="email"
-                          value={formData.email}
-                          onChange={handleChange}
-                          placeholder="rajesh@clinic.com" 
-                          className="bg-gray-50 border-gray-100 focus:bg-white focus:ring-2 focus:ring-blue-500/20" 
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
-                          <Building2 size={14} className="text-blue-700" /> Clinic/Hospital Name
-                        </label>
-                        <input 
-                          type="text" 
-                          name="clinicName"
-                          value={formData.clinicName}
-                          onChange={handleChange}
-                          placeholder="City Heart Center" 
-                          className="bg-gray-50 border-gray-100 focus:bg-white focus:ring-2 focus:ring-blue-500/20" 
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
-                          <Phone size={14} className="text-blue-700" /> Phone Number
-                        </label>
-                        <input 
-                          type="tel" 
-                          name="phoneNumber"
-                          value={formData.phoneNumber}
-                          onChange={handleChange}
-                          placeholder="+91 98XXX XXXXX" 
-                          className="bg-gray-50 border-gray-100 focus:bg-white focus:ring-2 focus:ring-blue-500/20" 
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <label className="text-sm font-bold text-gray-700">Detailed Message *</label>
-                      <textarea 
-                        name="message"
-                        value={formData.message}
-                        onChange={handleChange}
-                        rows="4" 
-                        placeholder="Tell us about your clinic's needs..." 
-                        className="bg-gray-50 border-gray-100 focus:bg-white focus:ring-2 focus:ring-blue-500/20"
-                        required
-                      ></textarea>
-                    </div>
-
-                    {status.error && (
-                      <div className="p-4 rounded-xl bg-red-50 text-red-600 text-sm font-medium flex items-center gap-3 border border-red-100">
-                        <AlertCircle size={18} />
-                        {status.error}
-                      </div>
-                    )}
-
-                    <button 
-                      type="submit"
-                      disabled={status.loading}
-                      className={`w-full py-4 bg-blue-700 text-white font-bold rounded-2xl shadow-xl shadow-blue-100 hover:bg-blue-800 hover:shadow-2xl hover:-translate-y-1 transition-all flex items-center justify-center gap-2 ${status.loading ? 'opacity-80 cursor-not-allowed' : ''}`}
-                    >
-                      {status.loading ? (
-                        <>
-                          <Loader2 size={20} className="animate-spin" /> Sending Message...
-                        </>
-                      ) : (
-                        <>
-                          Send Message <Send size={18} />
-                        </>
-                      )}
-                    </button>
-                  </form>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
+                )}
+                <button type="submit" disabled={status.loading} className="nc-btn-primary" style={{ width: '100%', padding: '16px', fontSize: 15, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                  {status.loading ? <><Loader2 size={18} className="animate-spin" /> Sending...</> : <><Send size={16} /> Send Message</>}
+                </button>
+              </form>
+            )}
+          </div>
         </div>
       </div>
     </section>
