@@ -9,7 +9,8 @@ import RoleDropdown from '../components/common/RoleDropdown';
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, CheckCircle, ArrowRight } from 'lucide-react';
-import logo from '../assets/Namma Clinic logo.jpeg';
+import logo from '../assets/logo.jpg';
+import BrandText from '../components/common/BrandText';
 import './SignupPage.css';
 
 const SignupPage = () => {
@@ -219,9 +220,10 @@ const SignupPage = () => {
             >
                 {/* Logo and Header */}
                 <div className="flex flex-col items-center mb-8">
-                    <img src={logo} alt="Namma Clinic Logo" className="w-24 h-24 mb-4 object-contain" />
-                    <h1 className="text-2xl font-bold text-[#333]">Create Account</h1>
-                    <p className="text-[#757575] text-sm font-medium">Join Namma Clinic Clinical App</p>
+                    <img src={logo} alt="NAMMA CLINIC Logo" className="w-24 h-24 mb-4 object-contain" />
+                    <BrandText className="text-3xl mb-1" />
+                    <h1 className="text-xl font-bold text-[#333]">Create Account</h1>
+                    <p className="text-[#757575] text-sm font-medium">Join NAMMA CLINIC Clinical App</p>
                 </div>
 
                 {/* Progress Bar */}

@@ -1,21 +1,22 @@
 import React from 'react';
 import { Target, Mail, Activity, ShieldCheck, ClipboardCheck, Sparkles } from 'lucide-react';
 import './About.css';
-import logo from '../assets/Namma Clinic logo.jpeg';
+import logo from '../assets/logo.jpg';
+import BrandText from '../components/common/BrandText';
 
 const About = () => {
     return (
         <div className="about-container">
             <div className="about-header">
-                <img src={logo} alt="Namma Clinic" className="about-logo" />
-                <h1>About Namma Clinic</h1>
+                <img src={logo} alt="NAMMA CLINIC" className="about-logo" />
+                <h1>About <BrandText /></h1>
                 <p>Revolutionizing Healthcare, One Patient at a Time</p>
             </div>
 
             <div className="about-card">
                 <div className="about-intro">
                     <p>
-                        <strong>Namma Clinic</strong> is a comprehensive healthcare management platform designed to bridge the gap between patients, doctors, and clinics. Our mission is to make healthcare accessible, efficient, and patient-centric through the power of technology.
+                        <BrandText /> is a comprehensive healthcare management platform designed to bridge the gap between patients, doctors, and clinics. Our mission is to make healthcare accessible, efficient, and patient-centric through the power of technology.
                     </p>
                 </div>
 
@@ -55,7 +56,7 @@ const About = () => {
             </div>
 
             <div className="about-footer">
-                &copy; {new Date().getFullYear()} Namma Clinic. Providing Premium Healthcare Facilities.
+                &copy; {new Date().getFullYear()} NAMMA CLINIC. Providing Premium Healthcare Facilities.
             </div>
         </div>
     );

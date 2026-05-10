@@ -75,7 +75,7 @@ const ContactSection = () => {
             >
               <h2 className="text-4xl lg:text-5xl font-extrabold text-gray-900 mb-8 leading-tight">Ready to <span className="text-blue-700">Transform</span> Your Clinic?</h2>
               <p className="text-xl text-gray-600 leading-relaxed max-w-xl">
-                Join the network of modern healthcare providers using Namma Clinic. 
+                Join the network of modern healthcare providers using NAMMA CLINIC. 
                 Our team will help you digitize your patient records and optimize your daily clinical operations.
               </p>
             </motion.div>
@@ -124,7 +124,7 @@ const ContactSection = () => {
                   </div>
                   <h3 className="text-3xl font-bold text-gray-900 mb-4">Message Sent!</h3>
                   <p className="text-gray-600 mb-8 max-w-sm mx-auto text-lg leading-relaxed">
-                    Thank you for reaching out. A Namma Clinic representative will contact you at <b>{formData.email}</b> within 24 hours.
+                    Thank you for reaching out. A NAMMA CLINIC representative will contact you at <b>{formData.email}</b> within 24 hours.
                   </p>
                   <button 
                     onClick={() => setStatus({ ...status, success: false })}

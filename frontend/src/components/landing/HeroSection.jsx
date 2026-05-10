@@ -29,7 +29,7 @@ const HeroSection = () => {
             </div>
             
             <h1 className="text-5xl lg:text-7xl font-extrabold text-gray-900 leading-[1.1] mb-6">
-              AI-Powered <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-700 to-indigo-700">Namma Clinic</span> Platform
+              AI-Powered <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-700 to-indigo-700">NAMMA CLINIC</span> Platform
             </h1>
             
             <p className="text-xl text-gray-600 mb-10 leading-relaxed max-w-xl">

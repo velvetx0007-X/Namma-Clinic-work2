@@ -562,7 +562,7 @@ const ReceptionistDashboard = () => {
                 {/* PATIENTS TAB */}
                 {activeTab === 'patients' && (
                     <div className="content-section">
-                        <h1><Users className="header-icon" /> Namma Clinic Patient Directory</h1>
+                        <h1><Users className="header-icon" /> NAMMA CLINIC Patient Directory</h1>
                         <PatientHistory source="receptionist" />
                     </div>
                 )}

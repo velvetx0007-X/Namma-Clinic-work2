@@ -4,7 +4,8 @@ import { jsPDF } from 'jspdf';
 import { motion } from 'framer-motion';
 import gsap from 'gsap';
 import { ShieldCheck, Download, Edit3 } from 'lucide-react';
-import logo from '../assets/Namma Clinic logo.jpeg';
+import logo from '../assets/logo.jpg';
+import BrandText from './common/BrandText';
 
 import './DigitalIDCard.css';
 
@@ -49,7 +50,7 @@ const DigitalIDCard = ({ user, onEdit }) => {
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
             pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-            pdf.save(`${displayName}_NammaClinic_ID.pdf`);
+            pdf.save(`${displayName}_NAMMA_CLINIC_ID.pdf`);
         } catch (err) {
             console.error('PDF Error:', err);
             alert('Failed to generate PDF');
@@ -100,8 +101,8 @@ const DigitalIDCard = ({ user, onEdit }) => {
 
                 <div className="card-header overflow-hidden">
                     <div className="card-brand flex items-center gap-2">
-                        <img src={logo} alt="Namma Clinic" className="card-logo w-8 h-8 rounded-lg" />
-                        <h3 className="font-bold text-white tracking-wide">Namma Clinic</h3>
+                        <img src={logo} alt="NAMMA CLINIC" className="card-logo w-8 h-8 rounded-lg" />
+                        <BrandText className="text-white text-sm" />
                     </div>
 
                     <motion.div
@@ -210,7 +211,7 @@ const DigitalIDCard = ({ user, onEdit }) => {
                         </p>
                     </div>
                     <div className="footer-text">
-                        <p>This is a digital identity card issued by Namma Clinic.</p>
+                        <p>This is a digital identity card issued by NAMMA CLINIC.</p>
                         <p>Emergency Contact: 911</p>
                     </div>
                 </div>

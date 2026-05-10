@@ -8,7 +8,8 @@ import {
     Activity, Clock, Sparkles, Heart 
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import logo from '../assets/Namma Clinic logo.jpeg';
+import logo from '../assets/logo.jpg';
+import BrandText from '../components/common/BrandText';
 import './ReviewPage.css';
 
 const ReviewPage = () => {
@@ -159,8 +160,8 @@ const ReviewPage = () => {
         <div className={`review-page-bg ${isDarkMode ? 'dark' : ''}`}>
             <nav className="top-navbar-review">
                 <div className="navbar-brand" onClick={() => navigate('/patient-dashboard')}>
-                    <img src={logo} alt="Namma Clinic" className="navbar-logo" />
-                    <h2>Namma Clinic</h2>
+                    <img src={logo} alt="NAMMA CLINIC" className="navbar-logo" />
+                    <BrandText className="text-xl" />
                 </div>
                 <button className="back-btn" onClick={() => navigate('/patient-dashboard')}>
                     <ChevronLeft size={20} /> Back to Dashboard

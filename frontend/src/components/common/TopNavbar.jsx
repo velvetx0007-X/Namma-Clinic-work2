@@ -3,7 +3,8 @@ import { Menu, LogOut } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import logo from '../../assets/Namma Clinic logo.jpeg';
+import logo from '../../assets/logo.jpg';
+import BrandText from './BrandText';
 
 import NotificationBell from '../NotificationBell';
 
@@ -12,7 +13,7 @@ const TopNavbar = ({ onMenuClick }) => {
     const navigate = useNavigate();
 
     const handleLogout = () => {
-        const confirmed = window.confirm("Are you sure you want to logout from Namma Clinic?");
+        const confirmed = window.confirm("Are you sure you want to logout from NAMMA CLINIC?");
         if (confirmed) {
             logout();
             navigate('/login');
@@ -40,10 +41,8 @@ const TopNavbar = ({ onMenuClick }) => {
                     </button>
                     
                     <div className="flex items-center gap-2 lg:gap-3 cursor-pointer" onClick={() => navigate('/')}>
-                        <img src={logo} alt="Namma Clinic Logo" className="w-8 h-8 lg:w-10 lg:h-10 rounded-full object-cover shadow-sm" />
-                        <span className="text-lg lg:text-xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-indigo-700 dark:from-blue-400 dark:to-indigo-400 hidden sm:block">
-                            Namma Clinic
-                        </span>
+                        <img src={logo} alt="NAMMA CLINIC Logo" className="w-8 h-8 lg:w-10 lg:h-10 rounded-lg object-contain shadow-sm" />
+                        <BrandText className="text-lg lg:text-xl hidden sm:flex" />
                     </div>
                 </div>
 

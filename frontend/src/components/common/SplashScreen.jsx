@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
-import logo from '../../assets/Namma Clinic logo.jpeg';
+import logo from '../../assets/logo.jpg';
+import BrandText from './BrandText';
 import './SplashScreen.css';
 
 const SplashScreen = ({ onComplete }) => {
@@ -22,7 +23,7 @@ const SplashScreen = ({ onComplete }) => {
                 <div className="logo-wrapper">
                     <motion.img 
                         src={logo} 
-                        alt="Namma Clinic" 
+                        alt="NAMMA CLINIC" 
                         animate={{ 
                             scale: [0.9, 1],
                             opacity: [0, 1]
@@ -33,13 +34,14 @@ const SplashScreen = ({ onComplete }) => {
                         }}
                     />
                 </div>
-                <motion.h1
+                <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.5, duration: 0.8 }}
+                    className="flex justify-center"
                 >
-                    Namma <span>Clinic</span>
-                </motion.h1>
+                    <BrandText className="text-4xl" />
+                </motion.div>
                 <motion.div 
                     className="loading-bar-container"
                     initial={{ opacity: 0 }}

@@ -1022,7 +1022,7 @@ const PatientDashboard = () => {
                                                 <div className="record-icon rx"><Pill size={16} /></div>
                                                 <div className="record-details">
                                                     <h4>Prescription: {p.medications?.[0]?.drugName || 'Consultation Record'}</h4>
-                                                    <p>By Dr. {p.doctorId?.userName || 'Namma Clinic'} • {new Date(p.createdAt).toLocaleDateString()}</p>
+                                                    <p>By Dr. {p.doctorId?.userName || 'NAMMA CLINIC'} • {new Date(p.createdAt).toLocaleDateString()}</p>
                                                 </div>
                                                 <ChevronRight className="ml-auto text-slate-300" size={18} />
                                             </div>

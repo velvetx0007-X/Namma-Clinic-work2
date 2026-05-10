@@ -151,7 +151,7 @@ const AIHealthAssistant = ({ onClose, context }) => {
                         <div className="bot-icon-wrapper">
                             <Bot className="text-white" size={20} />
                         </div>
-                        <h3>Namma Clinic <span>AI</span></h3>
+                        <h3>NAMMA CLINIC <span>AI</span></h3>
                     </div>
                     {/* FIXED STATIC CLOSE BUTTON */}
                     <button onClick={onClose} className="global-close-btn-fixed" title="Close Assistant">

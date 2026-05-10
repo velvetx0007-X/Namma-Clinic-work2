@@ -13,7 +13,7 @@ import LandingFooter from '../components/landing/LandingFooter';
 const LandingPage = () => {
   useEffect(() => {
     // Set Page Title and SEO Meta
-    document.title = "Namma Clinic | AI-Powered Smart Healthcare Management";
+    document.title = "NAMMA CLINIC | AI-Powered Smart Healthcare Management";
     
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {

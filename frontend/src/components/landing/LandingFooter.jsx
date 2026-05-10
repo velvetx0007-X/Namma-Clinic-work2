@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Twitter, Linkedin, Facebook, Github, Heart } from 'lucide-react';
-import logo from '../../assets/Namma Clinic logo.jpeg';
+import logo from '../../assets/logo.jpg';
+import BrandText from '../common/BrandText';
 
 const LandingFooter = () => {
   return (
@@ -9,15 +10,13 @@ const LandingFooter = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-16 mb-20">
           <div className="space-y-8">
-            <Link to="/" className="flex items-center gap-2">
+            <Link to="/" className="flex items-center gap-3">
               <img 
                 src={logo} 
-                alt="Namma Clinic Logo" 
-                className="w-10 h-10 rounded-full object-cover shadow-sm" 
+                alt="NAMMA CLINIC Logo" 
+                className="w-12 h-12 rounded-lg object-contain shadow-sm" 
               />
-              <span className="text-xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-700 to-indigo-700">
-                NammaClinic
-              </span>
+              <BrandText className="text-xl" />
             </Link>
             <p className="text-gray-500 leading-relaxed max-w-xs">
               Empowering clinics with AI-powered tools for better patient outcomes and efficient clinical workflows.
@@ -84,7 +83,7 @@ const LandingFooter = () => {
 
         <div className="pt-10 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-6">
           <p className="text-gray-400 text-sm">
-            © {new Date().getFullYear()} Namma Clinic. All rights reserved.
+            © {new Date().getFullYear()} NAMMA CLINIC. All rights reserved.
           </p>
           <p className="text-gray-400 text-sm flex items-center gap-1">
             Made with <Heart size={14} className="text-red-500 fill-current" /> for a healthier world.

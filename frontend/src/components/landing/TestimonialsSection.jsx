@@ -5,7 +5,7 @@ import { Quote, ChevronLeft, ChevronRight, Star } from 'lucide-react';
 const TestimonialsSection = () => {
   const testimonials = [
     {
-      text: "Namma Clinic has completely transformed how I manage my practice. The AI health assistant provides insights that have directly improved my patient outcomes. Highly recommended!",
+      text: "NAMMA CLINIC has completely transformed how I manage my practice. The AI health assistant provides insights that have directly improved my patient outcomes. Highly recommended!",
       author: "Dr.demodoc1",
       role: "Lead Cardiologist, HeartCare Center",
       avatar: "AS",

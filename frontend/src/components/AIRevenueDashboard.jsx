@@ -11,7 +11,7 @@ import {
     ChevronDown, MapPin, Search
 } from 'lucide-react';
 import api from '../api/axiosInstance';
-import logo from '../assets/Namma Clinic logo.jpeg';
+import logo from '../assets/logo.jpg';
 import './AIRevenueDashboard.css';
 
 const AIRevenueDashboard = ({ doctorId = null, clinicId = null }) => {
@@ -82,9 +82,9 @@ const AIRevenueDashboard = ({ doctorId = null, clinicId = null }) => {
             {/* TOP HEADER & LOGO SECTION */}
             <div className="refined-rev-header">
                 <div className="header-brand-main">
-                    <img src={logo} alt="Namma Clinic Logo" className="branding-logo" />
+                    <img src={logo} alt="NAMMA CLINIC Logo" className="branding-logo" />
                     <div className="branding-text">
-                        <span className="brand-primary">Namma Clinic</span>
+                        <span className="brand-primary">NAMMA CLINIC</span>
                         <span className="brand-tagline">AI Revenue Intelligence Platform</span>
                     </div>
                 </div>

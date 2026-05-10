@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
+import BrandText from '../components/common/BrandText';
 import './HomePage.css';
 
 const HomePage = () => {
@@ -39,7 +40,7 @@ const HomePage = () => {
             <nav className="navbar">
                 <div className="nav-content">
                     <div className="nav-brand">
-                        <h2>Namma Clinic</h2>
+                        <BrandText className="text-2xl" />
                     </div>
                     <ul className="nav-links">
                         <li><a href="/home" className="active">Product</a></li>
@@ -135,7 +136,7 @@ const HomePage = () => {
             {/* Unique Features */}
             <section id="features" className="features-section">
                 <div className="section-header">
-                    <h2>Why Choose Health-One?</h2>
+                    <h2>Why Choose NAMMA CLINIC?</h2>
                 </div>
                 <div className="unique-features-grid">
                     <div className="u-feature">
@@ -170,7 +171,7 @@ const HomePage = () => {
                         <span className="section-tag">WHO WE ARE</span>
                         <h2 className="text-4xl font-extrabold text-emerald-950 mb-6">Pioneering the Digital <br />Health Revolution</h2>
                         <p className="text-slate-600 text-lg mb-8 leading-relaxed">
-                            Health-One is more than just a software; it's a commitment to clinical excellence. Inspired by the world's leading healthcare platforms, we've built a unified ecosystem that connects patients, doctors, and healthcare providers seamlessly.
+                            NAMMA CLINIC is more than just a software; it's a commitment to clinical excellence. Inspired by the world's leading healthcare platforms, we've built a unified ecosystem that connects patients, doctors, and healthcare providers seamlessly.
                         </p>
                         <div className="grid grid-cols-2 gap-6">
                             <div className="v-box">
@@ -190,7 +191,7 @@ const HomePage = () => {
             <footer className="home-footer pb-20">
                 <div className="max-w-1200 mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 mb-16 text-left">
                     <div className="col-span-1 md:col-span-2">
-                        <h3 className="text-2xl font-black text-emerald-600 mb-6">Health-One</h3>
+                        <BrandText className="text-2xl mb-6" />
                         <p className="text-slate-500 max-w-sm">The ultimate operating system for modern healthcare businesses. Built with ❤️ for doctors and patients.</p>
                     </div>
                     <div>
@@ -211,7 +212,7 @@ const HomePage = () => {
                     </div>
                 </div>
                 <div className="border-t border-slate-100 pt-10">
-                    <p>&copy; 2025 Health-One Clinical App. All rights reserved.</p>
+                    <p>&copy; {new Date().getFullYear()} NAMMA CLINIC. All rights reserved.</p>
                 </div>
             </footer>
         </div>

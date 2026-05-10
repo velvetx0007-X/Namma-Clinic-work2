@@ -34,7 +34,7 @@ const SupplementalSections = () => {
   const resourceSections = {
     documentation: {
       title: "Healthcare SaaS Documentation",
-      subtitle: "Comprehensive guides for Namma Clinic ecosystem",
+      subtitle: "Comprehensive guides for NAMMA CLINIC ecosystem",
       content: (
         <div className="grid md:grid-cols-2 gap-12">
           <div className="space-y-8">
@@ -70,7 +70,7 @@ const SupplementalSections = () => {
               <h4 className="text-xl font-bold text-purple-900 mb-4 flex items-center gap-2">
                 <Activity size={20} /> Wellness Tracking
               </h4>
-              <p className="text-gray-600">Integration guide for wearables and real-time vital monitoring across the Namma Clinic platform.</p>
+              <p className="text-gray-600">Integration guide for wearables and real-time vital monitoring across the NAMMA CLINIC platform.</p>
             </div>
           </div>
         </div>
@@ -185,7 +185,7 @@ const SupplementalSections = () => {
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div className="space-y-8">
             <h4 className="text-2xl font-bold text-gray-900 leading-tight">Join 5,000+ Healthcare Professionals</h4>
-            <p className="text-lg text-gray-600">The Namma Clinic community is where the future of Indian healthcare is being discussed and built together.</p>
+            <p className="text-lg text-gray-600">The NAMMA CLINIC community is where the future of Indian healthcare is being discussed and built together.</p>
             <div className="grid grid-cols-2 gap-4">
               {[
                 { title: "Clinical Forums", icon: <MessageSquare size={18} /> },
@@ -212,7 +212,7 @@ const SupplementalSections = () => {
                 </div>
              </div>
              <blockquote className="text-lg text-gray-700 italic mb-8">
-               "Namma Clinic has not only improved my workflow but connected me with a network of innovators that are truly changing how we treat patients."
+               "NAMMA CLINIC has not only improved my workflow but connected me with a network of innovators that are truly changing how we treat patients."
              </blockquote>
              <div className="flex gap-4">
                 <div className="px-4 py-2 rounded-xl bg-white text-xs font-bold text-gray-500 border border-gray-100 flex items-center gap-2">
@@ -287,7 +287,7 @@ const SupplementalSections = () => {
               </div>
               <h2 className="text-4xl lg:text-5xl font-extrabold text-gray-900 mb-8 leading-tight">Next-Gen <span className="text-blue-700">AI Assistant</span></h2>
               <p className="text-xl text-gray-600 mb-10 leading-relaxed">
-                Namma Clinic's proprietary AI engine provides real-time clinical decision support, identifying potential health risks before they become critical.
+                NAMMA CLINIC's proprietary AI engine provides real-time clinical decision support, identifying potential health risks before they become critical.
               </p>
               <ul className="space-y-6">
                 {[
@@ -382,7 +382,7 @@ const SupplementalSections = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
            <div className="text-center mb-16 lg:mb-24">
               <h2 className="text-4xl lg:text-5xl font-extrabold text-gray-900 mb-6">Knowledge & <span className="text-blue-700">Resources</span></h2>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">Everything you need to master Namma Clinic, from technical documentation to community best practices.</p>
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">Everything you need to master NAMMA CLINIC, from technical documentation to community best practices.</p>
            </div>
            
            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10 mb-16">
@@ -456,7 +456,7 @@ const SupplementalSections = () => {
              <div>
                 <h2 className="text-4xl lg:text-5xl font-extrabold mb-8 leading-tight">Our Mission</h2>
                 <p className="text-xl text-slate-400 mb-10 leading-relaxed">
-                  We started Namma Clinic with a simple goal: to make world-class healthcare technology accessible to every clinic in India and beyond. We believe that better tools lead to better outcomes.
+                  We started NAMMA CLINIC with a simple goal: to make world-class healthcare technology accessible to every clinic in India and beyond. We believe that better tools lead to better outcomes.
                 </p>
                 <div className="flex gap-12 lg:gap-16">
                   <div>
@@ -495,11 +495,11 @@ const SupplementalSections = () => {
             <div className="prose prose-blue prose-lg max-w-none text-gray-600 space-y-8">
               <p className="font-bold text-gray-900 border-b border-gray-100 pb-4">Last Updated: May 2026</p>
               <p className="text-lg leading-relaxed">
-                At Namma Clinic, we take patient data privacy with the utmost seriousness. Our platform is built from the ground up to comply with global healthcare standards, including HIPAA (USA) and DISHA (India).
+                At NAMMA CLINIC, we take patient data privacy with the utmost seriousness. Our platform is built from the ground up to comply with global healthcare standards, including HIPAA (USA) and DISHA (India).
               </p>
               <div className="space-y-6">
                 <h4 className="text-2xl font-bold text-gray-900">1. Data Ownership</h4>
-                <p className="leading-relaxed">Patients and healthcare providers retain 100% ownership of their medical records. Namma Clinic acts only as a secure custodian of this data, providing the infrastructure to manage it effectively.</p>
+                <p className="leading-relaxed">Patients and healthcare providers retain 100% ownership of their medical records. NAMMA CLINIC acts only as a secure custodian of this data, providing the infrastructure to manage it effectively.</p>
                 <h4 className="text-2xl font-bold text-gray-900">2. AI Usage Disclosure</h4>
                 <p className="leading-relaxed">Our AI Health Assistant analyzes data locally within secure environments. No patient data is used to train external AI models without explicit, informed consent and complete de-identification protocols.</p>
               </div>
@@ -517,7 +517,7 @@ const SupplementalSections = () => {
             <div className="prose prose-indigo prose-lg max-w-none text-gray-600 space-y-8">
               <div className="space-y-6">
                 <h4 className="text-2xl font-bold text-gray-900">Usage Agreement</h4>
-                <p className="leading-relaxed">By using Namma Clinic, healthcare providers agree to maintain accurate medical records and respect patient confidentiality as per their local medical council guidelines and legal requirements.</p>
+                <p className="leading-relaxed">By using NAMMA CLINIC, healthcare providers agree to maintain accurate medical records and respect patient confidentiality as per their local medical council guidelines and legal requirements.</p>
                 <h4 className="text-2xl font-bold text-gray-900">Platform Availability</h4>
                 <p className="leading-relaxed">We guarantee 99.9% uptime for our clinical services, ensuring that vital patient information is always accessible when needed most during critical clinical encounters.</p>
               </div>

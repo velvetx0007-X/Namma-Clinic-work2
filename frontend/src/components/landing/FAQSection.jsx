@@ -49,7 +49,7 @@ const FAQSection = () => {
     },
     {
       question: "Can I migrate data from my current system?",
-      answer: "Yes! We offer professional migration services and robust API tools to help you import your existing patient records, appointment history, and staff data into Namma Clinic with zero downtime."
+      answer: "Yes! We offer professional migration services and robust API tools to help you import your existing patient records, appointment history, and staff data into NAMMA CLINIC with zero downtime."
     },
     {
       question: "What kind of support do you provide?",
@@ -57,7 +57,7 @@ const FAQSection = () => {
     },
     {
       question: "Does the platform work on mobile devices?",
-      answer: "Yes, Namma Clinic is fully responsive and works perfectly on desktops, tablets, and smartphones. We also offer dedicated mobile apps for both doctors and patients for the best experience on the go."
+      answer: "Yes, NAMMA CLINIC is fully responsive and works perfectly on desktops, tablets, and smartphones. We also offer dedicated mobile apps for both doctors and patients for the best experience on the go."
     },
   ];
 

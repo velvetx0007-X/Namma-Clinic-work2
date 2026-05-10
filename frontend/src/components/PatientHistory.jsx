@@ -160,7 +160,7 @@ const PatientHistory = ({ source = 'doctor' }) => {
                     >
                         <div className="records-header">
                             <div className="title-area">
-                                <h2>{source === 'receptionist' ? 'Namma Clinic Patient Directory' : 'Clinical Patient Records'}</h2>
+                                <h2>{source === 'receptionist' ? 'NAMMA CLINIC Patient Directory' : 'Clinical Patient Records'}</h2>
                                 <p className="text-slate-500 text-sm">{source === 'receptionist' ? 'Manage and search all registered patients' : 'Access and manage patient clinical histories'}</p>
                             </div>
                             {source === 'doctor' && (

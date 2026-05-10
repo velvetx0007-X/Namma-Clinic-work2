@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Edit, Save, X, Bot, Cpu, ShieldCheck, Clock, Calendar, MapPin, Phone, Mail, Github, Twitter, Linkedin, Activity, Heart } from 'lucide-react';
-import logo from '../assets/Namma Clinic logo.jpeg';
+import logo from '../assets/logo.jpg';
+import BrandText from './common/BrandText';
 import './Footer.css';
 
 
@@ -8,7 +9,7 @@ import './Footer.css';
 
 const Footer = ({ links, isAdmin }) => {
     const [currentDate, setCurrentDate] = useState(new Date());
-    const [aboutText, setAboutText] = useState("Namma Clinic is a state-of-the-art clinical management system designed to bridge the gap between healthcare providers and patients. Our platform standardizes clinical workflows, enhances data accuracy, and ensures seamless communication, allowing doctors and nurses to focus more on patient care and less on administrative tasks.");
+    const [aboutText, setAboutText] = useState("NAMMA CLINIC is a state-of-the-art clinical management system designed to bridge the gap between healthcare providers and patients. Our platform standardizes clinical workflows, enhances data accuracy, and ensures seamless communication, allowing doctors and nurses to focus more on patient care and less on administrative tasks.");
     const [isEditing, setIsEditing] = useState(false);
     const [tempText, setTempText] = useState(aboutText);
 
@@ -42,7 +43,8 @@ const Footer = ({ links, isAdmin }) => {
             <div className="footer-content">
                 <div className="footer-section brand-section">
                     <div className="footer-logo-container">
-                        <img src={logo} alt="Namma Clinic" className="footer-logo" />
+                        <img src={logo} alt="NAMMA CLINIC" className="footer-logo" />
+                        <BrandText className="footer-brand-name" />
                     </div>
                     {isEditing ? (
                         <div className="edit-about-container">
@@ -136,7 +138,7 @@ const Footer = ({ links, isAdmin }) => {
             <div className="footer-bottom">
                 <div className="footer-bottom-content">
                     <p className="copyright-text">
-                        &copy; {currentDate.getFullYear()} Namma Clinic. All rights reserved.
+                        &copy; {currentDate.getFullYear()} NAMMA CLINIC. All rights reserved.
                         Made with <Heart color="var(--action-primary)" fill="var(--action-primary)" size={14} style={{ display: 'inline', verticalAlign: 'middle' }} /> for better healthcare.
                     </p>
                     <div className="current-stats">

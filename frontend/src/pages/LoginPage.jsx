@@ -7,7 +7,8 @@ import FloatingLabelInput from '../components/common/FloatingLabelInput';
 import ForgotPasswordModal from '../components/auth/ForgotPasswordModal';
 import RoleDropdown from '../components/common/RoleDropdown';
 import { motion, AnimatePresence } from 'framer-motion';
-import logo from '../assets/Namma Clinic logo.jpeg';
+import logo from '../assets/logo.jpg';
+import BrandText from '../components/common/BrandText';
 
 const LoginPage = () => {
     const [formData, setFormData] = useState({
@@ -89,8 +90,9 @@ const LoginPage = () => {
                 className="w-full max-w-[480px] bg-white p-10 rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.06)] border border-[#F0F0F0] text-center"
             >
                 <div className="flex flex-col items-center mb-8">
-                    <img src={logo} alt="Namma Clinic Logo" className="w-24 h-24 mb-4 object-contain" />
-                    <h1 className="text-2xl font-bold text-[#333]">Welcome Back</h1>
+                    <img src={logo} alt="NAMMA CLINIC Logo" className="w-24 h-24 mb-4 object-contain" />
+                    <BrandText className="text-3xl mb-1" />
+                    <h1 className="text-xl font-bold text-[#333]">Welcome Back</h1>
                     <p className="text-[#757575] text-sm mt-1">Please enter your details to sign in</p>
                 </div>
 

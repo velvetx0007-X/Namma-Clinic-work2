@@ -676,7 +676,7 @@ const DoctorDashboard = () => {
                 {/* PATIENTS TAB */}
                 {activeTab === 'patients' && (
                     <div className="content-section">
-                        <h1><Users className="header-icon" /> Namma Clinic Patient Records</h1>
+                        <h1><Users className="header-icon" /> NAMMA CLINIC Patient Records</h1>
                         <PatientHistory source="doctor" />
                     </div>
                 )}
