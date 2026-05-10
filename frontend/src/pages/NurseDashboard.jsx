@@ -1,9 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
-import logo from '../assets/Namma Clinic logo.jpeg';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useTheme } from '../context/ThemeContext';
 import api from '../api/axiosInstance';
 import DigitalIDCard from '../components/DigitalIDCard';
 import Footer from '../components/Footer';
@@ -17,35 +14,22 @@ import {
     Activity,
     Users,
     User,
-    LogOut,
-    Moon,
-    Sun,
     Plus,
     Save,
     Stethoscope,
     Pill,
     FileText,
-    MapPin,
-    Phone,
     Clock,
     UserPlus,
     History,
     FileSpreadsheet,
-    Menu,
-    X,
-    CheckCircle,
     AlertCircle,
     Upload,
     Thermometer,
     Droplets,
     Scale,
     Ruler,
-    Heart,
-    Search, // Added from new list
-    Clipboard, // Added from new list
-    Droplet, // Added from new list (Droplets was already there, keeping both for now)
-    Zap, // Added from new list
-    Wind // Added from new list
+    Heart
 } from 'lucide-react';
 import AIPrescriptionUpload from '../components/AIPrescriptionUpload';
 import PatientHistory from '../components/PatientHistory';
@@ -54,7 +38,6 @@ import './NurseDashboard.css';
 
 const NurseDashboard = () => {
     const { user, updateUser, logout } = useAuth();
-    const { isDarkMode, toggleTheme } = useTheme();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('home');
     const [uploadFile, setUploadFile] = useState(null);
@@ -193,12 +176,10 @@ const NurseDashboard = () => {
             alert('Update failed: ' + err.message);
         }
     };
-
     const handleLogout = () => {
         logout();
         navigate('/login');
     };
-
     const todayAppointments = appointments.filter(apt => {
         const date = new Date();
         const today = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;

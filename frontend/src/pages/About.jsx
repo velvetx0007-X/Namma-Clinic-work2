@@ -1,5 +1,5 @@
 import React from 'react';
-import { Heart, Target, Users, Mail, Phone, Activity, ShieldCheck, ClipboardCheck, Sparkles } from 'lucide-react';
+import { Target, Mail, Activity, ShieldCheck, ClipboardCheck, Sparkles } from 'lucide-react';
 import './About.css';
 import logo from '../assets/Namma Clinic logo.jpeg';
 

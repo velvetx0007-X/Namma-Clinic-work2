@@ -5,7 +5,7 @@ import api from '../api/axiosInstance';
 import {
     FileText, Pill, Activity, Upload, Download, ZoomIn, ZoomOut,
     X, Bot, ChevronLeft, Eye, Calendar, User, Phone, Hash,
-    Loader2, AlertCircle, FolderOpen, Sparkles, Image
+    Loader2, FolderOpen, Sparkles, Image
 } from 'lucide-react';
 import './PatientRecordsPage.css';
 

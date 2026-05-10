@@ -1,23 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { jsPDF } from 'jspdf';
-import html2canvas from 'html2canvas';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useTheme } from '../context/ThemeContext';
 import api from '../api/axiosInstance';
-import DigitalIDCard from '../components/DigitalIDCard';
 import AppointmentHistory from '../components/AppointmentHistory';
-import ClinicMap from '../components/ClinicMap';
 import Footer from '../components/Footer';
 import AIHealthAssistant from '../components/AIHealthAssistant';
-import SymptomChecker from '../ai_modules/symptom-checker';
-import RecordInsights from '../ai_modules/record-insights';
-import MedicationInfo from '../ai_modules/medication-info';
-import LifestyleTips from '../ai_modules/lifestyle-tips';
 import About from './About';
 import ProfileSettings from '../components/ProfileSettings';
-import AdvancedAIView from '../components/AdvancedAIView';
-import NotificationCenter from '../components/NotificationCenter';
 import StepTracker from '../components/StepTracker';
 import { motion, AnimatePresence } from 'framer-motion';
 import gsap from 'gsap';
@@ -87,13 +76,12 @@ const getTaskIcon = (type) => {
         case 'Stretching': return <Maximize size={18} />;
         case 'ChildCare': return <Baby size={18} />;
         case 'Goals': return <Target size={18} />;
-        default: return <Zap size={18} />;
+        default: return <Activity size={18} />;
     }
 };
 
 const PatientDashboard = () => {
-    const { user, updateUser, logout } = useAuth();
-    const { isDarkMode } = useTheme();
+    const { user } = useAuth();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('home');
     const [myReviews, setMyReviews] = useState([]);
@@ -106,31 +94,8 @@ const PatientDashboard = () => {
     const [clinics, setClinics] = useState([]);
     const [searchTerm] = useState('');
     const [userLocation, setUserLocation] = useState({ lat: 13.0827, lng: 80.2707 });
-    const [loading, setLoading] = useState(true);
     const [tasks, setTasks] = useState([]);
-    const [profileDetails] = useState({
-        bloodGroup: user.bloodGroup || '',
-        uhid: user.uhid || '',
-        age: user.age || '',
-        dob: user.dob ? new Date(user.dob).toISOString().split('T')[0] : '',
-        allergies: user.allergies || 'None reported',
-        medicalHistory: user.medicalHistory || 'No history available',
-        emergencyContact: {
-            name: user.emergencyContact?.name || '',
-            phone: user.emergencyContact?.phone || '',
-            relationship: user.emergencyContact?.relationship || ''
-        },
-        address: user.address || '',
-        area: user.area || ''
-    });
-    const [selectedClinic, setSelectedClinic] = useState(null);
 
-    const [editModes, setEditModes] = useState({
-        personal: false,
-        medical: false,
-        emergency: false,
-        address: false
-    });
     const [showBookingModal, setShowBookingModal] = useState(false);
     const [bookingData, setBookingData] = useState({
         doctorId: '',
@@ -139,34 +104,10 @@ const PatientDashboard = () => {
         type: 'scheduled',
         chiefComplaint: ''
     });
-    const editRef = useRef(null);
-
-    const handleEditCardClick = () => {
-        if (editRef.current) {
-            editRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            editRef.current.classList.add('highlight');
-            setTimeout(() => {
-                if (editRef.current) editRef.current.classList.remove('highlight');
-            }, 2000);
-        }
-    };
     const [uploadMessage, setUploadMessage] = useState({ type: '', text: '' });
     const [showChat, setShowChat] = useState(false);
-    const [selectedAIModule] = useState(null);
     const [selectedReview, setSelectedReview] = useState(null);
     const [showReviewDetail, setShowReviewDetail] = useState(false);
-    
-    // Advanced Review Form State
-    const [reviewForm] = useState({
-        clinicId: '',
-        rating: 5,
-        communication: 5,
-        treatment: 5,
-        waitingTime: 5,
-        recommend: true,
-        issueResolved: true,
-        comment: ''
-    });
 
     const [dailyActivity, setDailyActivity] = useState({
         steps: 0, distance: 0, calories: 0, duration: 0, water: 0, waterGoal: 2.5
@@ -222,6 +163,7 @@ const PatientDashboard = () => {
             }
         }, 10000);
 
+        return () => clearInterval(syncInterval);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user?.id]);
 
@@ -245,11 +187,9 @@ const PatientDashboard = () => {
         // Calculate Streak
         const dates = Object.keys(wellnessHistory).sort().reverse();
         let currentStreak = 0;
-        let checkDate = new Date();
         
         for (let i = 0; i < dates.length; i++) {
             const dateStr = dates[i];
-            const d = new Date(dateStr);
             
             // Check if this date has any completed tasks
             const hasCompleted = wellnessHistory[dateStr].length > 0;
@@ -299,7 +239,7 @@ const PatientDashboard = () => {
     };
 
     const allUpcoming = (appointments || []).filter(apt => isAppointmentUpcoming(apt) && apt.status !== 'cancelled').sort((a,b) => new Date(a.appointmentDate) - new Date(b.appointmentDate));
-    const pastAppointments = (appointments || []).filter(apt => !isAppointmentUpcoming(apt) || apt.status === 'completed' || apt.status === 'cancelled').sort((a,b) => new Date(b.appointmentDate) - new Date(a.appointmentDate));
+
     const appointmentTasksList = tasks.filter(t => t.type === 'Appointment' && t.status !== 'completed');
     const upcomingAppointments = [
         ...allUpcoming.slice(0, 3).map(a => ({ ...a, source: 'official' })),
@@ -393,10 +333,8 @@ const PatientDashboard = () => {
                 const dbTasks = tasksRes.data.data || [];
                 return [...wellness, ...dbTasks];
             });
-            setLoading(false);
         } catch (error) {
             console.error('Error fetching patient data:', error);
-            setLoading(false);
         }
     };
 
@@ -584,76 +522,14 @@ const PatientDashboard = () => {
         }
     };
 
-    const handleDeleteAccount = async () => {
-        const confirmDelete = window.confirm("Are you sure you want to delete your account? This action is permanent and will remove all your data from the system.");
-        if (confirmDelete) {
-            try {
-                await api.delete('/users', { data: { userId: user.id, role: user.role } });
-                alert('Your account has been deleted successfully.');
-                handleLogout();
-            } catch (error) {
-                alert('Failed to delete account: ' + (error.response?.data?.message || error.message));
-            }
-        }
-    };
-
-    const handleLogout = () => {
-        logout();
-        navigate('/login');
-    };
-
-    const downloadProfilePDF = async () => {
-        const element = document.querySelector('.profile-content');
-        if (!element) return;
-
-        try {
-            const canvas = await html2canvas(element, {
-                scale: 2,
-                useCORS: true,
-                logging: false,
-                backgroundColor: isDarkMode ? '#1a202c' : '#ffffff'
-            });
-            const imgData = canvas.toDataURL('image/png');
-            const pdf = new jsPDF('p', 'mm', 'a4');
-            const imgProps = pdf.getImageProperties(imgData);
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-
-            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-            pdf.save(`${user.name}_Profile_NammaClinic.pdf`);
-        } catch (error) {
-            console.error('PDF Generation Error:', error);
-            alert('Failed to generate PDF');
-        }
-    };
-
-    const saveSection = async (section) => {
-        try {
-            const res = await api.put('/users/profile', {
-                userId: user.id,
-                role: 'patient',
-                ...profileDetails
-            });
-            updateUser(res.data.data);
-            setEditModes({ ...editModes, [section]: false });
-            alert(`${section.charAt(0).toUpperCase() + section.slice(1)} information updated!`);
-        } catch (err) {
-            console.error('Update error:', err);
-            alert('Update failed');
-        }
-    };
 
 
-    const handleProfileUpdate = async () => {
-        try {
-            const response = await api.put(`/users/${user.id}`, profileDetails);
-            updateUser(response.data.data); // Update user context
-            setUploadMessage({ type: 'success', text: 'Profile updated successfully!' });
-        } catch (error) {
-            console.error('Error updating profile:', error);
-            setUploadMessage({ type: 'error', text: 'Failed to update profile. ' + (error.response?.data?.message || '') });
-        }
-    };
+
+
+
+
+
+
 
     // Calculate distance between two coordinates using Haversine formula
     const calculateDistance = (lat1, lon1, lat2, lon2) => {
@@ -669,36 +545,10 @@ const PatientDashboard = () => {
         return distance.toFixed(2); // Return distance in km with 2 decimal places
     };
 
-    // Geocode place name to coordinates using Nominatim API
-    const geocodePlace = async (placeName) => {
-        try {
-            const response = await fetch(
-                `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(placeName)}`
-            );
-            const data = await response.json();
-            if (data && data.length > 0) {
-                return {
-                    lat: parseFloat(data[0].lat),
-                    lng: parseFloat(data[0].lon)
-                };
-            }
-            return null;
-        } catch (error) {
-            console.error('Geocoding error:', error);
-            return null;
-        }
-    };
+
 
     // Handle search button click
-    const handleSearch = async () => {
-        if (!searchTerm.trim()) return;
 
-        // Try to geocode the search term as a place name
-        const location = await geocodePlace(searchTerm);
-        if (location) {
-            setUserLocation(location);
-        }
-    };
 
     // Filter clinics based on search term and add distance information
     const filteredClinics = clinics
@@ -726,17 +576,11 @@ const PatientDashboard = () => {
         });
 
     // Get directions URL for Google Maps
-    const getDirectionsUrl = (clinic) => {
-        if (!clinic.location?.lat || !clinic.location?.lng) return null;
-        return `https://www.google.com/maps/dir/?api=1&origin=${userLocation.lat},${userLocation.lng}&destination=${clinic.location.lat},${clinic.location.lng}`;
-    };
 
 
 
-    const openBookingWithDoctor = (clinicId) => {
-        setBookingData(prev => ({ ...prev, doctorId: clinicId }));
-        setShowBookingModal(true);
-    };
+
+
 
     const sidebarLinks = [
         { id: 'home', label: 'Dashboard', icon: LayoutDashboard },
@@ -1443,13 +1287,7 @@ const PatientDashboard = () => {
                                 <div className="clinic-cards-grid">
                                     {filteredClinics.map((clinic, index) => {
                                         const isNearest = index === 0 && clinic.distance;
-                                        const getDistanceClass = (distance) => {
-                                            if (!distance) return '';
-                                            const dist = parseFloat(distance);
-                                            if (dist < 5) return 'dist-short';
-                                            if (dist < 10) return 'dist-medium';
-                                            return 'dist-long';
-                                        };
+
 
                                         return (
                                             <div key={clinic._id} className="clinic-list-item bg-white p-5 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -1486,7 +1324,6 @@ const PatientDashboard = () => {
                                                 <div className="flex items-center gap-2 md:self-stretch">
                                                     <button
                                                         onClick={() => {
-                                                            setSelectedClinic(clinic);
                                                             setBookingData({ ...bookingData, doctorId: clinic._id });
                                                             setShowBookingModal(true);
                                                         }}

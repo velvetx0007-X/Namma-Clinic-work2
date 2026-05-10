@@ -1,10 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import logo from '../assets/Namma Clinic logo.jpeg';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axiosInstance';
-import DigitalIDCard from '../components/DigitalIDCard';
+
 import Footer from '../components/Footer';
 import DashboardLayout from '../components/common/DashboardLayout';
 import StatCard from '../components/common/StatCard';
@@ -17,19 +15,13 @@ import {
     Activity,
     Users,
     User,
-    LogOut,
     Plus,
     Save,
     Stethoscope,
     Pill,
     FileText,
-    MapPin,
-    Phone,
     Clock,
     UserPlus,
-    History,
-    FileSpreadsheet,
-    Menu,
     X,
     CheckCircle,
     AlertCircle,
@@ -47,8 +39,7 @@ import './DoctorDashboard.css';
 // Dashboard v2 - DashboardGreeting integrated
 
 const DoctorDashboard = () => {
-    const { user, logout } = useAuth();
-    const navigate = useNavigate();
+    const { user } = useAuth();
     const [activeTab, setActiveTab] = useState('home');
     const [appointments, setAppointments] = useState([]);
     const [prescriptions, setPrescriptions] = useState([]);
@@ -58,7 +49,6 @@ const DoctorDashboard = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [editPrescriptionData, setEditPrescriptionData] = useState(null);
     const [loading, setLoading] = useState(false);
-    const editRef = useRef(null);
 
     const [consultation, setConsultation] = useState({
         subjective: '',

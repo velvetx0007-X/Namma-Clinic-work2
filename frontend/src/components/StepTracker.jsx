@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Footprints, Flame, Map, TrendingUp, Calendar, Zap, Info, AlertCircle } from 'lucide-react';
 import {
-    LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+    XAxis, CartesianGrid, Tooltip, ResponsiveContainer,
     BarChart, Bar, Cell
 } from 'recharts';
 import api from '../api/axiosInstance';
@@ -41,7 +40,8 @@ const StepTracker = ({ user }) => {
         fetchTodayData();
         fetchHistory();
         return () => stopTracking();
-    }, []);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [user.id]);
 
     const fetchTodayData = async () => {
         try {

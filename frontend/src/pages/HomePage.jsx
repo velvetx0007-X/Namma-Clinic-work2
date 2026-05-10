@@ -196,17 +196,17 @@ const HomePage = () => {
                     <div>
                         <h4 className="font-bold text-emerald-950 mb-6 uppercase tracking-widest text-xs">Resources</h4>
                         <ul className="flex flex-col gap-4 text-slate-500">
-                            <li><a href="#">Support Center</a></li>
-                            <li><a href="#">API Documentation</a></li>
-                            <li><a href="#">Privacy Policy</a></li>
+                            <li><a href="/home">Support Center</a></li>
+                            <li><a href="/home">API Documentation</a></li>
+                            <li><a href="/home">Privacy Policy</a></li>
                         </ul>
                     </div>
                     <div>
                         <h4 className="font-bold text-emerald-950 mb-6 uppercase tracking-widest text-xs">Connect</h4>
                         <ul className="flex flex-col gap-4 text-slate-500">
-                            <li><a href="#">LinkedIn</a></li>
-                            <li><a href="#">Twitter</a></li>
-                            <li><a href="#">Contact Us</a></li>
+                            <li><a href="/home">LinkedIn</a></li>
+                            <li><a href="/home">Twitter</a></li>
+                            <li><a href="/home">Contact Us</a></li>
                         </ul>
                     </div>
                 </div>

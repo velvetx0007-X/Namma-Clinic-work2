@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axiosInstance';
 import Footer from '../components/Footer';
@@ -28,14 +27,13 @@ import AssignTaskButton from '../components/AssignTaskButton';
 import './ReceptionistDashboard.css';
 
 const ReceptionistDashboard = () => {
-    const { user, logout } = useAuth();
-    const navigate = useNavigate();
+    const { user } = useAuth();
     const [activeTab, setActiveTab] = useState('home');
     const [uploadFile, setUploadFile] = useState(null);
     const [appointments, setAppointments] = useState([]);
     const [patients, setPatients] = useState([]);
     const [clinics, setClinics] = useState([]);
-    const [loading, setLoading] = useState(false);
+
     const [queue, setQueue] = useState([]);
     const [prescriptions, setPrescriptions] = useState([]);
     const [labTests, setLabTests] = useState([]);
@@ -48,7 +46,7 @@ const ReceptionistDashboard = () => {
 
     // New appointment state
     const [showNewAppointment, setShowNewAppointment] = useState(false);
-    const editRef = useRef(null);
+
 
     // Removed unused handleEditCardClick
     const [newAppointment, setNewAppointment] = useState({
@@ -128,7 +126,6 @@ const ReceptionistDashboard = () => {
     };
 
     const fetchTodayQueue = async () => {
-        setLoading(true);
         try {
             const date = new Date();
             const today = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
@@ -140,7 +137,6 @@ const ReceptionistDashboard = () => {
         } catch (error) {
             console.error('Error fetching queue:', error);
         }
-        setLoading(false);
     };
 
     const bookAppointment = async () => {

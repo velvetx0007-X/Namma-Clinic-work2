@@ -24,7 +24,7 @@ const LandingFooter = () => {
             </p>
             <div className="flex gap-4">
               {[Twitter, Linkedin, Facebook, Github].map((Icon, i) => (
-                <a key={i} href="#" className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:bg-blue-600 hover:text-white transition-all">
+                <a key={i} href="#home" className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:bg-blue-600 hover:text-white transition-all">
                   <Icon size={18} />
                 </a>
               ))}

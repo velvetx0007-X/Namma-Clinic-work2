@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Sparkles, Send, Loader2, Calendar, Target, AlertCircle } from 'lucide-react';
+import { X, Sparkles, Send, Loader2, Calendar, Target } from 'lucide-react';
 import api from '../api/axiosInstance';
 import './TaskCreationModal.css';
 

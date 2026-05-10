@@ -1,22 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import logo from '../assets/Namma Clinic logo.jpeg';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useTheme } from '../context/ThemeContext';
 import api from '../api/axiosInstance';
 import AIPrescriptionUpload from '../components/AIPrescriptionUpload';
 import PatientHistory from '../components/PatientHistory';
 import Footer from '../components/Footer';
 import ProfileSettings from '../components/ProfileSettings';
-import { Upload, Users, User, LogOut, Settings, Star, MessageSquare, X } from 'lucide-react';
+import { Upload, Users, User, Settings, Star, X } from 'lucide-react';
 import DashboardLayout from '../components/common/DashboardLayout';
 import DashboardGreeting from '../components/common/DashboardGreeting';
 import './AdminDashboard.css'; // Reusing AdminDashboard styles for consistency
 
 const ClinicAdminDashboard = () => {
     const { user, logout } = useAuth();
-    const { isDarkMode, toggleTheme } = useTheme();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('staff');
     const [staff, setStaff] = useState([]);
@@ -131,10 +127,7 @@ const ClinicAdminDashboard = () => {
         }
     };
 
-    const handleLogout = () => {
-        logout();
-        navigate('/login');
-    };
+
 
     const sidebarLinks = [
         { id: 'staff', label: 'Staff Management', icon: Users },

@@ -1,14 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
-import logo from '../assets/Namma Clinic logo.jpeg';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axiosInstance';
 import ProfileSettings from '../components/ProfileSettings';
 import Footer from '../components/Footer';
 import AIPrescriptionUpload from '../components/AIPrescriptionUpload';
 import PatientHistory from '../components/PatientHistory';
-import { LogOut, Edit, Trash2, Heart, Activity, FileText, Upload, Plus, Pill, Users, Star, MessageSquare, LayoutDashboard, Shield, TrendingUp } from 'lucide-react';
+import { Trash2, Heart, Activity, FileText, Upload, Pill, Users, Star, LayoutDashboard, Shield, TrendingUp } from 'lucide-react';
 import DashboardLayout from '../components/common/DashboardLayout';
 import DashboardGreeting from '../components/common/DashboardGreeting';
 import StatCard from '../components/common/StatCard';
@@ -18,13 +15,9 @@ import AssignTaskButton from '../components/AssignTaskButton';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
-    const { user, logout } = useAuth();
-    const navigate = useNavigate();
+    const { user } = useAuth();
     const [activeTab, setActiveTab] = useState('home');
     const [uploadFile, setUploadFile] = useState(null);
-    const editRef = useRef(null);
-
-    // Removed unused handleEditCardClick
 
     // Data states
     const [admins, setAdmins] = useState([]);
@@ -367,11 +360,6 @@ const AdminDashboard = () => {
         } catch (error) {
             alert('Error deleting user: ' + error.message);
         }
-    };
-
-    const handleLogout = () => {
-        logout();
-        navigate('/login');
     };
 
     const renderPrescriptionForm = () => (

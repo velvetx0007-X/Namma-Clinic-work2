@@ -4,12 +4,9 @@ import { useAuth } from '../context/AuthContext';
 import api from '../api/axiosInstance';
 import PinInput from '../components/PinInput';
 import FloatingLabelInput from '../components/common/FloatingLabelInput';
-import PhoneInput from '../components/common/PhoneInput';
-
 import ForgotPasswordModal from '../components/auth/ForgotPasswordModal';
 import RoleDropdown from '../components/common/RoleDropdown';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, Phone } from 'lucide-react';
 import logo from '../assets/Namma Clinic logo.jpeg';
 
 const LoginPage = () => {

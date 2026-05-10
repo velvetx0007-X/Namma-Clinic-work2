@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Mail, Phone, Lock, CheckCircle, ArrowRight, Shield } from 'lucide-react';
+import { X, CheckCircle, ArrowRight, Shield } from 'lucide-react';
 import FloatingLabelInput from '../common/FloatingLabelInput';
 import PhoneInput from '../common/PhoneInput';
 import api from '../../api/axiosInstance';
@@ -9,7 +9,6 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
     const [method, setMethod] = useState('email'); // 'email' or 'phone'
 
     const [formData, setFormData] = useState({
