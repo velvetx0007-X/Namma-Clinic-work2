@@ -61,13 +61,34 @@ const prescriptionSchema = new mongoose.Schema({
     },
     aiExtractedData: {
         complaints: String,
-        reason: String, // Explicitly for user request
-        time: String,   // Explicitly for user request
+        reason: String,
+        time: String,
         vitals: String,
         diagnosis: String,
         advice: String,
         investigations: String,
         followUp: String
+    },
+    vitals: {
+        bloodPressure: String,
+        sugarLevel: String,
+        weight: String,
+        pulse: String,
+        temperature: String,
+        respiratoryRate: String,
+        spO2: String
+    },
+    symptoms: {
+        type: String,
+        trim: true
+    },
+    diagnosis: {
+        type: String,
+        trim: true
+    },
+    clinicalNotes: {
+        type: String,
+        trim: true
     }
 }, {
     timestamps: true

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
 import logo from '../assets/Namma Clinic logo.jpeg';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -7,6 +8,7 @@ import api from '../api/axiosInstance';
 import DigitalIDCard from '../components/DigitalIDCard';
 import Footer from '../components/Footer';
 import DashboardLayout from '../components/common/DashboardLayout';
+import DashboardGreeting from '../components/common/DashboardGreeting';
 import StatCard from '../components/common/StatCard';
 import {
     LayoutDashboard,
@@ -217,14 +219,7 @@ const NurseDashboard = () => {
             {/* HOME TAB */}
             {activeTab === 'home' && (
                 <div className="home-content">
-                    <div className="welcome-banner mb-6">
-                        <div className="welcome-text">
-                            <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-                                Welcome, Nurse {user.userName || user.name}! <Activity className="text-white opacity-80" size={24} />
-                            </h1>
-                            <p className="text-white opacity-90">Daily nursing overview and patient care</p>
-                        </div>
-                    </div>
+                    <DashboardGreeting user={user} role="nurse" />
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                         <StatCard 

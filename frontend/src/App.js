@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import SignupPage from './pages/SignupPage';
+import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import HomePage from './pages/HomePage';
 import DoctorDashboard from './pages/DoctorDashboard';
@@ -15,6 +16,9 @@ import ClinicAdminDashboard from './pages/ClinicAdminDashboard';
 import ReviewPage from './pages/ReviewPage';
 import SplashScreen from './components/common/SplashScreen';
 import AdvancedAIView from './components/AdvancedAIView';
+import PatientRecordsPage from './pages/PatientRecordsPage';
+import PatientUploadPage from './pages/PatientUploadPage';
+import PatientFeedbackPage from './pages/PatientFeedbackPage';
 
 
 // Protected Route Component
@@ -85,8 +89,8 @@ const AnimatedRoutes = () => {
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
-        {/* Default route - redirect to signup */}
-        <Route path="/" element={<Navigate to="/signup" replace />} />
+        {/* Default route - Landing Page */}
+        <Route path="/" element={<PageWrapper><LandingPage /></PageWrapper>} />
 
         {/* Public routes */}
         <Route
@@ -150,6 +154,30 @@ const AnimatedRoutes = () => {
           }
         />
         <Route
+          path="/patient/records"
+          element={
+            <RoleProtectedRoute allowedRoles={['patient']}>
+              <PageWrapper><PatientRecordsPage /></PageWrapper>
+            </RoleProtectedRoute>
+          }
+        />
+        <Route
+          path="/patient/upload-records"
+          element={
+            <RoleProtectedRoute allowedRoles={['patient']}>
+              <PageWrapper><PatientUploadPage /></PageWrapper>
+            </RoleProtectedRoute>
+          }
+        />
+        <Route
+          path="/patient/feedback"
+          element={
+            <RoleProtectedRoute allowedRoles={['patient']}>
+              <PageWrapper><PatientFeedbackPage /></PageWrapper>
+            </RoleProtectedRoute>
+          }
+        />
+        <Route
           path="/admin-dashboard"
           element={
             <RoleProtectedRoute allowedRoles={['admin']}>
@@ -176,7 +204,7 @@ const AnimatedRoutes = () => {
         <Route
           path="/reviews"
           element={
-            <RoleProtectedRoute allowedRoles={['clinic', 'admin']}>
+            <RoleProtectedRoute allowedRoles={['patient', 'clinic', 'admin']}>
               <PageWrapper><ReviewPage /></PageWrapper>
             </RoleProtectedRoute>
           }

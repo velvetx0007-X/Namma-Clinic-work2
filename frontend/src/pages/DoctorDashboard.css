@@ -130,17 +130,98 @@
     margin: 0 auto;
 }
 
-/* Welcome Banner */
-.welcome-banner {
-    background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
-    color: white;
-    padding: 8px 16px;
-    border-radius: 10px;
-    margin-bottom: 16px;
-    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+/* Premium Visual Cards */
+.visual-glass-card {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 32px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+    position: relative;
+}
+
+.visual-dark-glass-card {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 32px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    position: relative;
+}
+
+.visual-dark-glass-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.empty-visual-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.empty-visual-icon {
+    width: 80px;
+    height: 80px;
+    background: #eff6ff;
+    color: #3b82f6;
+    border-radius: 24px;
     display: flex;
     align-items: center;
-    gap: 12px;
+    justify-content: center;
+    margin-bottom: 24px;
+    transform: rotate(-10deg);
+    box-shadow: 0 10px 20px rgba(59, 130, 246, 0.1);
+}
+
+.empty-visual-state h3 {
+    font-size: 20px;
+    font-weight: 900;
+    color: #1e293b;
+    margin-bottom: 8px;
+}
+
+.empty-visual-state p {
+    color: #64748b;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+/* Welcome Banner */
+.welcome-banner {
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #db2777 100%);
+    color: white;
+    padding: 30px 40px;
+    border-radius: 32px;
+    margin-bottom: 32px;
+    box-shadow: 0 20px 40px rgba(79, 70, 229, 0.2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.welcome-banner::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
+    filter: blur(40px);
 }
 
 .welcome-banner h1 {
@@ -597,52 +678,159 @@
 
 .prescription-card {
     background: var(--bg-secondary);
-    padding: 20px;
-    border-radius: 12px;
+    padding: 24px;
+    border-radius: 20px;
     box-shadow: var(--shadow-sm);
     border: 1px solid var(--border-color);
-    border-left: 4px solid var(--accent-primary);
+    border-left: 6px solid var(--accent-primary);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.prescription-card.clickable {
+    cursor: pointer;
+}
+
+.prescription-card.clickable:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+    border-color: var(--accent-primary);
+    background: var(--bg-primary);
+}
+
+.presc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 5px;
 }
 
 .prescription-patient {
-    color: var(--accent-primary);
-    margin: 0 0 12px 0;
-    font-size: 18px;
-    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
 }
 
 .prescription-info {
     color: var(--text-secondary);
-    margin: 6px 0;
+    margin: 0;
     font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .prescription-info strong {
     color: var(--text-primary);
+    font-weight: 600;
 }
 
 .prescription-meds {
-    margin-top: 10px;
-    background: var(--bg-primary);
-    padding: 10px;
-    border-radius: 6px;
+    margin-top: 5px;
+    background: var(--bg-tertiary);
+    padding: 12px;
+    border-radius: 12px;
     border: 1px solid var(--border-color);
 }
 
 .prescription-meds small {
     color: var(--text-primary);
     font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
-.status-readonly {
-    margin-top: 10px;
-    display: inline-block;
-    padding: 4px 10px;
-    background: var(--accent-light);
-    color: var(--accent-primary);
-    border-radius: 12px;
+.card-footer {
+    margin-top: auto;
+    padding-top: 15px;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.view-detail-btn {
     font-size: 12px;
-    font-weight: bold;
+    font-weight: 800;
+    color: var(--accent-primary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.status-badge.status-cancelled {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+/* Premium Prescription Card Styles */
+.prescription-card-premium {
+    background: white;
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+}
+
+.prescription-card-premium:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 25px 50px -12px rgba(30, 64, 175, 0.1);
+    border-color: rgba(37, 99, 235, 0.3);
+}
+
+.med-preview-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+}
+
+.med-preview-strip span {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 6px;
+}
+
+.btn-primary-lux {
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.2);
+}
+
+.btn-primary-lux:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 25px -5px rgba(37, 99, 235, 0.3);
+    filter: brightness(1.1);
+}
+
+/* Modal Improvements */
+.modal-content.large-modal {
+    max-width: 800px;
+    width: 95%;
+}
+
+.info-group label {
+    display: block;
+    margin-bottom: 4px;
+}
+
+.meds-edit-section input {
+    border-bottom: 2px solid var(--border-color);
+}
+
+.meds-edit-section input:focus {
+    border-color: var(--accent-primary);
 }
 
 /* Profile Section Refinements */
@@ -859,6 +1047,9 @@
     max-width: 600px;
     border-radius: 20px;
     box-shadow: var(--shadow-2xl);
+    display: flex;
+    flex-direction: column;
+    max-height: 85vh;
     overflow: hidden;
     animation: modalAppear 0.3s ease-out;
 }
@@ -875,6 +1066,10 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    flex-shrink: 0;
 }
 
 .modal-header h2 {
@@ -904,6 +1099,8 @@
 
 .modal-form {
     padding: 30px;
+    overflow-y: auto;
+    flex: 1;
 }
 
 .modal-form .form-group {
@@ -1040,3 +1237,74 @@
         display: none;
     }
 }
+
+/* Premium Dashboard Styles */
+
+.premium-card {
+    background: white;
+    border-radius: 2.5rem;
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.premium-card:hover {
+    box-shadow: 0 25px 30px -5px rgba(59, 130, 246, 0.08);
+}
+
+.premium-stat-card {
+    background: white !important;
+    border-radius: 2rem !important;
+    padding: 2rem !important;
+    border: 1px solid rgba(226, 232, 240, 0.8) !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05) !important;
+    transition: all 0.3s ease !important;
+}
+
+.premium-stat-card:hover {
+    transform: translateY(-5px) !important;
+    border-color: rgba(59, 130, 246, 0.3) !important;
+    box-shadow: 0 20px 25px -5px rgba(59, 130, 246, 0.1) !important;
+}
+
+/* Scrollbar Customization */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Animations */
+@keyframes fadeInSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in-up {
+    animation: fadeInSlideUp 0.6s ease-out forwards;
+}
+
+/* Responsive Overrides */
+@media (max-width: 768px) {
+    .premium-card {
+        border-radius: 1.5rem;
+        padding: 1.5rem !important;
+    }
+}

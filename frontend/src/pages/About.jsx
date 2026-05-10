@@ -48,8 +48,8 @@ const About = () => {
                     <h2 className="about-section-title"><Mail size={24} /> Contact Us</h2>
                     <p className="about-text">
                         Have questions or feedback? We'd love to hear from you.<br />
-                        <strong>Email:</strong> <a href="mailto:support@nammaclinic.com" className="contact-link">support@nammaclinic.com</a><br />
-                        <strong>Phone:</strong> <span className="contact-link">+1 (800) 123-4567</span>
+                        <strong>Email:</strong> <a href="mailto:zuhvix.tech@gmail.com" className="contact-link">zuhvix.tech@gmail.com</a><br />
+                        <strong>Phone:</strong> <span className="contact-link">+91 63827 15355</span>
                     </p>
                 </div>
             </div>

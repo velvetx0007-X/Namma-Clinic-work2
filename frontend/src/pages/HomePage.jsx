@@ -72,7 +72,7 @@ const HomePage = () => {
                         Streamline your clinical operations with our comprehensive, AI-powered platform designed for hospitals, clinics, and labs.
                     </p>
                     <div className="hero-cta">
-                        <button onClick={() => navigate('/signup')} className="btn-primary-lg">Get Started Free</button>
+                        <button onClick={() => navigate('/signup')} className="btn-primary-lg">Get Started</button>
                         <button className="btn-secondary-lg">Book a Demo</button>
                     </div>
                 </div>

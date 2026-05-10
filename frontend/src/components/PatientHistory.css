@@ -70,7 +70,7 @@
 
 .search-input-lux {
     width: 100%;
-    padding: 16px 20px 16px 56px;
+    padding: 16px 140px 16px 56px;
     background: #ffffff;
     border: 2px solid #f1f5f9;
     border-radius: 20px;
@@ -84,6 +84,28 @@
     outline: none;
     border-color: #10b981;
     box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.1);
+}
+
+.global-search-btn-lux {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #10b981;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 14px;
+    font-size: 13px;
+    font-weight: 800;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
+
+.global-search-btn-lux:hover {
+    background: #059669;
+    transform: translateY(-50%) scale(1.02);
 }
 
 /* Patient Grid */
@@ -208,6 +230,42 @@
 .patient-card-premium:hover .btn-action-glass {
     background: #10b981;
     color: white;
+}
+
+/* Detail Tabs Lux */
+.detail-tabs-lux {
+    display: flex;
+    gap: 12px;
+    background: #f1f5f9;
+    padding: 6px;
+    border-radius: 20px;
+    width: fit-content;
+}
+
+.detail-tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 24px;
+    border-radius: 14px;
+    border: none;
+    background: transparent;
+    color: #64748b;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.detail-tab-btn.active {
+    background: white;
+    color: #10b981;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.detail-tab-btn:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.5);
+    color: #1e293b;
 }
 
 /* Detail View Lux */
@@ -338,7 +396,8 @@
 .history-grid-lux {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 30px;
+    gap: 40px;
+    padding: 10px 0;
 }
 
 .history-column {
@@ -349,6 +408,7 @@
 
 .history-column.full-width {
     grid-column: 1 / -1;
+    margin-top: 20px;
 }
 
 .column-header {
@@ -382,7 +442,7 @@
 .timeline-container {
     display: flex;
     flex-direction: column;
-    gap: 0;
+    gap: 20px;
     padding-left: 20px;
     border-left: 2px solid #f1f5f9;
 }
@@ -395,13 +455,14 @@
 
 .timeline-marker {
     position: absolute;
-    left: -31px;
-    top: 0;
+    left: -29px;
+    top: 4px;
     width: 16px;
     height: 16px;
     background: #ffffff;
     border: 3px solid #10b981;
     border-radius: 50%;
+    z-index: 2;
 }
 
 .timeline-content-lux {
@@ -409,6 +470,7 @@
     padding: 20px;
     border-radius: 20px;
     border: 1px solid #f1f5f9;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
 }
 
 .item-meta {

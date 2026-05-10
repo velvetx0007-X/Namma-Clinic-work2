@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
 import logo from '../assets/Namma Clinic logo.jpeg';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -36,6 +37,7 @@ import {
     AlertCircle
 } from 'lucide-react';
 import DashboardLayout from '../components/common/DashboardLayout';
+import DashboardGreeting from '../components/common/DashboardGreeting';
 import StatCard from '../components/common/StatCard';
 import AIPrescriptionUpload from '../components/AIPrescriptionUpload';
 import PatientHistory from '../components/PatientHistory';
@@ -334,12 +336,7 @@ const ReceptionistDashboard = () => {
                 {/* HOME TAB */}
                 {activeTab === 'home' && (
                     <div className="home-content">
-                        <div className="welcome-banner mb-6">
-                            <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-                                Welcome, Receptionist {user.userName || user.name}! <Activity className="text-white opacity-80" size={24} />
-                            </h1>
-                            <p className="text-white opacity-90">Daily clinic operations and patient flow management</p>
-                        </div>
+                        <DashboardGreeting user={user} role="receptionist" />
 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                             <StatCard 
@@ -659,7 +656,7 @@ const ReceptionistDashboard = () => {
                 {/* PROFILE TAB */}
                 {activeTab === 'profile' && (
                     <div className="profile-tab-container">
-                        <ProfileSettings showDigitalId={true} />
+                        <ProfileSettings showDigitalId={false} />
                     </div>
                 )}
             

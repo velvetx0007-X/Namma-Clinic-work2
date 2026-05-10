@@ -13,28 +13,12 @@ const roles = [
         desc: 'Book appointments & track health'
     },
     {
-        id: 'clinic',
-        label: 'Clinic',
-        icon: Building2,
-        color: '#1E88E5',
-        bg: '#E3F2FD',
-        desc: 'Manage your clinic operations'
-    },
-    {
         id: 'doctor',
         label: 'Doctor',
         icon: Stethoscope,
         color: '#00897B',
         bg: '#E0F2F1',
         desc: 'Consultations & patient care'
-    },
-    {
-        id: 'nurse',
-        label: 'Nurse',
-        icon: Syringe,
-        color: '#7B1FA2',
-        bg: '#F3E5F5',
-        desc: 'Patient support & vitals'
     },
     {
         id: 'receptionist',
@@ -51,6 +35,22 @@ const roles = [
         color: '#455A64',
         bg: '#ECEFF1',
         desc: 'Full system administration'
+    },
+    {
+        id: 'clinic',
+        label: 'Clinic',
+        icon: Building2,
+        color: '#1E88E5',
+        bg: '#E3F2FD',
+        desc: 'Manage your clinic operations'
+    },
+    {
+        id: 'nurse',
+        label: 'Nurse',
+        icon: Syringe,
+        color: '#7B1FA2',
+        bg: '#F3E5F5',
+        desc: 'Patient support & vitals'
     }
 ];
 

@@ -118,3 +118,31 @@
     margin-bottom: 1rem;
     border: 1px solid #f1948a;
 }
+
+/* Fix for 320px screens */
+@media (max-width: 320px) {
+    .login-container {
+        padding: 10px;
+    }
+    .login-card {
+        padding: 1rem;
+    }
+    .login-title {
+        font-size: 1.25rem;
+    }
+    .login-subtitle {
+        font-size: 0.8rem;
+        margin-bottom: 0.75rem;
+    }
+    .submit-btn {
+        padding: 10px;
+        font-size: 0.9rem;
+    }
+    .form-group label {
+        font-size: 0.85rem;
+    }
+    .form-group input {
+        padding: 8px 12px !important;
+        font-size: 0.85rem !important;
+    }
+}

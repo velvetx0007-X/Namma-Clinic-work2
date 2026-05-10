@@ -393,148 +393,623 @@
     margin: 0;
 }
 
-/* Health Metrics & Analytics Redesign */
-.health-metrics-row {
-    margin-bottom: 30px;
+/* Health Insights Grid - Premium Redesign */
+.health-insights-grid {
+    margin-bottom: 32px;
 }
 
-.premium-analytics-card {
-    background: #ffffff;
-    border-radius: 32px;
-    padding: 30px;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
-    border: 1px solid var(--border-color);
+.insight-card {
+    position: relative;
+    background: white;
+    border-radius: 28px;
+    padding: 24px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+    border: 1px solid #f1f5f9;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.card-header-row {
+.insight-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.card-bg-icon {
+    position: absolute;
+    bottom: -10px;
+    right: -10px;
+    opacity: 0.05;
+    transform: rotate(-15deg);
+    color: #1e293b;
+}
+
+.insight-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 30px;
+    gap: 10px;
+    margin-bottom: 20px;
 }
 
-.health-score-pill {
-    background: #f1f5f9;
-    padding: 8px 20px;
-    border-radius: 9999px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.health-score-pill .label {
-    font-size: 10px;
+.insight-header span {
+    font-size: 11px;
     font-weight: 800;
-    color: #64748b;
+    color: #94a3b8;
     text-transform: uppercase;
     letter-spacing: 0.1em;
 }
 
-.health-score-pill .value {
-    font-size: 20px;
-    font-weight: 900;
-    color: var(--action-primary);
+.icon-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8fafc;
 }
 
-.health-score-pill .out-of {
-    font-size: 12px;
+.steps-card .icon-circle { color: #10b981; background: #ecfdf5; }
+.calories-card .icon-circle { color: #ef4444; background: #fef2f2; }
+.score-card .icon-circle { color: #3b82f6; background: #eff6ff; }
+.distance-card .icon-circle { color: #f59e0b; background: #fffbeb; }
+
+.insight-main h3 {
+    font-size: 32px;
+    font-weight: 900;
+    color: #1e293b;
+    margin: 0;
+    line-height: 1;
+}
+
+.insight-main p {
+    font-size: 14px;
+    color: #64748b;
+    margin: 4px 0 0 0;
+    font-weight: 600;
+}
+
+.insight-progress {
+    margin-top: 20px;
+}
+
+.progress-bar-bg {
+    height: 6px;
+    background: #f1f5f9;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: #10b981;
+    border-radius: 3px;
+    transition: width 1s ease-out;
+}
+
+.insight-progress span {
+    font-size: 10px;
+    font-weight: 800;
     color: #94a3b8;
 }
 
-.chart-wrapper {
-    background: var(--bg-tertiary);
-    border-radius: 24px;
-    padding: 24px;
-    border: 1px solid var(--border-color);
+.insight-trend {
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 700;
 }
 
-.chart-header {
+.insight-trend.positive { color: #10b981; }
+
+.score-badge {
+    margin-top: 16px;
+    display: inline-block;
+    padding: 4px 12px;
+    background: #dcfce7;
+    color: #166534;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+.insight-subtext {
+    margin-top: 16px;
+    font-size: 11px;
+    color: #94a3b8;
+    font-weight: 600;
+}
+
+/* Secondary Analytics Row */
+.medical-history-overview {
+    background: white;
+    border-radius: 32px;
+    padding: 32px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    border: 1px solid #f1f5f9;
+}
+
+.section-header-lux {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 24px;
 }
 
-.chart-title {
-    font-size: 14px;
+.title-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.title-group h2 {
+    font-size: 18px;
     font-weight: 800;
-    color: var(--text-primary);
+    color: #1e293b;
     margin: 0;
 }
 
-.chart-period {
-    font-size: 11px;
-    font-weight: 800;
-    color: var(--text-tertiary);
-    text-transform: uppercase;
+.view-all-link {
+    font-size: 13px;
+    font-weight: 700;
+    color: #3b82f6;
+    background: none;
+    border: none;
+    cursor: pointer;
 }
 
-.stats-card-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.minimal-stat-card {
-    background: #ffffff;
-    border-radius: 24px;
-    padding: 20px;
+.mini-record-item {
     display: flex;
     align-items: center;
-    gap: 20px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
-    border: 1px solid var(--border-color);
-    transition: all 0.3s ease;
+    gap: 16px;
+    padding: 16px;
+    border-radius: 16px;
+    background: #f8fafc;
+    margin-bottom: 12px;
+    transition: all 0.2s;
 }
 
-.minimal-stat-card:hover {
-    transform: translateX(10px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.06);
+.mini-record-item:hover {
+    background: #f1f5f9;
 }
 
-.stat-icon-box {
-    width: 60px;
-    height: 60px;
-    border-radius: 18px;
+.record-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.minimal-stat-card.blue .stat-icon-box { background: #eff6ff; color: #3b82f6; }
-.minimal-stat-card.emerald .stat-icon-box { background: #ecfdf5; color: #10b981; }
-.minimal-stat-card.amber .stat-icon-box { background: #fffbeb; color: #f59e0b; }
+.record-icon.rx { background: #eff6ff; color: #3b82f6; }
+.record-icon.lab { background: #ecfdf5; color: #10b981; }
 
-.stat-icon {
-    font-size: 24px;
+.record-details h4 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1e293b;
 }
 
-.stat-info {
-    flex: 1;
+.record-details p {
+    margin: 2px 0 0 0;
+    font-size: 12px;
+    color: #64748b;
 }
 
-.stat-label {
-    font-size: 11px;
+.summary-mini-card {
+    background: white;
+    border-radius: 28px;
+    padding: 24px;
+    border: 1px solid #f1f5f9;
+}
+
+.mini-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
     font-weight: 800;
     color: #94a3b8;
+    margin-bottom: 16px;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin: 0 0 4px 0;
 }
 
-.stat-value {
-    font-size: 22px;
+.next-apt-box h4 {
+    font-size: 18px;
     font-weight: 900;
     color: #1e293b;
     margin: 0;
-    line-height: 1.2;
 }
 
-.stat-sub {
-    font-size: 12px;
-    font-weight: 600;
+.next-apt-box p {
+    font-size: 14px;
     color: #64748b;
-    margin: 2px 0 0 0;
+    margin: 4px 0 12px 0;
+}
+
+.dr-tag {
+    font-size: 11px;
+    font-weight: 700;
+    background: #f1f5f9;
+    padding: 4px 10px;
+    border-radius: 6px;
+    color: #475569;
+}
+
+.water-stats .water-main h3 {
+    font-size: 24px;
+    font-weight: 900;
+    color: #3b82f6;
+    margin: 0;
+}
+
+.water-stats .water-main span {
+    font-size: 14px;
+    color: #94a3b8;
+}
+
+/* Water Intake Enhancements */
+.add-water-btn-lux {
+    background: #eff6ff;
+    color: #3b82f6;
+    border: 1px solid #dbeafe;
+    padding: 8px 16px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+}
+
+.add-water-btn-lux:hover {
+    background: #3b82f6;
+    color: white;
+    transform: translateY(-2px);
+}
+
+.drop {
+    width: 10px;
+    height: 14px;
+    background: #e2e8f0;
+    border-radius: 40% 40% 50% 50%;
+    position: relative;
+}
+
+.drop.active {
+    background: #3b82f6;
+    box-shadow: 0 0 8px rgba(59, 130, 246, 0.4);
+}
+
+/* Wellness Tasks Styles */
+.wellness-task-card {
+    background: #f8fafc;
+    border-radius: 20px;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #f1f5f9;
+    transition: all 0.3s ease;
+    margin-bottom: 12px;
+}
+
+.wellness-task-card:hover {
+    transform: translateX(5px);
+    border-color: #e2e8f0;
+    background: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.wellness-task-card.in-progress {
+    border-left: 4px solid #3b82f6;
+    background: #f0f7ff;
+}
+
+.wellness-task-card.completed {
+    background: #f0fdf4;
+    border-left: 4px solid #10b981;
+    opacity: 0.8;
+}
+
+.task-info h4 {
+    font-size: 15px;
+    font-weight: 800;
+    color: #1e293b;
+    margin: 0;
+}
+
+.task-info p {
+    font-size: 12px;
+    color: #64748b;
+    margin: 4px 0 0 0;
+}
+
+.task-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.task-btn.start {
+    background: #eff6ff;
+    color: #3b82f6;
+}
+
+.task-btn.complete {
+    background: #3b82f6;
+    color: white;
+}
+
+.task-btn:hover {
+    transform: scale(1.05);
+}
+
+.see-all-btn-lux {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 12px;
+    margin-top: 12px;
+    background: #f8fafc;
+    color: #3b82f6;
+    border: 1px dashed #cbd5e1;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.see-all-btn-lux:hover {
+    background: #eff6ff;
+    border-color: #3b82f6;
+    transform: translateY(-2px);
+}
+
+.status-label {
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 10px;
+}
+
+.status-scheduled .status-label { color: #3b82f6; }
+.status-confirmed .status-label { color: #10b981; }
+.status-completed .status-label { color: #10b981; }
+.status-cancelled .status-label { color: #ef4444; }
+.status-pending .status-label { color: #f59e0b; }
+
+/* Child Care Module Styles */
+.child-care-section {
+    padding-top: 20px;
+}
+
+.child-box {
+    background: #f0f9ff !important;
+    color: #0ea5e9 !important;
+}
+
+.add-child-btn-lux {
+    padding: 10px 20px;
+    background: #0ea5e9;
+    color: white;
+    border: none;
+    border-radius: 14px;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 10px rgba(14, 165, 233, 0.2);
+}
+
+.add-child-btn-lux:hover {
+    background: #0284c7;
+    transform: translateY(-2px);
+}
+
+.child-profile-card-premium {
+    background: white;
+    border-radius: 28px;
+    padding: 24px;
+    border: 1px solid #f1f5f9;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+    transition: all 0.3s;
+}
+
+.child-profile-card-premium:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.05);
+    border-color: #e0f2fe;
+}
+
+.child-card-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.avatar-box {
+    width: 50px;
+    height: 50px;
+    background: #e0f2fe;
+    color: #0ea5e9;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 900;
+}
+
+.child-meta h4 {
+    font-size: 16px;
+    font-weight: 800;
+    color: #1e293b;
+    margin: 0;
+}
+
+.age-tag {
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    background: #f8fafc;
+    padding: 2px 8px;
+    border-radius: 6px;
+}
+
+.growth-summary {
+    display: grid;
+    grid-template-cols: 1fr 1fr;
+    gap: 12px;
+}
+
+.growth-stat {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    background: #f8fafc;
+    border-radius: 12px;
+}
+
+.growth-stat .lbl {
+    font-size: 10px;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+}
+
+.growth-stat .val {
+    font-size: 15px;
+    font-weight: 800;
+    color: #1e293b;
+}
+
+.view-details-btn {
+    width: 100%;
+    margin-top: 16px;
+    padding: 10px;
+    background: #f0f9ff;
+    color: #0ea5e9;
+    border: none;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    cursor: pointer;
+}
+
+.parent-smart-search-box {
+    background: linear-gradient(135deg, #0ea5e9, #0284c7);
+    border-radius: 28px;
+    padding: 24px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.smart-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 800;
+    margin-bottom: 16px;
+}
+
+.search-input-wrapper {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(4px);
+    border-radius: 16px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.search-input-wrapper input {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 14px;
+    width: 100%;
+}
+
+.search-input-wrapper input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.search-tips {
+    margin-top: 12px;
+    font-size: 11px;
+    opacity: 0.8;
+}
+
+.empty-child-card {
+    background: white;
+    border-radius: 28px;
+    border: 2px dashed #e2e8f0;
+    padding: 40px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.empty-icon-bg {
+    width: 60px;
+    height: 60px;
+    background: #f8fafc;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #cbd5e1;
+}
+
+.empty-text h4 {
+    font-size: 16px;
+    font-weight: 800;
+    color: #1e293b;
+    margin: 0;
+}
+
+.empty-text p {
+    font-size: 13px;
+    color: #64748b;
+    margin: 4px 0 0 0;
+}
+
+.water-stats p {
+    font-size: 12px;
+    color: #64748b;
+    margin: 4px 0 0 0;
+}
+
+.drop {
+    width: 12px;
+    height: 12px;
+    border-radius: 4px;
+    background: #e2e8f0;
+}
+
+.drop.active {
+    background: #3b82f6;
 }
 
 .ai-consultation-card {
@@ -2159,3 +2634,268 @@
 .profile-tab-container {
     padding-bottom: 50px;
 }
+
+/* Wellness Completed Activities */
+.completed-activities-section {
+    margin-top: 40px;
+    background: white;
+    padding: 32px;
+    border-radius: 32px;
+    border: 1px solid #f1f5f9;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.streak-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 16px;
+    background: #fff7ed;
+    color: #ea580c;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 800;
+    border: 1px solid #ffedd5;
+}
+
+.completed-activity-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    background: #f8fafc;
+    border-radius: 20px;
+    border: 1px solid #f1f5f9;
+    transition: all 0.3s ease;
+}
+
+.completed-activity-card:hover {
+    transform: translateY(-4px);
+    background: white;
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
+}
+
+.act-icon {
+    width: 44px;
+    height: 44px;
+    background: #eff6ff;
+    color: #3b82f6;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.act-details h4 {
+    font-size: 14px;
+    font-weight: 800;
+    color: #1e293b;
+    margin: 0;
+}
+
+.act-meta {
+    font-size: 11px;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 2px;
+}
+
+.act-progress-pill {
+    font-size: 10px;
+    font-weight: 700;
+    background: #dcfce7;
+    color: #166534;
+    padding: 2px 8px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 6px;
+}
+
+/* Wellness Analytics Dashboard */
+.wellness-analytics-dashboard {
+    margin-top: 40px;
+    background: white;
+    padding: 32px;
+    border-radius: 32px;
+    border: 1px solid #f1f5f9;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.analytics-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.period-selector {
+    display: flex;
+    background: #f1f5f9;
+    padding: 4px;
+    border-radius: 14px;
+}
+
+.period-btn {
+    padding: 8px 20px;
+    border-radius: 10px;
+    border: none;
+    background: none;
+    font-size: 13px;
+    font-weight: 700;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.period-btn.active {
+    background: white;
+    color: #1e293b;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+}
+
+.chart-card {
+    background: #f8fafc;
+    padding: 24px;
+    border-radius: 24px;
+    border: 1px solid #f1f5f9;
+}
+
+.chart-card h3 {
+    font-size: 16px;
+    font-weight: 800;
+    color: #1e293b;
+    margin: 0 0 20px 0;
+}
+
+.stats-summary-card {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.stat-row {
+    background: #f8fafc;
+    padding: 20px;
+    border-radius: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.stat-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #64748b;
+}
+
+.stat-value {
+    font-size: 20px;
+    font-weight: 900;
+    color: #1e293b;
+}
+
+.wellness-badge-display {
+    background: linear-gradient(135deg, #1e293b, #334155);
+    padding: 32px;
+    border-radius: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: white;
+    text-align: center;
+    flex: 1;
+}
+
+.wellness-badge-display span {
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+/* Wellness Task Improvements */
+.task-icon-wrapper {
+    width: 40px;
+    height: 40px;
+    background: white;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #3b82f6;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+}
+
+.task-progress-mini {
+    margin-top: 10px;
+}
+
+.progress-track {
+    height: 4px;
+    background: #e2e8f0;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: #3b82f6;
+    transition: width 0.5s ease;
+}
+
+.wellness-task-card.completed .task-icon-wrapper {
+    color: #10b981;
+}
+
+.wellness-task-card.completed .progress-fill {
+    background: #10b981;
+}
+
+.completed-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 800;
+    color: #10b981;
+    background: #ecfdf5;
+    padding: 6px 12px;
+    border-radius: 8px;
+}
+
+@media (max-width: 768px) {
+    .analytics-header {
+        justify-content: center;
+    }
+    
+    .period-selector {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .stat-row {
+        padding: 16px;
+    }
+}
+
+/* Enhanced Prescription Tab Styles */
+.prescriptions-content-lux { padding: 20px 0; }
+.search-box-premium { display: flex; align-items: center; gap: 12px; background: #f8fafc; border: 1px solid #e2e8f0; padding: 0 20px; height: 54px; border-radius: 20px; transition: all 0.3s; width: 320px; }
+.search-box-premium:focus-within { background: white; border-color: #3b82f6; box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1); }
+.search-box-premium input { background: none; border: none; outline: none; font-size: 14px; font-weight: 600; color: #1e293b; width: 100%; }
+.filter-select-premium { height: 54px; background: #f8fafc; border: 1px solid #e2e8f0; padding: 0 20px; border-radius: 20px; font-size: 14px; font-weight: 700; color: #475569; cursor: pointer; outline: none; transition: all 0.3s; }
+.filter-select-premium:hover { border-color: #3b82f6; }
+.latest-rx-card-premium { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+.latest-rx-card-premium:hover { transform: translateY(-5px); }
+.stat-pill { transition: all 0.2s; }
+.stat-pill:hover { background: rgba(255, 255, 255, 0.15); transform: scale(1.05); }
+.rx-history-card-lux { cursor: default; }
+.rx-history-card-lux:hover { transform: translateY(-8px); }
+.empty-state-lux { background: #f8fafc; border: 2px dashed #e2e8f0; border-radius: 40px; }

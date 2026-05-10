@@ -279,3 +279,50 @@
     opacity: 1;
   }
 }
+
+/* Fix for 320px screens */
+@media (max-width: 320px) {
+  .signup-container {
+    padding: 10px;
+  }
+  .signup-card {
+    padding: 15px;
+  }
+  .signup-title {
+    font-size: 20px;
+    margin-bottom: 5px;
+  }
+  .signup-subtitle {
+    font-size: 13px;
+    margin-bottom: 15px;
+  }
+  .role-tabs {
+    gap: 5px;
+    margin-bottom: 15px;
+  }
+  .role-tab {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+  .signup-form {
+    gap: 12px;
+  }
+  .form-group label {
+    font-size: 12px;
+  }
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+  .submit-btn {
+    padding: 10px 20px;
+    font-size: 14px;
+    margin-top: 5px;
+  }
+  .login-link {
+    font-size: 12px;
+    margin-top: 15px;
+  }
+}

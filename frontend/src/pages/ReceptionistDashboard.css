@@ -701,6 +701,9 @@
     max-width: 600px;
     border-radius: 20px;
     box-shadow: var(--shadow-2xl);
+    display: flex;
+    flex-direction: column;
+    max-height: 85vh;
     overflow: hidden;
     animation: modalAppear 0.3s ease-out;
 }
@@ -717,6 +720,10 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    flex-shrink: 0;
 }
 
 .modal-header h2 {
@@ -746,6 +753,8 @@
 
 .modal-form {
     padding: 30px;
+    overflow-y: auto;
+    flex: 1;
 }
 
 .modal-form .form-group {

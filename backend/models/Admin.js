@@ -70,7 +70,32 @@ const adminSchema = new mongoose.Schema({
             enum: ['Full Access', 'View Only', 'Restricted'],
             default: 'View Only'
         }
-    }]
+    }],
+    profilePhoto: {
+        type: String,
+        default: ''
+    },
+    phoneNumber: {
+        type: String,
+        trim: true
+    },
+    prefix: {
+        type: String,
+        trim: true
+    },
+    suffix: {
+        type: String,
+        trim: true
+    },
+    emergencyContact: {
+        name: { type: String, trim: true },
+        phone: { type: String, trim: true },
+        relation: { type: String, trim: true }
+    },
+    role: {
+        type: String,
+        default: 'admin'
+    }
 }, {
     timestamps: true
 });

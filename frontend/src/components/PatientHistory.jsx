@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
     Search, Activity, Calendar, User, Loader2, 
-    ChevronRight, ArrowLeft, Pill, FileText, Clipboard, Phone 
+    ChevronRight, ArrowLeft, Pill, FileText, Clipboard, Phone, Clock
 } from 'lucide-react';
 import api from '../api/axiosInstance';
 import './PatientHistory.css';
+import AppointmentHistory from './AppointmentHistory';
 
 const PatientHistory = ({ source = 'doctor' }) => {
     const [attendedRecords, setAttendedRecords] = useState([]);
@@ -15,12 +16,14 @@ const PatientHistory = ({ source = 'doctor' }) => {
     const [loading, setLoading] = useState(true);
     const [filterType, setFilterType] = useState('all'); // all, today, week, month
     const [globalPatient, setGlobalPatient] = useState(null);
+    const [activeTab, setActiveTab] = useState('clinical'); // clinical, appointments
     
     // History states for full view
     const [history, setHistory] = useState({
         vitals: [],
         prescriptions: [],
-        consultations: []
+        consultations: [],
+        medicalDocuments: []
     });
     const [loadingHistory, setLoadingHistory] = useState(false);
 
@@ -116,16 +119,18 @@ const PatientHistory = ({ source = 'doctor' }) => {
     const fetchPatientHistory = async (patientId) => {
         setLoadingHistory(true);
         try {
-            const [vitalsRes, prescRes, consultRes] = await Promise.all([
+            const [vitalsRes, prescRes, consultRes, docsRes] = await Promise.all([
                 api.get(`/vitals/patient/${patientId}`),
                 api.get(`/prescriptions/patient/${patientId}`),
-                api.get(`/consultations/patient/${patientId}`)
+                api.get(`/consultations/patient/${patientId}`),
+                api.get(`/medical-documents/patient/${patientId}`)
             ]);
             
             setHistory({
                 vitals: vitalsRes.data.data || [],
                 prescriptions: prescRes.data.data || [],
-                consultations: consultRes.data.data || []
+                consultations: consultRes.data.data || [],
+                medicalDocuments: docsRes.data.data || []
             });
         } catch (error) {
             console.error('Error fetching history:', error);
@@ -185,17 +190,7 @@ const PatientHistory = ({ source = 'doctor' }) => {
                                 />
                                 {searchTerm.length >= 10 && !isNaN(searchTerm) && (
                                     <button 
-                                        className="global-search-btn"
-                                        style={{
-                                            background: '#10b981',
-                                            color: 'white',
-                                            padding: '8px 16px',
-                                            borderRadius: '8px',
-                                            marginLeft: '12px',
-                                            fontSize: '14px',
-                                            fontWeight: '600',
-                                            cursor: 'pointer'
-                                        }}
+                                        className="global-search-btn-lux"
                                         onClick={async () => {
                                             try {
                                                 const res = await api.get(`/patients/search/${searchTerm}`);
@@ -325,12 +320,29 @@ const PatientHistory = ({ source = 'doctor' }) => {
                             </div>
                         </div>
 
+                        <div className="detail-tabs-lux mb-8">
+                            <button 
+                                className={`detail-tab-btn ${activeTab === 'clinical' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('clinical')}
+                            >
+                                <Activity size={18} />
+                                <span>Clinical Timeline</span>
+                            </button>
+                            <button 
+                                className={`detail-tab-btn ${activeTab === 'appointments' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('appointments')}
+                            >
+                                <Calendar size={18} />
+                                <span>Appointment History</span>
+                            </button>
+                        </div>
+
                         {loadingHistory ? (
                             <div className="loader-overlay-lux">
                                 <Loader2 className="animate-spin text-emerald-500" size={48} />
                                 <p>Retrieving Clinical Timeline...</p>
                             </div>
-                        ) : (
+                        ) : activeTab === 'clinical' ? (
                             <div className="history-grid-lux">
                                 {/* Vitals Timeline */}
                                 <div className="history-column">
@@ -424,6 +436,39 @@ const PatientHistory = ({ source = 'doctor' }) => {
                                         )) : <div className="empty-state-lux">No consultation history available.</div>}
                                     </div>
                                 </div>
+                                {/* Medical Documents */}
+                                <div className="history-column full-width mt-6">
+                                    <div className="column-header">
+                                        <div className="icon-badge doc-bg" style={{ background: '#f8fafc', color: '#64748b' }}><FileText size={18} /></div>
+                                        <h3>Uploaded & Generated Documents</h3>
+                                    </div>
+                                    <div className="docs-grid-lux grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+                                        {history.medicalDocuments.length > 0 ? history.medicalDocuments.map(doc => (
+                                            <div key={doc._id} className="doc-card-lux p-4 bg-white border rounded-xl shadow-sm hover:shadow-md transition-shadow">
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <span className="text-xs font-bold px-2 py-1 bg-slate-100 rounded text-slate-600 uppercase">{doc.documentType}</span>
+                                                    <span className="text-xs text-slate-400">{new Date(doc.createdAt).toLocaleDateString()}</span>
+                                                </div>
+                                                <h4 className="font-bold text-slate-800 mb-1 truncate">{doc.title}</h4>
+                                                <p className="text-xs text-slate-500 mb-3 truncate">By: {doc.uploadedBy}</p>
+                                                <div className="flex gap-2">
+                                                    <a 
+                                                        href={`http://localhost:5000${doc.fileUrl}`} 
+                                                        target="_blank" 
+                                                        rel="noopener noreferrer"
+                                                        className="flex-1 text-center py-2 bg-blue-50 text-blue-600 rounded-lg text-xs font-bold hover:bg-blue-600 hover:text-white transition-colors"
+                                                    >
+                                                        View Document
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        )) : <div className="empty-state-lux">No documents found.</div>}
+                                    </div>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="appointment-history-section-lux">
+                                <AppointmentHistory patientId={selectedPatient._id} role={source} />
                             </div>
                         )}
                     </motion.div>

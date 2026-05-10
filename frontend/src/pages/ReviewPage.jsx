@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import api from '../api/axiosInstance';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { 
     Star, MessageSquare, Send, ChevronLeft, Loader2, 
     Activity, Clock, Sparkles, Heart 
@@ -15,6 +15,7 @@ const ReviewPage = () => {
     const { user } = useAuth();
     const { isDarkMode } = useTheme();
     const navigate = useNavigate();
+    const location = useLocation();
     
     const [clinics, setClinics] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -37,7 +38,10 @@ const ReviewPage = () => {
 
     useEffect(() => {
         fetchClinics();
-    }, []);
+        if (location.state?.clinicId) {
+            setFormData(prev => ({ ...prev, clinicId: location.state.clinicId }));
+        }
+    }, [location.state]);
 
     const fetchClinics = async () => {
         try {

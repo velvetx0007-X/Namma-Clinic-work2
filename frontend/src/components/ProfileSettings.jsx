@@ -10,9 +10,10 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import NotificationSettings from './NotificationSettings';
 import PinInput from './PinInput';
+import DigitalIDCard from './DigitalIDCard';
 import './ProfileSettings.css';
 
-const ProfileSettings = () => {
+const ProfileSettings = ({ showDigitalId = false }) => {
     const { user, updateUser, logout } = useAuth(); // Import logout
     const navigate = useNavigate(); // Initialize navigate
     const [loading, setLoading] = useState(false);
@@ -30,7 +31,15 @@ const ProfileSettings = () => {
         role: user?.userType || user?.role || 'patient',
         email: user?.email || '',
         phoneNumber: user?.phoneNumber || '',
-        countryCode: user?.countryCode || '+91'
+        countryCode: user?.countryCode || '+91',
+        age: user?.age || '',
+        companyName: user?.companyName || '',
+        companyId: user?.companyId || '',
+        emergencyContact: {
+            name: user?.emergencyContact?.name || '',
+            phone: user?.emergencyContact?.phone || '',
+            relation: user?.emergencyContact?.relation || ''
+        }
     });
 
     const [securityData, setSecurityData] = useState({
@@ -97,6 +106,10 @@ const ProfileSettings = () => {
                 prefix: formData.prefix,
                 suffix: formData.suffix,
                 phoneNumber: formData.phoneNumber,
+                age: formData.age,
+                companyName: formData.companyName,
+                companyId: formData.companyId,
+                emergencyContact: formData.emergencyContact,
                 twoFactorEnabled: securityData.twoFactorEnabled,
                 loginAlerts: securityData.loginAlerts,
                 dndMode: {
@@ -181,6 +194,13 @@ const ProfileSettings = () => {
             >
                 {/* LEFT COLUMN */}
                 <div className="column-left">
+                    {showDigitalId && (
+                        <div className="profile-card mb-6 overflow-visible">
+                            <h3 className="card-title mb-4"><Shield size={22} className="text-emerald-500" /> Digital Identity Passport</h3>
+                            <DigitalIDCard user={user} />
+                        </div>
+                    )}
+                    
                     {/* Profile Card */}
                     <div className="profile-card">
                         <h3 className="card-title"><User size={22} /> Profile Settings</h3>
@@ -220,6 +240,11 @@ const ProfileSettings = () => {
                                     onChange={(e) => setFormData({...formData, prefix: e.target.value})}
                                 />
                                 <label className="floating-label">Prefix (Dr., Mr.)</label>
+                                {formData.prefix && (
+                                    <button className="input-clear-btn" onClick={() => setFormData({...formData, prefix: ''})}>
+                                        <X size={14} />
+                                    </button>
+                                )}
                             </div>
                             <div className="input-container">
                                 <input 
@@ -230,6 +255,11 @@ const ProfileSettings = () => {
                                     onChange={(e) => setFormData({...formData, suffix: e.target.value})}
                                 />
                                 <label className="floating-label">Suffix</label>
+                                {formData.suffix && (
+                                    <button className="input-clear-btn" onClick={() => setFormData({...formData, suffix: ''})}>
+                                        <X size={14} />
+                                    </button>
+                                )}
                             </div>
                             <div className="input-container">
                                 <input 
@@ -240,6 +270,11 @@ const ProfileSettings = () => {
                                     onChange={(e) => setFormData({...formData, firstName: e.target.value})}
                                 />
                                 <label className="floating-label">First Name</label>
+                                {formData.firstName && (
+                                    <button className="input-clear-btn" onClick={() => setFormData({...formData, firstName: ''})}>
+                                        <X size={14} />
+                                    </button>
+                                )}
                             </div>
                             <div className="input-container">
                                 <input 
@@ -250,6 +285,11 @@ const ProfileSettings = () => {
                                     onChange={(e) => setFormData({...formData, lastName: e.target.value})}
                                 />
                                 <label className="floating-label">Last Name</label>
+                                {formData.lastName && (
+                                    <button className="input-clear-btn" onClick={() => setFormData({...formData, lastName: ''})}>
+                                        <X size={14} />
+                                    </button>
+                                )}
                             </div>
                         </div>
 
@@ -274,7 +314,88 @@ const ProfileSettings = () => {
                                 onChange={(e) => setFormData({...formData, phoneNumber: e.target.value})}
                             />
                             <label className="floating-label">Phone Number</label>
-                            {user?.isPhoneVerified && <span className="verified-badge"><CheckCircle size={14} /> Verified</span>}
+                            {formData.phoneNumber && (
+                                <button className="input-clear-btn" onClick={() => setFormData({...formData, phoneNumber: ''})}>
+                                    <X size={14} />
+                                </button>
+                            )}
+                            {user?.isPhoneVerified && <span className="verified-badge" style={{ right: '40px' }}><CheckCircle size={14} /> Verified</span>}
+                        </div>
+
+                        <div className="form-grid">
+                            <div className="input-container">
+                                <input 
+                                    type="number" 
+                                    className="floating-input" 
+                                    placeholder=" " 
+                                    value={formData.age}
+                                    onChange={(e) => setFormData({...formData, age: e.target.value})}
+                                />
+                                <label className="floating-label">Age</label>
+                                {formData.age && (
+                                    <button className="input-clear-btn" onClick={() => setFormData({...formData, age: ''})}>
+                                        <X size={14} />
+                                    </button>
+                                )}
+                            </div>
+                            {formData.role === 'admin' && (
+                                <div className="input-container">
+                                    <input 
+                                        type="text" 
+                                        className="floating-input" 
+                                        placeholder=" " 
+                                        value={formData.companyName}
+                                        onChange={(e) => setFormData({...formData, companyName: e.target.value})}
+                                    />
+                                    <label className="floating-label">Company Name</label>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Emergency Contact Section */}
+                        <div className="mt-6 mb-4">
+                            <h4 className="text-xs font-black uppercase tracking-widest text-gray-400 mb-4">Emergency Contact</h4>
+                            <div className="form-grid">
+                                <div className="input-container">
+                                    <input 
+                                        type="text" 
+                                        className="floating-input" 
+                                        placeholder=" " 
+                                        value={formData.emergencyContact.name}
+                                        onChange={(e) => setFormData({
+                                            ...formData, 
+                                            emergencyContact: {...formData.emergencyContact, name: e.target.value}
+                                        })}
+                                    />
+                                    <label className="floating-label">Contact Name</label>
+                                </div>
+                                <div className="input-container">
+                                    <input 
+                                        type="tel" 
+                                        className="floating-input" 
+                                        placeholder=" " 
+                                        value={formData.emergencyContact.phone}
+                                        onChange={(e) => setFormData({
+                                            ...formData, 
+                                            emergencyContact: {...formData.emergencyContact, phone: e.target.value}
+                                        })}
+                                    />
+                                    <label className="floating-label">Contact Phone</label>
+                                </div>
+                                <div className="input-container col-span-2">
+                                    <input 
+                                        type="text" 
+                                        className="floating-input" 
+                                        placeholder=" " 
+                                        value={formData.emergencyContact.relation}
+                                        onChange={(e) => setFormData({
+                                            ...formData, 
+                                            emergencyContact: {...formData.emergencyContact, relation: e.target.value}
+                                        })}
+                                    />
+                                    <label className="floating-label">Relation (e.g. Spouse, Parent)</label>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -407,20 +528,23 @@ const ProfileSettings = () => {
                         </button>
                     </div>
 
-                    {/* Account Maintenance */}
-                    <div className="profile-card maintenance-zone">
-                        <h3 className="card-title text-gray-700"><Settings size={22} className="text-gray-400" /> Account Maintenance</h3>
-                        <button 
-                            className="btn-danger w-full mt-2 flex items-center justify-center gap-2"
-                            onClick={() => setShowDeleteModal(true)}
-                        >
-                            <Trash2 size={16} /> Delete Account
-                        </button>
+                    {/* Account Maintenance - Centered below both columns */}
+                    <div className="profile-card maintenance-zone" style={{ gridColumn: '1 / -1', maxWidth: '600px', margin: '0 auto 30px auto' }}>
+                        <h3 className="card-title text-gray-700 justify-center"><Settings size={22} className="text-gray-400" /> Account Maintenance</h3>
+                        <p className="text-center text-sm text-gray-500 mb-6">Manage your account status and data deletion preferences.</p>
+                        <div className="flex justify-center">
+                            <button 
+                                className="btn-danger w-full md:w-auto px-12 flex items-center justify-center gap-2"
+                                onClick={() => setShowDeleteModal(true)}
+                            >
+                                <Trash2 size={16} /> Delete Account
+                            </button>
+                        </div>
                     </div>
                 </div>
                 
-                {/* Sticky Actions Footer */}
-                <div className="profile-footer-actions" style={{ gridColumn: '1 / -1', marginTop: '20px' }}>
+                {/* Sticky Actions Footer - Centered */}
+                <div className="profile-footer-actions" style={{ gridColumn: '1 / -1', marginTop: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                     <AnimatePresence>
                         {saveStatus.msg && (
                             <motion.div 
@@ -430,12 +554,15 @@ const ProfileSettings = () => {
                                 className={`status-message-small ${
                                     saveStatus.type === 'success' ? 'text-green-600' : 'text-red-600'
                                 }`}
+                                style={{ margin: '0 20px 0 0' }}
                             >
                                 {saveStatus.msg}
                             </motion.div>
                         )}
                     </AnimatePresence>
-                    <button className="btn-secondary" style={{ width: 'auto' }}>Cancel</button>
+                    <button className="btn-secondary flex items-center gap-2" style={{ width: 'auto' }}>
+                        <X size={18} /> Cancel
+                    </button>
                     <button 
                         className="btn-primary" 
                         onClick={handleSave}
@@ -486,11 +613,11 @@ const ProfileSettings = () => {
                             </div>
                             <div className="modal-footer flex gap-3">
                                 <button 
-                                    className="btn-secondary flex-1" 
+                                    className="btn-secondary flex-1 flex items-center justify-center gap-2" 
                                     onClick={() => setShowDeleteModal(false)}
                                     disabled={deleting}
                                 >
-                                    Cancel
+                                    <X size={18} /> Cancel
                                 </button>
                                 <button 
                                     className="btn-danger flex-1"
@@ -543,7 +670,9 @@ const ProfileSettings = () => {
                                 </div>
                             </div>
                             <div className="modal-footer flex gap-3 mt-4">
-                                <button className="btn-secondary flex-1" onClick={() => setModals({...modals, addMember: false})}>Cancel</button>
+                                <button className="btn-secondary flex-1 flex items-center justify-center gap-2" onClick={() => setModals({...modals, addMember: false})}>
+                                    <X size={18} /> Cancel
+                                </button>
                                 <button className="btn-primary flex-1" onClick={handleAddMember}>Add Member</button>
                             </div>
                         </motion.div>
@@ -572,7 +701,9 @@ const ProfileSettings = () => {
                                 </div>
                             </div>
                             <div className="modal-footer flex gap-3">
-                                <button className="btn-secondary flex-1" onClick={() => setModals({...modals, twoFactor: false})}>Cancel</button>
+                                <button className="btn-secondary flex-1 flex items-center justify-center gap-2" onClick={() => setModals({...modals, twoFactor: false})}>
+                                    <X size={18} /> Cancel
+                                </button>
                                 <button 
                                     className="btn-primary flex-1" 
                                     disabled={twoFactorCode.length < 6}
@@ -613,7 +744,9 @@ const ProfileSettings = () => {
                                 </div>
                             </div>
                             <div className="modal-footer flex gap-3">
-                                <button className="btn-secondary flex-1" onClick={() => setModals({...modals, changePassword: false})}>Cancel</button>
+                                <button className="btn-secondary flex-1 flex items-center justify-center gap-2" onClick={() => setModals({...modals, changePassword: false})}>
+                                    <X size={18} /> Cancel
+                                </button>
                                 <button className="btn-primary flex-1" onClick={() => {
                                     setModals({...modals, changePassword: false});
                                     setSaveStatus({ type: 'success', msg: 'Password updated successfully!' });

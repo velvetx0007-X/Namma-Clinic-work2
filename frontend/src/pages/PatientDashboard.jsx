@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import api from '../api/axiosInstance';
 import DigitalIDCard from '../components/DigitalIDCard';
+import AppointmentHistory from '../components/AppointmentHistory';
 import ClinicMap from '../components/ClinicMap';
 import Footer from '../components/Footer';
 import AIHealthAssistant from '../components/AIHealthAssistant';
@@ -17,12 +18,15 @@ import About from './About';
 import ProfileSettings from '../components/ProfileSettings';
 import AdvancedAIView from '../components/AdvancedAIView';
 import NotificationCenter from '../components/NotificationCenter';
+import StepTracker from '../components/StepTracker';
 import { motion, AnimatePresence } from 'framer-motion';
 import gsap from 'gsap';
 import { 
     Heart, Activity, Calendar, FileText, Pill, Search, MapPin, Navigation, 
     MessageSquare, MessageSquarePlus, CheckCircle, User, UserCheck, LogOut, 
-    Sparkles, Bot, Zap, Download, Clock, Star, Loader2, X, LayoutDashboard
+    Sparkles, Bot, Zap, Download, Clock, Star, Loader2, X, LayoutDashboard,
+    Footprints, Flame, TrendingUp, ChevronRight, Droplets, Moon, Wind, Bed, 
+    Maximize, Baby, Target, Plus, History, Eye, Stethoscope
 } from 'lucide-react';
 import logo from '../assets/Namma Clinic logo.jpeg';
 import DashboardLayout from '../components/common/DashboardLayout';
@@ -30,6 +34,8 @@ import StatCard from '../components/common/StatCard';
 import {
     LineChart,
     Line,
+    BarChart,
+    Bar,
     XAxis,
     YAxis,
     CartesianGrid,
@@ -40,7 +46,56 @@ import {
     Pie,
     Cell
 } from 'recharts';
+import DashboardGreeting from '../components/common/DashboardGreeting';
+
 import './PatientDashboard.css';
+
+// IST Utilities
+const getISTDate = () => {
+    return new Intl.DateTimeFormat('en-IN', {
+        timeZone: 'Asia/Kolkata',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+    }).format(new Date()).split('/').reverse().join('-');
+};
+
+const getISTTime = () => {
+    return new Intl.DateTimeFormat('en-IN', {
+        timeZone: 'Asia/Kolkata',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+    }).format(new Date());
+};
+
+const DEFAULT_WELLNESS_TASKS = [
+    { title: 'Morning Yoga', type: 'Yoga', description: '15 mins light stretching', status: 'pending', progress: 0 },
+    { title: 'Brisk Walk', type: 'Walking', description: '30 mins brisk walking', status: 'pending', progress: 0 },
+    { title: 'Mindful Meditation', type: 'Meditation', description: '10 mins focus breathing', status: 'pending', progress: 0 },
+    { title: 'Breathing Exercise', type: 'Breathing', description: 'Deep breathing for 5 mins', status: 'pending', progress: 0 },
+    { title: 'Hydration Goal', type: 'Water', description: 'Drink 3L of water daily', status: 'pending', progress: 0 },
+    { title: 'Sleep Routine', type: 'Sleep', description: '8 hours of restful sleep', status: 'pending', progress: 0 },
+    { title: 'Body Stretching', type: 'Stretching', description: 'Full body stretching', status: 'pending', progress: 0 },
+    { title: 'Child Care Activity', type: 'ChildCare', description: 'Child health monitoring', status: 'pending', progress: 0 },
+    { title: 'Wellness Goals', type: 'Goals', description: 'Review weekly health progress', status: 'pending', progress: 0 }
+];
+
+const getTaskIcon = (type) => {
+    switch (type) {
+        case 'Yoga': return <Activity size={18} />;
+        case 'Walking': return <Footprints size={18} />;
+        case 'Meditation': return <Moon size={18} />;
+        case 'Breathing': return <Wind size={18} />;
+        case 'Water': return <Droplets size={18} />;
+        case 'Sleep': return <Bed size={18} />;
+        case 'Stretching': return <Maximize size={18} />;
+        case 'ChildCare': return <Baby size={18} />;
+        case 'Goals': return <Target size={18} />;
+        default: return <Zap size={18} />;
+    }
+};
 
 const PatientDashboard = () => {
     const { user, updateUser, logout } = useAuth();
@@ -51,6 +106,8 @@ const PatientDashboard = () => {
     const [loadingReviews, setLoadingReviews] = useState(false);
     const [appointments, setAppointments] = useState([]);
     const [prescriptions, setPrescriptions] = useState([]);
+    const [prescriptionSearch, setPrescriptionSearch] = useState('');
+    const [prescriptionTypeFilter, setPrescriptionTypeFilter] = useState('all');
     const [labTests, setLabTests] = useState([]);
     const [clinics, setClinics] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
@@ -119,28 +176,211 @@ const PatientDashboard = () => {
         comment: ''
     });
 
-    // Mock data for graphs
+    const [dailyActivity, setDailyActivity] = useState({
+        steps: 0, distance: 0, calories: 0, duration: 0, water: 0, waterGoal: 2.5
+    });
+
     const healthTrendsData = [
-        { name: 'Jan', bp: 120, hr: 72 },
-        { name: 'Feb', bp: 122, hr: 75 },
-        { name: 'Mar', bp: 118, hr: 70 },
-        { name: 'Apr', bp: 125, hr: 78 },
-        { name: 'May', bp: 121, hr: 74 },
-        { name: 'Jun', bp: 119, hr: 71 },
+        { name: 'Mon', bp: 120, hr: 72 },
+        { name: 'Tue', bp: 122, hr: 75 },
+        { name: 'Wed', bp: 118, hr: 70 },
+        { name: 'Thu', bp: 125, hr: 78 },
+        { name: 'Fri', bp: 121, hr: 74 },
+        { name: 'Sat', bp: 119, hr: 71 },
+        { name: 'Sun', bp: 120, hr: 73 },
     ];
+    const [childProfiles, setChildProfiles] = useState([]);
+    const [childSearchResults, setChildSearchResults] = useState([]);
+    const [childSearchLoading, setChildSearchLoading] = useState(false);
+    const [wellnessHistory, setWellnessHistory] = useState(() => {
+        const saved = localStorage.getItem(`wellness_history_${user.id}`);
+        return saved ? JSON.parse(saved) : {};
+    });
+    const [analyticsPeriod, setAnalyticsPeriod] = useState('daily');
+    const [streakCount, setStreakCount] = useState(0);
 
-    const appointmentTypeData = [
-        { name: 'Checkup', value: 4 },
-        { name: 'Follow-up', value: 3 },
-        { name: 'Consultation', value: 2 },
-        { name: 'Emergency', value: 1 },
-    ];
-
-    const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+    const handleChildSearch = async (query) => {
+        if (!query.trim()) return;
+        setChildSearchLoading(true);
+        try {
+            const res = await api.get(`/child-care/smart-search?query=${query}`);
+            if (res.data.success) {
+                setChildSearchResults(res.data.data);
+            }
+        } catch (err) {
+            console.error('Error in child smart search:', err);
+        } finally {
+            setChildSearchLoading(false);
+        }
+    };
 
     useEffect(() => {
         fetchPatientData();
-    }, []);
+        fetchDailyActivity();
+        fetchChildProfiles();
+
+        // Real-time polling for prescriptions to auto-sync from doctor
+        const syncInterval = setInterval(async () => {
+            if (!user?.id) return;
+            try {
+                const res = await api.get(`/prescriptions/patient/${user.id}`);
+                setPrescriptions(res.data.data);
+            } catch (err) {
+                console.error('Real-time sync error:', err);
+            }
+        }, 10000);
+
+        return () => clearInterval(syncInterval);
+    }, [user?.id]);
+
+    useEffect(() => {
+        const checkDailyReset = () => {
+            const today = getISTDate();
+            const lastReset = localStorage.getItem(`last_reset_${user.id}`);
+            
+            if (lastReset !== today) {
+                localStorage.setItem(`last_reset_${user.id}`, today);
+                // Daily reset logic - will be reflected on next fetch
+                fetchDailyActivity();
+            }
+        };
+
+        checkDailyReset();
+        const interval = setInterval(checkDailyReset, 3600000); // Check every hour
+        return () => clearInterval(interval);
+    }, [user.id]);
+
+    useEffect(() => {
+        // Calculate Streak
+        const dates = Object.keys(wellnessHistory).sort().reverse();
+        let currentStreak = 0;
+        let checkDate = new Date();
+        
+        for (let i = 0; i < dates.length; i++) {
+            const dateStr = dates[i];
+            const d = new Date(dateStr);
+            
+            // Check if this date has any completed tasks
+            const hasCompleted = wellnessHistory[dateStr].length > 0;
+            
+            if (hasCompleted) {
+                currentStreak++;
+            } else {
+                break;
+            }
+        }
+        setStreakCount(currentStreak);
+    }, [wellnessHistory]);
+
+    const fetchChildProfiles = async () => {
+        try {
+            const res = await api.get('/child-care/my-children');
+            if (res.data.success) {
+                setChildProfiles(res.data.data);
+            }
+        } catch (err) {
+            console.error('Error fetching child profiles:', err);
+        }
+    };
+
+    const medicationTasksList = tasks.filter(t => t.type === 'Medication' && t.status !== 'completed');
+    const activeMedications = [
+        ...(prescriptions || []).slice(0, 2).flatMap(p => p.medications || []).slice(0, 5).map(m => ({ ...m, source: 'prescription' })),
+        ...medicationTasksList.map(t => ({ drugName: t.title, frequency: t.description, dosage: t.priority, source: 'task', _id: t._id }))
+    ];
+
+    const isAppointmentUpcoming = (apt) => {
+        if (!apt.appointmentDate) return false;
+        const aptDate = new Date(apt.appointmentDate);
+        if (apt.appointmentTime) {
+            const timeStr = apt.appointmentTime.trim();
+            const timeMatch = timeStr.match(/(\d+):(\d+)\s*(AM|PM|am|pm)?/i);
+            if (timeMatch) {
+                let hours = parseInt(timeMatch[1], 10);
+                let mins = parseInt(timeMatch[2], 10);
+                const meridiem = timeMatch[3] ? timeMatch[3].toLowerCase() : null;
+                if (meridiem === 'pm' && hours < 12) hours += 12;
+                if (meridiem === 'am' && hours === 12) hours = 0;
+                aptDate.setHours(hours, mins, 0, 0);
+            }
+        }
+        return aptDate >= new Date();
+    };
+
+    const allUpcoming = (appointments || []).filter(apt => isAppointmentUpcoming(apt) && apt.status !== 'cancelled').sort((a,b) => new Date(a.appointmentDate) - new Date(b.appointmentDate));
+    const pastAppointments = (appointments || []).filter(apt => !isAppointmentUpcoming(apt) || apt.status === 'completed' || apt.status === 'cancelled').sort((a,b) => new Date(b.appointmentDate) - new Date(a.appointmentDate));
+    const appointmentTasksList = tasks.filter(t => t.type === 'Appointment' && t.status !== 'completed');
+    const upcomingAppointments = [
+        ...allUpcoming.slice(0, 3).map(a => ({ ...a, source: 'official' })),
+        ...appointmentTasksList.map(t => ({ 
+            appointmentDate: t.dueDate || new Date(), 
+            appointmentTime: 'Scheduled Task', 
+            doctorId: { userName: 'Staff' }, 
+            source: 'task',
+            _id: t._id,
+            title: t.title
+        }))
+    ];
+
+    const labTasksList = tasks.filter(t => t.type === 'Lab Test' && t.status !== 'completed');
+    const pendingLabTests = [
+        ...(labTests || []).filter(test => test.status === 'ordered' || test.status === 'sample-collected').slice(0, 3)
+            .map(l => ({ ...l, source: 'official' })),
+        ...labTasksList.map(t => ({ testName: t.title, status: t.status, source: 'task', _id: t._id }))
+    ];
+
+    const generalTasks = tasks.filter(t => (t.type === 'General Message' || !t.type) && t.status !== 'completed');
+    const wellnessTasksList = tasks.filter(t => DEFAULT_WELLNESS_TASKS.some(dt => dt.type === t.type));
+
+    const getAIContext = () => {
+        return {
+            userName: user.name,
+            uhid: user.uhid,
+            medicalHistory: user.medicalHistory,
+            dailyActivity: dailyActivity,
+            recentVitals: { bp: 120, hr: 72 },
+            activeMedications: activeMedications.map(m => m.drugName),
+            upcomingAppointments: upcomingAppointments.length,
+            pendingLabTests: pendingLabTests.length
+        };
+    };
+
+    const fetchDailyActivity = async () => {
+        try {
+            const today = getISTDate();
+            const res = await api.get(`/activity/daily-activity?date=${today}`);
+            if (res.data.success) {
+                const act = res.data.data.activity;
+                const water = res.data.data.water;
+                setDailyActivity({
+                    steps: act.steps || 0,
+                    distance: act.distance || 0,
+                    calories: act.calories || 0,
+                    duration: act.duration || 0,
+                    water: water.amount || 0,
+                    waterGoal: water.goal || 2.5
+                });
+                
+                // Merge backend tasks with defaults
+                const backendTasks = res.data.data.tasks || [];
+                const mergedTasks = DEFAULT_WELLNESS_TASKS.map(defTask => {
+                    const match = backendTasks.find(bt => bt.title === defTask.title || bt.type === defTask.type);
+                    return match ? { ...defTask, ...match } : defTask;
+                });
+                setTasks(prev => {
+                    const nonWellness = prev.filter(t => !DEFAULT_WELLNESS_TASKS.some(dt => dt.type === t.type));
+                    return [...nonWellness, ...mergedTasks];
+                });
+            }
+        } catch (err) {
+            console.error('Error fetching activity:', err);
+            // Fallback to defaults if fetch fails
+            setTasks(prev => {
+                const nonWellness = prev.filter(t => !DEFAULT_WELLNESS_TASKS.some(dt => dt.type === t.type));
+                return [...nonWellness, ...DEFAULT_WELLNESS_TASKS];
+            });
+        }
+    };
 
     const fetchPatientData = async () => {
         try {
@@ -157,7 +397,11 @@ const PatientDashboard = () => {
             setLabTests(labTestsRes.data.data);
             // Filter only doctors
             setClinics(clinicsRes.data.data.filter(c => c.userType === 'doctor'));
-            setTasks(tasksRes.data.data || []);
+            setTasks(prev => {
+                const wellness = prev.filter(t => DEFAULT_WELLNESS_TASKS.some(dt => dt.type === t.type));
+                const dbTasks = tasksRes.data.data || [];
+                return [...wellness, ...dbTasks];
+            });
             setLoading(false);
         } catch (error) {
             console.error('Error fetching patient data:', error);
@@ -165,15 +409,102 @@ const PatientDashboard = () => {
         }
     };
 
+    const fetchMyReviews = async () => {
+        setLoadingReviews(true);
+        try {
+            const res = await api.get(`/reviews/patient/${user.id}`);
+            if (res.data.success) {
+                setMyReviews(res.data.data);
+            }
+        } catch (error) {
+            console.error('Error fetching reviews:', error);
+        } finally {
+            setLoadingReviews(false);
+        }
+    };
+
+    useEffect(() => {
+        if (activeTab === 'reviews') {
+            fetchMyReviews();
+        }
+    }, [activeTab]);
+
     const handleTaskUpdate = async (taskId, newStatus) => {
         try {
             const res = await api.put(`/tasks/${taskId}`, { status: newStatus });
             if (res.data.success) {
                 setTasks(prev => prev.map(t => t._id === taskId ? { ...t, status: newStatus } : t));
-                // Show success message if needed
             }
         } catch (error) {
             console.error('Error updating task:', error);
+        }
+    };
+
+    const handleWellnessTaskUpdate = async (task, actionType = 'toggle') => {
+        try {
+            const today = getISTDate();
+            let newStatus = task.status;
+            let newProgress = task.progress || 0;
+
+            if (actionType === 'toggle') {
+                if (task.status === 'pending') {
+                    newStatus = 'in-progress';
+                    newProgress = 50;
+                } else if (task.status === 'in-progress') {
+                    newStatus = 'completed';
+                    newProgress = 100;
+                } else {
+                    newStatus = 'pending';
+                    newProgress = 0;
+                }
+            }
+
+            const res = await api.post('/activity/update-task', { 
+                title: task.title, 
+                type: task.type, 
+                status: newStatus,
+                progress: newProgress,
+                date: today 
+            });
+
+            if (res.data.success) {
+                const backendTasks = res.data.data;
+                const mergedTasks = tasks.map(t => {
+                    const match = backendTasks.find(bt => bt.title === t.title && bt.type === t.type);
+                    return match ? { ...t, ...match } : (t.title === task.title ? { ...t, status: newStatus, progress: newProgress } : t);
+                });
+                setTasks(mergedTasks);
+
+                if (newStatus === 'completed') {
+                    // Update Calories
+                    const calBonus = {
+                        'Yoga': 150, 'Walking': 200, 'Meditation': 50, 'Breathing': 30, 'Stretching': 100
+                    }[task.type] || 0;
+                    
+                    if (calBonus > 0) {
+                        const newCals = dailyActivity.calories + calBonus;
+                        setDailyActivity(prev => ({ ...prev, calories: newCals }));
+                        await api.post('/activity/update-steps', { ...dailyActivity, calories: newCals, date: today });
+                    }
+
+                    // Update History
+                    const historyUpdate = { ...wellnessHistory };
+                    if (!historyUpdate[today]) historyUpdate[today] = [];
+                    if (!historyUpdate[today].find(h => h.title === task.title)) {
+                        historyUpdate[today].push({
+                            title: task.title,
+                            type: task.type,
+                            completedAt: getISTTime(),
+                            status: 'Completed',
+                            progress: 100
+                        });
+                        setWellnessHistory(historyUpdate);
+                        localStorage.setItem(`wellness_history_${user.id}`, JSON.stringify(historyUpdate));
+                    }
+                }
+            }
+        } catch (err) {
+            console.error('Error updating wellness task:', err);
         }
     };
 
@@ -320,72 +651,6 @@ const PatientDashboard = () => {
         }
     };
 
-    const isAppointmentUpcoming = (apt) => {
-        if (!apt.appointmentDate) return false;
-        const aptDate = new Date(apt.appointmentDate);
-        if (apt.appointmentTime) {
-            const timeStr = apt.appointmentTime.trim();
-            const timeMatch = timeStr.match(/(\d+):(\d+)\s*(AM|PM|am|pm)?/i);
-            if (timeMatch) {
-                let hours = parseInt(timeMatch[1], 10);
-                let mins = parseInt(timeMatch[2], 10);
-                const meridiem = timeMatch[3] ? timeMatch[3].toLowerCase() : null;
-                if (meridiem === 'pm' && hours < 12) hours += 12;
-                if (meridiem === 'am' && hours === 12) hours = 0;
-                aptDate.setHours(hours, mins, 0, 0);
-            }
-        } else {
-            aptDate.setHours(23, 59, 59, 999);
-        }
-        return aptDate >= new Date();
-    };
-    useEffect(() => {
-        if (activeTab === 'reviews') {
-            fetchMyReviews();
-        }
-    }, [activeTab]);
-
-    const fetchMyReviews = async () => {
-        try {
-            setLoadingReviews(true);
-            const res = await api.get(`/reviews/patient/${user.id}`);
-            setMyReviews(res.data.data);
-        } catch (error) {
-            console.error("Error fetching reviews:", error);
-        } finally {
-            setLoadingReviews(false);
-        }
-    };
-    // Categorize and aggregate tasks with official records
-    const medicationTasksList = tasks.filter(t => t.type === 'Medication' && t.status !== 'completed');
-    const activeMedications = [
-        ...prescriptions.slice(0, 2).flatMap(p => p.medications).slice(0, 5).map(m => ({ ...m, source: 'prescription' })),
-        ...medicationTasksList.map(t => ({ drugName: t.title, frequency: t.description, dosage: t.priority, source: 'task', _id: t._id }))
-    ];
-
-    const allUpcoming = appointments.filter(apt => isAppointmentUpcoming(apt) && apt.status !== 'cancelled').sort((a,b) => new Date(a.appointmentDate) - new Date(b.appointmentDate));
-    const appointmentTasksList = tasks.filter(t => t.type === 'Appointment' && t.status !== 'completed');
-    const upcomingAppointments = [
-        ...allUpcoming.slice(0, 3).map(a => ({ ...a, source: 'official' })),
-        ...appointmentTasksList.map(t => ({ 
-            appointmentDate: t.dueDate || new Date(), 
-            appointmentTime: 'Scheduled Task', 
-            doctorId: { userName: 'Staff' }, 
-            source: 'task',
-            _id: t._id,
-            title: t.title
-        }))
-    ];
-    const pastAppointments = appointments.filter(apt => !isAppointmentUpcoming(apt) || apt.status === 'cancelled').sort((a,b) => new Date(b.appointmentDate) - new Date(a.appointmentDate));
-
-    const labTasksList = tasks.filter(t => t.type === 'Lab Test' && t.status !== 'completed');
-    const pendingLabTests = [
-        ...labTests.filter(test => test.status === 'ordered' || test.status === 'sample-collected').slice(0, 3)
-            .map(l => ({ ...l, source: 'official' })),
-        ...labTasksList.map(t => ({ testName: t.title, status: t.status, source: 'task', _id: t._id }))
-    ];
-    
-    const generalTasks = tasks.filter(t => (t.type === 'General Message' || !t.type) && t.status !== 'completed');
 
     const handleProfileUpdate = async () => {
         try {
@@ -502,29 +767,11 @@ const PatientDashboard = () => {
                         animate="visible"
                         className="home-content space-y-8"
                     >
-                        {/* Welcome Banner */}
-                        <motion.div variants={itemVariants} className="welcome-banner">
-                            <div className="banner-glow"></div>
-                            <div className="banner-content">
-                                <div className="banner-text">
-                                    <h1 className="text-white">Welcome back, {user.name}! 👋</h1>
-                                    <p className="text-white opacity-90">Manage your health and stay on track with your upcoming schedule.</p>
-                                </div>
-                                <div className="banner-actions">
-                                    <button
-                                        onClick={() => setActiveTab('labTests')}
-                                        className="btn-banner-outline"
-                                    >
-                                        View Records
-                                    </button>
-                                    <button
-                                        onClick={() => navigate('/reviews')}
-                                        className="btn-banner-white"
-                                    >
-                                        Give Feedback
-                                    </button>
-                                </div>
-                            </div>
+                        <DashboardGreeting user={user} role="patient" />
+
+                        {/* Real-Time Footstep Tracker */}
+                        <motion.div variants={itemVariants}>
+                            <StepTracker user={user} />
                         </motion.div>
 
                         {/* 2-Column Layout */}
@@ -533,15 +780,57 @@ const PatientDashboard = () => {
                             <motion.div variants={itemVariants} className="lg:col-span-12 task-reminders-unified">
                                 <div className="section-title-row">
                                     <h2 className="title-with-icon">
-                                        <div className="icon-box">
-                                            <Calendar className="w-5 h-5" />
+                                        <div className="icon-box tasks">
+                                            <Clock className="w-5 h-5" />
                                         </div>
-                                        Task Reminders
+                                        Wellness & Task Reminders
                                     </h2>
                                     <span className="box-pill">TODAY</span>
                                 </div>
 
                                 <div className="reminder-groups-container">
+                                    <div className="reminder-group">
+                                        <div className="group-header">
+                                            <Zap className="text-teal-500 w-4 h-4" />
+                                            <h3>WELLNESS TASKS</h3>
+                                        </div>
+                                        <div className="wellness-tasks-list grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+                                {wellnessTasksList.length > 0 ? (wellnessTasksList.map((task, idx) => (
+                                    <div key={idx} className={`wellness-task-card ${task.status}`}>
+                                        <div className="task-icon-wrapper">
+                                            {getTaskIcon(task.type)}
+                                        </div>
+                                        <div className="task-info">
+                                            <h4>{task.title}</h4>
+                                            <p>{task.description}</p>
+                                            <div className="task-progress-mini">
+                                                <div className="progress-track">
+                                                    <div className="progress-fill" style={{ width: `${task.progress || 0}%` }}></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="task-actions">
+                                            {task.status !== 'completed' ? (
+                                                <button 
+                                                    className={`task-btn ${task.status === 'in-progress' ? 'complete' : 'start'}`}
+                                                    onClick={() => handleWellnessTaskUpdate(task)}
+                                                >
+                                                    {task.status === 'in-progress' ? <CheckCircle size={14} /> : <Zap size={14} />}
+                                                    {task.status === 'in-progress' ? 'Done' : 'Start'}
+                                                </button>
+                                            ) : (
+                                                <span className="completed-badge"><CheckCircle size={14} /> Finished</span>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))) : (
+                                    <div className="empty-state p-4 text-center text-slate-500 w-full col-span-full">
+                                        No wellness tasks found.
+                                    </div>
+                                )}
+                                        </div>
+                                    </div>
+
                                     <div className="reminder-group">
                                         <div className="group-header">
                                             <Pill className="text-teal-500 w-4 h-4" />
@@ -578,12 +867,11 @@ const PatientDashboard = () => {
                                         </div>
                                         {upcomingAppointments.length > 0 ? (
                                             <div className="items-list">
-                                                {upcomingAppointments.map((apt) => (
+                                                {upcomingAppointments.slice(0, 3).map((apt) => (
                                                     <motion.div
                                                         whileHover={{ y: -2 }}
                                                         key={apt._id}
-                                                        className={`reminder-item-card ${apt.source === 'task' ? 'task-source' : ''}`}
-                                                        onClick={() => apt.source === 'task' && handleTaskUpdate(apt._id, 'completed')}
+                                                        className={`reminder-item-card status-${apt.status?.toLowerCase()}`}
                                                     >
                                                         <div className="date-icon-small">
                                                             <span className="month">{new Date(apt.appointmentDate).toLocaleString('default', { month: 'short' })}</span>
@@ -591,14 +879,20 @@ const PatientDashboard = () => {
                                                         </div>
                                                         <div className="item-info">
                                                             <div className="item-main-text">{apt.title || `Dr. ${apt.doctorId?.userName}`}</div>
-                                                            <div className="item-sub-text">{apt.appointmentTime}</div>
+                                                            <div className="item-sub-text">{apt.appointmentTime} | <span className="status-label">{apt.status}</span></div>
                                                         </div>
                                                     </motion.div>
                                                 ))}
+                                                {upcomingAppointments.length > 3 && (
+                                                    <button className="see-all-btn-lux" onClick={() => setActiveTab('appointments')}>
+                                                        See All Appointments <ChevronRight size={14} />
+                                                    </button>
+                                                )}
                                             </div>
                                         ) : (
                                             <div className="empty-state">
                                                 <p>No appointments scheduled</p>
+                                                <button className="book-now-link" onClick={() => setShowBookingModal(true)}>Book Now</button>
                                             </div>
                                         )}
                                     </div>
@@ -610,12 +904,11 @@ const PatientDashboard = () => {
                                         </div>
                                         {pendingLabTests.length > 0 ? (
                                             <div className="items-list">
-                                                {pendingLabTests.map((test) => (
+                                                {pendingLabTests.slice(0, 3).map((test) => (
                                                     <motion.div
                                                         whileHover={{ y: -2 }}
                                                         key={test._id}
-                                                        className={`reminder-item-card ${test.source === 'task' ? 'task-source' : ''}`}
-                                                        onClick={() => test.source === 'task' && handleTaskUpdate(test._id, 'completed')}
+                                                        className={`reminder-item-card status-${test.status?.toLowerCase()}`}
                                                     >
                                                         <div className="item-main-text">{test.testName}</div>
                                                         <span className={`status-tag ${test.status}`}>
@@ -624,6 +917,11 @@ const PatientDashboard = () => {
                                                         </span>
                                                     </motion.div>
                                                 ))}
+                                                {pendingLabTests.length > 3 && (
+                                                    <button className="see-all-btn-lux" onClick={() => setActiveTab('records')}>
+                                                        See All Lab Tests <ChevronRight size={14} />
+                                                    </button>
+                                                )}
                                             </div>
                                         ) : (
                                             <div className="empty-state">
@@ -704,69 +1002,369 @@ const PatientDashboard = () => {
 
                         </div>
 
-                        {/* Health Metrics & Analytics (Relocated & Redesigned) */}
-                        <motion.div variants={itemVariants} className="health-metrics-row grid grid-cols-1 lg:grid-cols-12 gap-8">
-                            {/* Box 1: Health Score & Activity */}
-                            <div className="lg:col-span-7 premium-analytics-card">
-                                <div className="card-header-row">
-                                    <h2 className="title-with-icon">
-                                        <div className="icon-box">
-                                            <Activity className="w-6 h-6" />
-                                        </div>
-                                        Health Analytics
-                                    </h2>
-                                    <div className="health-score-pill">
-                                        <span className="label">Health Score</span>
-                                        <span className="value">8.5<span className="out-of">/10</span></span>
-                                    </div>
+                        {/* Real-Time Health Insights Grid */}
+                        <motion.div variants={itemVariants} className="health-insights-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            {/* Today's Step Goal Card */}
+                            <div className="insight-card steps-card">
+                                <div className="card-bg-icon"><Footprints size={80} /></div>
+                                <div className="insight-header">
+                                    <div className="icon-circle"><Zap size={18} /></div>
+                                    <span>Daily Activity</span>
                                 </div>
-
-                                <div className="chart-wrapper">
-                                    <div className="chart-header">
-                                        <h3 className="chart-title">Activity Trends</h3>
-                                        <span className="chart-period">Last 6 Months</span>
+                                <div className="insight-main">
+                                    <h3>{dailyActivity.steps.toLocaleString()}</h3>
+                                    <p>Steps Today</p>
+                                </div>
+                                <div className="insight-progress">
+                                    <div className="progress-bar-bg">
+                                        <div className="progress-fill" style={{ width: `${Math.min((dailyActivity.steps/10000)*100, 100)}%` }}></div>
                                     </div>
-                                    <ResponsiveContainer width="100%" height={260}>
-                                        <LineChart data={healthTrendsData}>
-                                            <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? "#064e3b" : "#f1f5f9"} vertical={false} />
-                                            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 'bold' }} />
-                                            <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 11, fontWeight: 'bold' }} />
-                                            <Tooltip
-                                                contentStyle={{
-                                                    borderRadius: '24px',
-                                                    border: 'none',
-                                                    boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)',
-                                                    backgroundColor: isDarkMode ? '#1e293b' : '#ffffff',
-                                                    color: isDarkMode ? '#f8fafc' : '#1e293b',
-                                                    padding: '12px'
-                                                }}
-                                            />
-                                            <Legend iconType="circle" wrapperStyle={{ paddingTop: '30px', fontSize: '12px', fontWeight: '900' }} />
-                                            <Line type="monotone" dataKey="bp" stroke="var(--action-primary)" strokeWidth={4} dot={{ r: 4, fill: "var(--action-primary)", strokeWidth: 2, stroke: "#fff" }} activeDot={{ r: 8 }} name="Blood Pressure" />
-                                            <Line type="monotone" dataKey="hr" stroke="#10b981" strokeWidth={4} dot={{ r: 4, fill: "#10b981", strokeWidth: 2, stroke: "#fff" }} activeDot={{ r: 8 }} name="Heart Rate" />
-                                        </LineChart>
-                                    </ResponsiveContainer>
+                                    <span>{Math.round((dailyActivity.steps/10000)*100)}% of Goal</span>
                                 </div>
                             </div>
 
-                            {/* Box 2: Quick Stats */}
-                            <div className="lg:col-span-5 stats-card-grid">
-                                {[
-                                    { label: 'Upcoming', value: appointments.length > 0 ? appointments.filter(a => a.status === 'scheduled' || a.status === 'pending').length : '1', sub: appointments.length > 0 ? 'Appointments' : 'Initial Check', icon: '📅', color: 'blue' },
-                                    { label: 'Records', value: prescriptions.length + labTests.length > 0 ? prescriptions.length + labTests.length : '1', sub: 'Total Files', icon: '📂', color: 'emerald' },
-                                    { label: 'Status', value: 'Stable', sub: 'Last check today', icon: '📈', color: 'amber' }
-                                ].map((stat, i) => (
-                                    <div key={i} className={`minimal-stat-card ${stat.color}`}>
-                                        <div className="stat-icon-box">
-                                            <span className="stat-icon">{stat.icon}</span>
+                            {/* Calories Burned */}
+                            <div className="insight-card calories-card">
+                                <div className="card-bg-icon"><Flame size={80} /></div>
+                                <div className="insight-header">
+                                    <div className="icon-circle"><Flame size={18} /></div>
+                                    <span>Energy Spent</span>
+                                </div>
+                                <div className="insight-main">
+                                    <h3>{dailyActivity.calories}</h3>
+                                    <p>Kcal Burned</p>
+                                </div>
+                                <div className="insight-trend positive">
+                                    <TrendingUp size={14} />
+                                    <span>Real-time Active</span>
+                                </div>
+                            </div>
+
+                            {/* Health Score */}
+                            <div className="insight-card score-card">
+                                <div className="card-bg-icon"><Heart size={80} /></div>
+                                <div className="insight-header">
+                                    <div className="icon-circle"><Activity size={18} /></div>
+                                    <span>Overall Health</span>
+                                </div>
+                                <div className="insight-main">
+                                    <h3>8.5</h3>
+                                    <p>Health Score</p>
+                                </div>
+                                <div className="score-badge">OPTIMAL</div>
+                            </div>
+
+                            {/* Distance Covered */}
+                            <div className="insight-card distance-card">
+                                <div className="card-bg-icon"><Navigation size={80} /></div>
+                                <div className="insight-header">
+                                    <div className="icon-circle"><MapPin size={18} /></div>
+                                    <span>Distance</span>
+                                </div>
+                                <div className="insight-main">
+                                    <h3>{dailyActivity.distance}</h3>
+                                    <p>Kilometers</p>
+                                </div>
+                                <div className="insight-subtext">{Math.round(dailyActivity.duration / 60)} mins active</div>
+                            </div>
+                        </motion.div>
+
+                        {/* Today's Completed Activities Section */}
+                        <motion.div variants={itemVariants} className="completed-activities-section">
+                            <div className="section-header-lux">
+                                <div className="title-group">
+                                    <CheckCircle className="text-emerald-500" />
+                                    <h2>Today's Completed Activities</h2>
+                                </div>
+                                <span className="streak-badge">
+                                    <Flame size={16} /> {streakCount} Day Streak
+                                </span>
+                            </div>
+                            
+                            <div className="completed-list grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+                                {wellnessHistory[getISTDate()]?.length > 0 ? (
+                                    wellnessHistory[getISTDate()].map((act, i) => (
+                                        <div key={i} className="completed-activity-card">
+                                            <div className="act-icon">{getTaskIcon(act.type)}</div>
+                                            <div className="act-details">
+                                                <h4>{act.title}</h4>
+                                                <div className="act-meta">
+                                                    <Clock size={10} /> {act.completedAt}
+                                                </div>
+                                                <div className="act-progress-pill">
+                                                    <CheckCircle size={10} /> {act.status}
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div className="stat-info">
-                                            <p className="stat-label">{stat.label}</p>
-                                            <h2 className="stat-value">{stat.value}</h2>
-                                            <p className="stat-sub">{stat.sub}</p>
+                                    ))
+                                ) : (
+                                    <div className="col-span-full py-8 text-center bg-slate-50 rounded-3xl border border-dashed border-slate-200">
+                                        <p className="text-slate-400 font-medium">No activities completed yet today. Start your wellness journey!</p>
+                                    </div>
+                                )}
+                            </div>
+                        </motion.div>
+
+                        {/* Wellness Analytics Dashboard */}
+                        <motion.div variants={itemVariants} className="wellness-analytics-dashboard">
+                            <div className="analytics-header">
+                                <div className="title-group">
+                                    <Activity className="text-blue-500" />
+                                    <h2>Wellness Analytics</h2>
+                                </div>
+                                <div className="period-selector">
+                                    {['daily', 'weekly', 'monthly', 'yearly'].map(p => (
+                                        <button 
+                                            key={p} 
+                                            className={`period-btn ${analyticsPeriod === p ? 'active' : ''}`}
+                                            onClick={() => setAnalyticsPeriod(p)}
+                                        >
+                                            {p.charAt(0).toUpperCase() + p.slice(1)}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="analytics-grid grid grid-cols-1 lg:grid-cols-12 gap-8 mt-6">
+                                <div className="lg:col-span-8 chart-card">
+                                    <h3>Activity Progress Trends</h3>
+                                    <div className="chart-wrapper h-[300px]">
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <LineChart data={
+                                                analyticsPeriod === 'daily' ? tasks.map(t => ({ name: t.title, value: t.progress || 0 })) :
+                                                analyticsPeriod === 'weekly' ? Object.keys(wellnessHistory).slice(-7).map(d => ({ name: d.split('-').slice(1).join('/'), value: wellnessHistory[d].length * 11 })) :
+                                                Object.keys(wellnessHistory).slice(-30).map(d => ({ name: d.split('-').slice(2), value: wellnessHistory[d].length * 11 }))
+                                            }>
+                                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8' }} />
+                                                <YAxis hide />
+                                                <Tooltip 
+                                                    contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
+                                                />
+                                                <Line type="monotone" dataKey="value" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4, fill: '#3b82f6' }} activeDot={{ r: 6 }} />
+                                            </LineChart>
+                                        </ResponsiveContainer>
+                                    </div>
+                                </div>
+                                <div className="lg:col-span-4 stats-summary-card">
+                                    <div className="stat-row">
+                                        <div className="stat-label">Total Completed</div>
+                                        <div className="stat-value">{Object.values(wellnessHistory).flat().length}</div>
+                                    </div>
+                                    <div className="stat-row">
+                                        <div className="stat-label">Daily Goal</div>
+                                        <div className="stat-value">{tasks.filter(t => t.status === 'completed').length}/{tasks.length}</div>
+                                    </div>
+                                    <div className="stat-row">
+                                        <div className="stat-label">Wellness Score</div>
+                                        <div className="stat-value">{(tasks.filter(t => t.status === 'completed').length / tasks.length * 10).toFixed(1)}/10</div>
+                                    </div>
+                                    <div className="wellness-badge-display">
+                                        <Star className="text-yellow-400 fill-yellow-400" size={40} />
+                                        <span>Wellness Champion</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+
+                        {/* Secondary Analytics Row: Records & Charts */}
+                        <div className="analytics-secondary-row grid grid-cols-1 lg:col-span-12 lg:grid-cols-12 gap-8">
+                            {/* Medical Timeline & Recent Records */}
+                            <div className="lg:col-span-8 medical-history-overview">
+                                <div className="section-header-lux">
+                                    <div className="title-group">
+                                        <FileText className="text-blue-600" />
+                                        <h2>Recent Medical Records</h2>
+                                    </div>
+                                    <button onClick={() => navigate('/patient/records')} className="view-all-link">View All Records</button>
+                                </div>
+                                
+                                <div className="records-mini-list mt-4">
+                                    {prescriptions.length > 0 ? (
+                                        prescriptions.slice(0, 2).map((p, i) => (
+                                            <div key={i} className="mini-record-item">
+                                                <div className="record-icon rx"><Pill size={16} /></div>
+                                                <div className="record-details">
+                                                    <h4>Prescription: {p.medications?.[0]?.drugName || 'Consultation Record'}</h4>
+                                                    <p>By Dr. {p.doctorId?.userName || 'Namma Clinic'} • {new Date(p.createdAt).toLocaleDateString()}</p>
+                                                </div>
+                                                <ChevronRight className="ml-auto text-slate-300" size={18} />
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <div className="empty-mini-record">No recent prescriptions</div>
+                                    )}
+
+                                    {labTests.length > 0 ? (
+                                        labTests.slice(0, 2).map((l, i) => (
+                                            <div key={i} className="mini-record-item">
+                                                <div className="record-icon lab"><Activity size={16} /></div>
+                                                <div className="record-details">
+                                                    <h4>Lab Test: {l.testName}</h4>
+                                                    <p>Status: <span className={l.status}>{l.status}</span> • {new Date(l.createdAt).toLocaleDateString()}</p>
+                                                </div>
+                                                <ChevronRight className="ml-auto text-slate-300" size={18} />
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <div className="empty-mini-record">No recent lab reports</div>
+                                    )}
+                                </div>
+
+                                <div className="chart-container-lux mt-8">
+                                    <h3>Weekly Vitals Activity</h3>
+                                    <div className="chart-box" style={{ height: '220px' }}>
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <BarChart data={healthTrendsData}>
+                                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#94a3b8' }} />
+                                                <Tooltip 
+                                                    cursor={{ fill: '#f8fafc' }}
+                                                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
+                                                />
+                                                <Bar dataKey="hr" fill="#10b981" radius={[4, 4, 0, 0]} barSize={20} />
+                                                <Bar dataKey="bp" fill="#3b82f6" radius={[4, 4, 0, 0]} barSize={20} />
+                                            </BarChart>
+                                        </ResponsiveContainer>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Right Column: Water & Appointment Summary */}
+                            <div className="lg:col-span-4 side-summary-cards flex flex-col gap-6">
+                                <div className="summary-mini-card appointment-summary">
+                                    <div className="mini-header">
+                                        <Calendar size={16} />
+                                        <span>Next Appointment</span>
+                                    </div>
+                                    {appointments.find(a => a.status === 'scheduled') ? (
+                                        <div className="next-apt-box">
+                                            <h4>{new Date(appointments.find(a => a.status === 'scheduled').appointmentDate).toLocaleDateString()}</h4>
+                                            <p>{appointments.find(a => a.status === 'scheduled').appointmentTime}</p>
+                                            <span className="dr-tag">Dr. {appointments.find(a => a.status === 'scheduled').doctorId?.userName}</span>
+                                        </div>
+                                    ) : (
+                                        <div className="empty-apt-state">No scheduled appointments</div>
+                                    )}
+                                </div>
+
+                                <div className="summary-mini-card water-intake">
+                                    <div className="mini-header">
+                                        <Zap size={16} className="text-blue-500" />
+                                        <span>Water Intake</span>
+                                    </div>
+                                    <div className="water-stats">
+                                        <div className="water-main">
+                                            <h3>{dailyActivity.water}<span>/{dailyActivity.waterGoal}L</span></h3>
+                                            <p>Stay hydrated!</p>
+                                        </div>
+                                        <div className="water-drops flex gap-1 mt-2 mb-4">
+                                            {[...Array(8)].map((_, i) => (
+                                                <div key={i} className={`drop ${i < (dailyActivity.water / dailyActivity.waterGoal) * 8 ? 'active' : ''}`}></div>
+                                            ))}
+                                        </div>
+                                        <button 
+                                            className="add-water-btn-lux"
+                                            onClick={async () => {
+                                                try {
+                                                    const today = new Date().toISOString().split('T')[0];
+                                                    const res = await api.post('/activity/update-water', { amount: 0.25, date: today });
+                                                    if (res.data.success) {
+                                                        setDailyActivity(prev => ({ ...prev, water: res.data.data.amount }));
+                                                    }
+                                                } catch (err) {
+                                                    console.error('Error updating water:', err);
+                                                }
+                                            }}
+                                        >
+                                            + Add 250ml
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Feature 9: Child Growth & Parent Care */}
+                        <motion.div variants={itemVariants} className="child-care-section mt-12 mb-8">
+                            <div className="section-title-row">
+                                <h2 className="title-with-icon">
+                                    <div className="icon-box child-box">
+                                        <Bot className="w-5 h-5" />
+                                    </div>
+                                    Child Growth & Parent Care
+                                </h2>
+                                <button className="add-child-btn-lux" onClick={() => navigate('/child-care')}>
+                                    + Add Child Profile
+                                </button>
+                            </div>
+
+                            <div className="child-care-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+                                {childProfiles.length > 0 ? (
+                                    childProfiles.map((child, idx) => (
+                                        <div key={idx} className="child-profile-card-premium">
+                                            <div className="child-card-header">
+                                                <div className="avatar-box">
+                                                    {child.childName.charAt(0)}
+                                                </div>
+                                                <div className="child-meta">
+                                                    <h4>{child.childName}</h4>
+                                                    <span className="age-tag">{Math.floor((new Date() - new Date(child.childDob)) / (1000 * 60 * 60 * 24 * 365.25))}Y Old</span>
+                                                </div>
+                                            </div>
+                                            <div className="growth-summary mt-4">
+                                                <div className="growth-stat">
+                                                    <span className="lbl">Height</span>
+                                                    <span className="val">{child.growthRecords?.[child.growthRecords.length - 1]?.height || '--'} cm</span>
+                                                </div>
+                                                <div className="growth-stat">
+                                                    <span className="lbl">Weight</span>
+                                                    <span className="val">{child.growthRecords?.[child.growthRecords.length - 1]?.weight || '--'} kg</span>
+                                                </div>
+                                            </div>
+                                            <button className="view-details-btn" onClick={() => navigate(`/child-care/${child._id}`)}>
+                                                Growth Details <ChevronRight size={14} />
+                                            </button>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="empty-child-card col-span-1 lg:col-span-2">
+                                        <div className="empty-icon-bg"><Bot size={32} /></div>
+                                        <div className="empty-text">
+                                            <h4>No Child Profiles</h4>
+                                            <p>Track your children's growth and get nutrition advice.</p>
                                         </div>
                                     </div>
-                                ))}
+                                )}
+
+                                <div className="parent-smart-search-box">
+                                    <div className="smart-header">
+                                        <Sparkles size={16} />
+                                        <span>Parent Smart Search</span>
+                                    </div>
+                                    <div className="search-input-wrapper">
+                                        <Search size={16} />
+                                        <input 
+                                            type="text" 
+                                            placeholder="Best foods for 2 year old..." 
+                                            onKeyPress={(e) => {
+                                                if (e.key === 'Enter') {
+                                                    handleChildSearch(e.target.value);
+                                                }
+                                            }}
+                                        />
+                                        {childSearchLoading && <Loader2 className="animate-spin" size={14} />}
+                                    </div>
+                                    <div className="search-results-mini mt-3">
+                                        {childSearchResults.map((res, i) => (
+                                            <div key={i} className="search-res-item bg-white/10 p-2 rounded-lg mb-2">
+                                                <strong>{res.topic}:</strong> {res.advice}
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <div className="search-tips">
+                                        <span>Try: "Vaccination schedule" or "Sleep guidance"</span>
+                                    </div>
+                                </div>
                             </div>
                         </motion.div>
 
@@ -820,7 +1418,7 @@ const PatientDashboard = () => {
                                 </div>
                             </div>
                         </motion.div>
-                        {showChat && <AIHealthAssistant onClose={() => setShowChat(false)} />}
+                        {showChat && <AIHealthAssistant onClose={() => setShowChat(false)} context={getAIContext()} />}
                     </motion.div>
                 )}
 
@@ -905,6 +1503,13 @@ const PatientDashboard = () => {
                                                         <Calendar size={16} />
                                                         Book
                                                     </button>
+                                                    <button
+                                                        onClick={() => navigate('/reviews', { state: { clinicId: clinic._id } })}
+                                                        className="h-11 px-4 bg-amber-50 hover:bg-amber-100 text-amber-600 border border-amber-200 rounded-xl flex items-center justify-center transition-all shadow-sm font-bold text-xs"
+                                                        title="Write Review"
+                                                    >
+                                                        <Star size={16} className="mr-1" /> Review
+                                                    </button>
                                                     <a
                                                         href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${clinic.address || clinic.clinicAddress || ''} ${clinic.pincode || ''}`.trim() || 'Clinic')}`}
                                                         target="_blank"
@@ -927,198 +1532,348 @@ const PatientDashboard = () => {
                 )}
 
                 {/* APPOINTMENTS TAB */}
-                {
-                    activeTab === 'appointments' && (
-                        <div className="appointments-content">
-                            <div className="flex-between-center mb-20">
-                                <h1>📅 My Appointments</h1>
-                                <button className="book-btn" onClick={() => setShowBookingModal(true)}>
-                                    + Book New Appointment
-                                </button>
+                {activeTab === 'appointments' && (
+                    <motion.div 
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="appointments-content p-8"
+                    >
+                        <div className="flex justify-between items-center mb-10">
+                            <div>
+                                <h1 className="text-3xl font-black text-slate-800">📅 Appointment Center</h1>
+                                <p className="text-slate-500 font-medium">Manage your clinical visits and consultation history.</p>
                             </div>
+                            <button className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl shadow-lg transition-all" onClick={() => setShowBookingModal(true)}>
+                                + Book New Appointment
+                            </button>
+                        </div>
 
-                            {uploadMessage.text && (
-                                <div className={`message-alert ${uploadMessage.type} mb-20`}>
-                                    {uploadMessage.text}
+                        {uploadMessage.text && (
+                            <div className={`p-4 rounded-xl mb-8 flex items-center gap-3 ${uploadMessage.type === 'success' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-rose-50 text-rose-700 border border-rose-100'}`}>
+                                <Activity size={18} />
+                                <span className="font-bold">{uploadMessage.text}</span>
+                            </div>
+                        )}
+
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                            {/* Left: Upcoming */}
+                            <div className="lg:col-span-4">
+                                <div className="section-header-lux mb-6">
+                                    <h2 className="text-xl font-black text-slate-800 flex items-center gap-2">
+                                        <Clock className="text-blue-500" /> Upcoming
+                                    </h2>
                                 </div>
-                            )}
-
-                            <div className="appointments-section">
-                                <h2>Upcoming Appointments</h2>
-                                {allUpcoming.length > 0 ? (
-                                    <div className="appointments-grid">
-                                        {allUpcoming.map((apt) => (
-                                            <div key={apt._id} className="appointment-card">
-                                                <div className="apt-header">
-                                                    <h3>{new Date(apt.appointmentDate).toLocaleDateString()}</h3>
-                                                    <span className={`status-badge status-${apt.status}`}>
-                                                        {apt.status === 'pending' ? '⏳ Pending Confirmation' : apt.status}
+                                
+                                <div className="space-y-4">
+                                    {allUpcoming.length > 0 ? (
+                                        allUpcoming.map((apt) => (
+                                            <div key={apt._id} className="p-6 bg-white border border-slate-100 rounded-3xl shadow-sm hover:shadow-md transition-all">
+                                                <div className="flex justify-between items-start mb-4">
+                                                    <div className="date-box-mini">
+                                                        <span className="font-black text-emerald-600">{new Date(apt.appointmentDate).getDate()}</span>
+                                                        <span className="text-[10px] font-bold text-slate-400 uppercase">{new Date(apt.appointmentDate).toLocaleString('default', { month: 'short' })}</span>
+                                                    </div>
+                                                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${apt.status === 'pending' ? 'bg-amber-50 text-amber-600' : 'bg-blue-50 text-blue-600'}`}>
+                                                        {apt.status}
                                                     </span>
                                                 </div>
-                                                <p><strong>Time:</strong> {apt.appointmentTime}</p>
-                                                <p><strong>Doctor:</strong> Dr. {apt.doctorId?.userName || 'N/A'}</p>
-                                                <p><strong>Type:</strong> {apt.type}</p>
-                                                {apt.chiefComplaint && <p><strong>Reason:</strong> {apt.chiefComplaint}</p>}
+                                                <h4 className="font-black text-slate-800 mb-1">Dr. {apt.doctorId?.userName}</h4>
+                                                <p className="text-sm font-bold text-slate-500 mb-4">{apt.appointmentTime}</p>
+                                                <div className="flex gap-2">
+                                                    <button className="flex-1 py-2 bg-slate-50 text-slate-600 text-xs font-bold rounded-xl hover:bg-rose-50 hover:text-rose-600 transition-colors">Cancel</button>
+                                                    <button className="flex-1 py-2 bg-emerald-50 text-emerald-600 text-xs font-bold rounded-xl hover:bg-emerald-600 hover:text-white transition-colors">Reschedule</button>
+                                                </div>
                                             </div>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <p className="no-data">No upcoming appointments</p>
-                                )}
+                                        ))
+                                    ) : (
+                                        <div className="p-10 text-center bg-slate-50 rounded-3xl border border-dashed border-slate-200">
+                                            <Calendar size={32} className="mx-auto text-slate-300 mb-3" />
+                                            <p className="text-slate-400 font-bold">No upcoming visits</p>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
 
-                            <div className="appointments-section mt-10">
-                                <h2>Appointment History</h2>
-                                {pastAppointments.length > 0 ? (
-                                    <div className="appointments-grid opacity-75">
-                                        {pastAppointments
-                                            .slice(0, 6)
-                                            .map((apt) => (
-                                                <div key={apt._id} className="appointment-card">
-                                                    <div className="apt-header">
-                                                        <h3>{new Date(apt.appointmentDate).toLocaleDateString()}</h3>
-                                                        <span className={`status-badge status-${apt.status}`}>
-                                                            {apt.status}
-                                                        </span>
-                                                    </div>
-                                                    <p><strong>Doctor:</strong> Dr. {apt.doctorId?.userName || 'N/A'}</p>
-                                                    <p><strong>Type:</strong> {apt.type}</p>
-                                                </div>
-                                            ))}
-                                    </div>
-                                ) : (
-                                    <p className="no-data">No past appointments</p>
-                                )}
+                            {/* Right: History */}
+                            <div className="lg:col-span-8">
+                                <div className="section-header-lux mb-6">
+                                    <h2 className="text-xl font-black text-slate-800 flex items-center gap-2">
+                                        <History className="text-emerald-500" /> Visit History
+                                    </h2>
+                                </div>
+                                <AppointmentHistory patientId={user.id} role="patient" />
                             </div>
                         </div>
-                    )
-                }
+                    </motion.div>
+                )}
 
                 {/* PRESCRIPTIONS TAB */}
-                {
-                    activeTab === 'prescriptions' && (
-                        <div className="prescriptions-content">
-                            <h1>💊 My Prescriptions</h1>
+                {activeTab === 'prescriptions' && (
+                    <div className="prescriptions-content-lux space-y-8">
+                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
+                            <div className="title-area">
+                                <h1 className="text-3xl font-black text-slate-800 flex items-center gap-3">
+                                    <div className="p-3 bg-blue-600 text-white rounded-2xl shadow-xl shadow-blue-200">
+                                        <Pill size={28} />
+                                    </div>
+                                    My Prescription Records
+                                </h1>
+                                <p className="text-slate-500 font-medium mt-2 ml-14">Securely view, download, and manage your clinical Rx history.</p>
+                            </div>
+                            
+                            <div className="filter-controls flex gap-3">
+                                <div className="search-box-premium">
+                                    <Search size={18} />
+                                    <input 
+                                        type="text" 
+                                        placeholder="Search by doctor or ID..." 
+                                        value={prescriptionSearch}
+                                        onChange={(e) => setPrescriptionSearch(e.target.value)}
+                                    />
+                                </div>
+                                <select 
+                                    className="filter-select-premium"
+                                    value={prescriptionTypeFilter}
+                                    onChange={(e) => setPrescriptionTypeFilter(e.target.value)}
+                                >
+                                    <option value="all">All Records</option>
+                                    <option value="ai">AI Generated</option>
+                                    <option value="manual">Manual Entry</option>
+                                </select>
+                            </div>
+                        </div>
 
-                            <div className="prescriptions-list">
-                                {prescriptions.length > 0 ? (
-                                    prescriptions.map((prescription) => (
-                                        <div key={prescription._id} className="prescription-card">
-                                            <div className="prescription-header">
-                                                <h3>Prescription</h3>
-                                                <span className="prescription-date">
-                                                    {new Date(prescription.createdAt).toLocaleDateString()}
-                                                </span>
-                                            </div>
-                                            <div className="prescription-details">
-                                                <div className="detail-row">
-                                                    <strong>Prescribed By:</strong> Dr. {prescription.doctorId?.userName || 'Unknown'}
-                                                    {prescription.doctorId?.clinicName && <span> ({prescription.doctorId.clinicName})</span>}
-                                                </div>
-                                                <div className="detail-row">
-                                                    <strong>Status:</strong>
-                                                    <span className={`status-badge status-${prescription.status}`}>
-                                                        {prescription.status}
-                                                    </span>
-                                                </div>
-                                                {prescription.isAIProcessed && (
-                                                    <div className="ai-details mt-10">
-                                                        <div className="ai-badge-label mb-5">
-                                                            <Bot size={14} /> AI Processed Prescription
-                                                        </div>
-                                                        {prescription.aiExtractedData?.reason && (
-                                                            <p className="prescription-info"><Activity size={14} /> <strong>Reason:</strong> {prescription.aiExtractedData.reason}</p>
-                                                        )}
-                                                        {prescription.aiExtractedData?.time && (
-                                                            <p className="prescription-info"><Clock size={14} /> <strong>Time:</strong> {prescription.aiExtractedData.time}</p>
-                                                        )}
+                        <div className="prescriptions-layout-grid">
+                            {prescriptions.filter(p => p.status === 'completed').length > 0 ? (
+                                <div className="prescriptions-grid-container px-2">
+                                    {/* LATEST PRESCRIPTION HIGHLIGHT */}
+                                    {prescriptions.filter(p => p.status === 'completed').filter(p => {
+                                        const matchesSearch = !prescriptionSearch || 
+                                            p.doctorId?.userName?.toLowerCase().includes(prescriptionSearch.toLowerCase()) ||
+                                            p._id.toLowerCase().includes(prescriptionSearch.toLowerCase());
+                                        const matchesType = prescriptionTypeFilter === 'all' || 
+                                            (prescriptionTypeFilter === 'ai' ? p.isAIProcessed : !p.isAIProcessed);
+                                        return matchesSearch && matchesType;
+                                    }).length > 0 ? (
+                                        <>
+                                            {/* Latest Highlight */}
+                                            {prescriptionSearch === '' && prescriptionTypeFilter === 'all' && (
+                                                <div className="latest-rx-section mb-10">
+                                                    <div className="section-label flex items-center gap-2 mb-4">
+                                                        <Sparkles size={16} className="text-amber-500" />
+                                                        <span className="text-xs font-black uppercase tracking-widest text-slate-400">Most Recent Consultation</span>
                                                     </div>
-                                                )}
-                                            </div>
+                                                    <div className="latest-rx-card-premium bg-gradient-to-br from-blue-600 to-indigo-700 rounded-[40px] p-8 text-white relative overflow-hidden shadow-2xl shadow-blue-200">
+                                                        <div className="absolute top-0 right-0 p-10 opacity-10 rotate-12">
+                                                            <FileText size={200} />
+                                                        </div>
+                                                        
+                                                        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-3 gap-8">
+                                                            <div className="col-span-2">
+                                                                <div className="flex items-center gap-4 mb-6">
+                                                                    <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center">
+                                                                        <Stethoscope size={32} />
+                                                                    </div>
+                                                                    <div>
+                                                                        <h2 className="text-2xl font-black">Dr. {prescriptions.filter(p => p.status === 'completed')[0].doctorId?.userName || 'Clinical Staff'}</h2>
+                                                                        <p className="text-blue-100 font-bold">{prescriptions.filter(p => p.status === 'completed')[0].doctorId?.clinicName || 'Namma Health Clinic'}</p>
+                                                                    </div>
+                                                                </div>
+                                                                
+                                                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                                                                    <div className="stat-pill bg-white/10 backdrop-blur-md p-4 rounded-3xl border border-white/10">
+                                                                        <p className="text-[10px] font-black uppercase text-blue-200 mb-1">Date</p>
+                                                                        <p className="font-bold">{new Date(prescriptions.filter(p => p.status === 'completed')[0].createdAt).toLocaleDateString()}</p>
+                                                                    </div>
+                                                                    <div className="stat-pill bg-white/10 backdrop-blur-md p-4 rounded-3xl border border-white/10">
+                                                                        <p className="text-[10px] font-black uppercase text-blue-200 mb-1">Record ID</p>
+                                                                        <p className="font-bold">RX-{prescriptions.filter(p => p.status === 'completed')[0]._id.slice(-8).toUpperCase()}</p>
+                                                                    </div>
+                                                                    <div className="stat-pill bg-white/10 backdrop-blur-md p-4 rounded-3xl border border-white/10">
+                                                                        <p className="text-[10px] font-black uppercase text-blue-200 mb-1">Source</p>
+                                                                        <p className="font-bold flex items-center gap-1.5">
+                                                                            {prescriptions.filter(p => p.status === 'completed')[0].isAIProcessed ? <Sparkles size={14} /> : <User size={14} />}
+                                                                            {prescriptions.filter(p => p.status === 'completed')[0].isAIProcessed ? 'AI Smart' : 'Medical Staff'}
+                                                                        </p>
+                                                                    </div>
+                                                                    <div className="stat-pill bg-white/10 backdrop-blur-md p-4 rounded-3xl border border-white/10">
+                                                                        <p className="text-[10px] font-black uppercase text-blue-200 mb-1">Meds</p>
+                                                                        <p className="font-bold">{prescriptions.filter(p => p.status === 'completed')[0].medications?.length || 0} Items</p>
+                                                                    </div>
+                                                                </div>
+                                                                
+                                                                <div className="diagnosis-summary-box p-5 bg-white/5 rounded-3xl border border-white/5">
+                                                                    <p className="text-xs font-bold text-blue-200 mb-2">Diagnosis & Clinical Observation</p>
+                                                                    <p className="text-sm line-clamp-2 italic">"{prescriptions.filter(p => p.status === 'completed')[0].diagnosis || prescriptions.filter(p => p.status === 'completed')[0].clinicalNotes || 'Observation records maintained digitally.'}"</p>
+                                                                </div>
+                                                            </div>
+                                                            
+                                                            <div className="flex flex-col justify-center gap-4">
+                                                                <a 
+                                                                    href={prescriptions.filter(p => p.status === 'completed')[0].digitalPrescriptionPdf ? `http://localhost:5000/${prescriptions.filter(p => p.status === 'completed')[0].digitalPrescriptionPdf.replace(/\\/g, '/')}` : '#'}
+                                                                    target="_blank"
+                                                                    rel="noreferrer"
+                                                                    className="h-16 bg-white text-blue-600 rounded-3xl font-black flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-blue-900/20"
+                                                                >
+                                                                    <Eye size={24} /> View Digital Rx
+                                                                </a>
+                                                                <a 
+                                                                    href={prescriptions.filter(p => p.status === 'completed')[0].digitalPrescriptionPdf ? `http://localhost:5000/${prescriptions.filter(p => p.status === 'completed')[0].digitalPrescriptionPdf.replace(/\\/g, '/')}` : '#'}
+                                                                    download
+                                                                    className="h-16 bg-blue-500/30 text-white border border-white/20 backdrop-blur-md rounded-3xl font-black flex items-center justify-center gap-3 hover:bg-blue-500/40 transition-all"
+                                                                >
+                                                                    <Download size={24} /> Download PDF
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
 
-                                            <div className="prescription-actions">
-                                                {prescription.digitalPrescriptionPdf ? (
-                                                    <>
-                                                        <a
-                                                            href={`http://localhost:5000/${prescription.digitalPrescriptionPdf}`}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className="btn-prescription btn-prescription-primary"
-                                                        >
-                                                            <Download size={18} /> Download PDF
-                                                        </a>
-                                                        {prescription.isAIProcessed && prescription.originalFile && (
-                                                            <a
-                                                                href={`http://localhost:5000/${prescription.originalFile}`}
-                                                                target="_blank"
-                                                                rel="noopener noreferrer"
-                                                                className="btn-prescription btn-prescription-outline"
+                                            {/* HISTORY GRID */}
+                                            <div className="history-section">
+                                                <div className="section-label flex items-center gap-2 mb-6">
+                                                    <History size={16} className="text-slate-400" />
+                                                    <span className="text-xs font-black uppercase tracking-widest text-slate-400">Previous Clinical History</span>
+                                                </div>
+                                                
+                                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                                    {prescriptions
+                                                        .filter(p => p.status === 'completed')
+                                                        .filter(p => {
+                                                            const matchesSearch = !prescriptionSearch || 
+                                                                p.doctorId?.userName?.toLowerCase().includes(prescriptionSearch.toLowerCase()) ||
+                                                                p._id.toLowerCase().includes(prescriptionSearch.toLowerCase());
+                                                            const matchesType = prescriptionTypeFilter === 'all' || 
+                                                                (prescriptionTypeFilter === 'ai' ? p.isAIProcessed : !p.isAIProcessed);
+                                                            
+                                                            if (prescriptionSearch === '' && prescriptionTypeFilter === 'all') {
+                                                                const completedPxs = prescriptions.filter(px => px.status === 'completed');
+                                                                return p._id !== completedPxs[0]?._id && matchesSearch && matchesType;
+                                                            }
+                                                            return matchesSearch && matchesType;
+                                                        })
+                                                        .map((p) => (
+                                                            <motion.div 
+                                                                key={p._id}
+                                                                layout
+                                                                initial={{ opacity: 0, scale: 0.95 }}
+                                                                animate={{ opacity: 1, scale: 1 }}
+                                                                className="rx-history-card-lux bg-white border border-slate-100 rounded-[32px] p-6 hover:shadow-2xl hover:shadow-blue-900/5 transition-all group"
                                                             >
-                                                                <FileText size={18} /> View Original
-                                                            </a>
-                                                        )}
-                                                    </>
+                                                                <div className="flex justify-between items-start mb-6">
+                                                                    <div className="p-3 bg-slate-50 text-blue-600 rounded-2xl group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                                                                        <FileText size={20} />
+                                                                    </div>
+                                                                    <div className="text-right">
+                                                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">RX ID</p>
+                                                                        <p className="text-xs font-bold text-slate-700">#{p._id.slice(-8).toUpperCase()}</p>
+                                                                    </div>
+                                                                </div>
+                                                                
+                                                                <div className="mb-6">
+                                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Prescribed By</p>
+                                                                    <h4 className="font-black text-slate-800 text-lg">Dr. {p.doctorId?.userName || 'Medical Staff'}</h4>
+                                                                    <p className="text-sm font-medium text-slate-500">{new Date(p.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
+                                                                </div>
+                                                                
+                                                                <div className="flex items-center gap-2 mb-6">
+                                                                    <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-tighter ${p.isAIProcessed ? 'bg-amber-50 text-amber-600 border border-amber-100' : 'bg-emerald-50 text-emerald-600 border border-emerald-100'}`}>
+                                                                        {p.isAIProcessed ? 'AI Generated' : 'Hospital Entry'}
+                                                                    </span>
+                                                                    <span className="px-3 py-1 bg-slate-50 text-slate-500 rounded-lg text-[9px] font-black uppercase tracking-tighter border border-slate-100">
+                                                                        {p.medications?.length || 0} Medications
+                                                                    </span>
+                                                                </div>
+                                                                
+                                                                <div className="flex gap-2">
+                                                                    <a 
+                                                                        href={p.digitalPrescriptionPdf ? `http://localhost:5000/${p.digitalPrescriptionPdf.replace(/\\/g, '/')}` : '#'}
+                                                                        target="_blank"
+                                                                        rel="noreferrer"
+                                                                        className="flex-1 h-11 bg-slate-900 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 hover:bg-blue-600 transition-colors"
+                                                                    >
+                                                                        <Eye size={16} /> View
+                                                                    </a>
+                                                                    <a 
+                                                                        href={p.digitalPrescriptionPdf ? `http://localhost:5000/${p.digitalPrescriptionPdf.replace(/\\/g, '/')}` : '#'}
+                                                                        download
+                                                                        className="w-11 h-11 bg-slate-100 text-slate-600 rounded-xl flex items-center justify-center hover:bg-blue-50 hover:text-blue-600 transition-colors border border-slate-100"
+                                                                    >
+                                                                        <Download size={18} />
+                                                                    </a>
+                                                                </div>
+                                                            </motion.div>
+                                                        ))}
+                                                </div>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <div className="empty-state-lux p-20 text-center col-span-full">
+                                            <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-300">
+                                                <Search size={40} />
+                                            </div>
+                                            <h3 className="text-xl font-black text-slate-800 mb-2">No matching records found</h3>
+                                            <p className="text-slate-500 font-medium">Try adjusting your search or filters to find specific prescriptions.</p>
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                <div className="empty-state-lux p-20 text-center bg-white rounded-[40px] border border-slate-100 col-span-full">
+                                    <div className="w-24 h-24 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                                        <FileText size={48} />
+                                    </div>
+                                    <h3 className="text-2xl font-black text-slate-800 mb-2">No Prescriptions Available</h3>
+                                    <p className="text-slate-500 font-medium max-w-md mx-auto">Once your doctor uploads or generates a digital prescription, it will appear here automatically for you to view and download.</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                {/* LAB TESTS TAB */}
+                {activeTab === 'labTests' && (
+                    <div className="labtests-content">
+                        <h1>🔬 Lab Test Results</h1>
+                        <div className="lab-test-list-section">
+                            {labTests.length > 0 ? (
+                                <div className="lab-tests-grid">
+                                    {labTests.map(test => (
+                                        <div key={test._id} className="lab-test-card">
+                                            <div className="lab-test-header">
+                                                <h3>{test.testName}</h3>
+                                                <span className={`status-badge status-${test.status}`}>{test.status}</span>
+                                            </div>
+                                            <div className="lab-test-info">
+                                                <p><strong>Date:</strong> {new Date(test.createdAt).toLocaleDateString()}</p>
+                                                <p><strong>Doctor:</strong> Dr. {test.orderedBy?.userName || 'N/A'}</p>
+                                                <p><strong>Ref Number:</strong> {test.referenceNumber || 'N/A'}</p>
+                                            </div>
+                                            <div className="lab-test-actions">
+                                                {test.digitalLabTestPdf ? (
+                                                    <a
+                                                        href={`http://localhost:5000/${test.digitalLabTestPdf}`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="btn-lab-test btn-lab-test-primary"
+                                                    >
+                                                        <Download size={18} /> Download PDF
+                                                    </a>
                                                 ) : (
                                                     <div className="ai-badge-label status-pending-text">
-                                                        <Clock size={16} /> PDF generation in progress...
+                                                        <Clock size={16} /> Report Processing...
                                                     </div>
                                                 )}
                                             </div>
                                         </div>
-                                    ))
-                                ) : (
-                                    <p className="no-data">No prescriptions found</p>
-                                )}
-                            </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="no-data">No lab tests records found.</p>
+                            )}
                         </div>
-                    )
-                }
-
-                {/* LAB TESTS TAB */}
-                {
-                    activeTab === 'labTests' && (
-                        <div className="labtests-content">
-                            <h1>🔬 Lab Test Results</h1>
-                            <div className="lab-test-list-section">
-                                {labTests.length > 0 ? (
-                                    <div className="lab-tests-grid">
-                                        {labTests.map(test => (
-                                            <div key={test._id} className="lab-test-card">
-                                                <div className="lab-test-header">
-                                                    <h3>{test.testName}</h3>
-                                                    <span className={`status-badge status-${test.status}`}>{test.status}</span>
-                                                </div>
-                                                <div className="lab-test-info">
-                                                    <p><strong>Date:</strong> {new Date(test.createdAt).toLocaleDateString()}</p>
-                                                    <p><strong>Doctor:</strong> Dr. {test.orderedBy?.userName || 'N/A'}</p>
-                                                    <p><strong>Ref Number:</strong> {test.referenceNumber || 'N/A'}</p>
-                                                </div>
-                                                <div className="lab-test-actions">
-                                                    {test.digitalLabTestPdf ? (
-                                                        <a
-                                                            href={`http://localhost:5000/${test.digitalLabTestPdf}`}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className="btn-lab-test btn-lab-test-primary"
-                                                        >
-                                                            <Download size={18} /> Download PDF
-                                                        </a>
-                                                    ) : (
-                                                        <div className="ai-badge-label status-pending-text">
-                                                            <Clock size={16} /> Report Processing...
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <p className="no-data">No lab tests records found.</p>
-                                )}
-                            </div>
-                        </div>
-                    )
-                }
+                    </div>
+                )}
 
                 {/* REVIEWS TAB */}
                 {activeTab === 'reviews' && (

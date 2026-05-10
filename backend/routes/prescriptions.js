@@ -66,12 +66,45 @@ router.post('/', auth, async (req, res) => {
 // Update prescription (Admin only or specific logic)
 router.put('/:id', auth, async (req, res) => {
     try {
+        const { generatePrescriptionPDFHelper } = require('../controllers/aiPrescriptionController');
         const updates = req.body;
-        const prescription = await Prescription.findByIdAndUpdate(req.params.id, updates, { new: true });
+        let prescription = await Prescription.findById(req.params.id)
+            .populate('patientId')
+            .populate('doctorId');
 
         if (!prescription) {
             return res.status(404).json({ success: false, message: 'Prescription not found' });
         }
+
+        const isNowCompleted = updates.status === 'completed' && prescription.status !== 'completed';
+
+        // Update fields
+        if (updates.medications) prescription.medications = updates.medications;
+        if (updates.notes) prescription.notes = updates.notes;
+        if (updates.status) prescription.status = updates.status;
+
+        // Auto-generate PDF on completion
+        if (isNowCompleted || (updates.status === 'completed' && !prescription.digitalPrescriptionPdf)) {
+            try {
+                const pdfPath = await generatePrescriptionPDFHelper(
+                    prescription.patientId,
+                    prescription.doctorId,
+                    prescription.medications,
+                    {
+                        clinicalNotes: prescription.clinicalNotes || prescription.notes,
+                        vitals: prescription.vitals,
+                        complaints: prescription.symptoms,
+                        diagnosis: prescription.diagnosis
+                    },
+                    prescription.isAIProcessed
+                );
+                prescription.digitalPrescriptionPdf = pdfPath;
+            } catch (err) {
+                console.error("PDF generation error:", err);
+            }
+        }
+
+        await prescription.save();
 
         res.json({ success: true, message: 'Prescription updated', data: prescription });
     } catch (error) {

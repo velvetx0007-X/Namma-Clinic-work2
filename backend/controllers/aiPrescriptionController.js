@@ -12,7 +12,7 @@ exports.uploadAndProcess = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Please upload a file' });
         }
 
-        const { patientId, doctorId } = req.body;
+        const { patientId, doctorId, vitals, symptoms, diagnosis, clinicalNotes } = req.body;
         const filePath = req.file.path;
         const fileMimeType = req.file.mimetype;
 
@@ -27,18 +27,22 @@ exports.uploadAndProcess = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Patient or Doctor not found' });
         }
 
-        // 3. Generate Digital PDF using helper function
+        // Parse vitals if it's a string
+        const parsedVitals = typeof vitals === 'string' ? JSON.parse(vitals) : vitals;
+
+        // 3. Generate Digital PDF
         const pdfPath = await generatePrescriptionPDF(
             patient,
             doctor,
             extractedData.medications,
             {
-                complaints: extractedData.complaints,
-                vitals: extractedData.vitals,
-                diagnosis: extractedData.diagnosis,
+                complaints: symptoms || extractedData.complaints,
+                vitals: parsedVitals,
+                diagnosis: diagnosis || extractedData.diagnosis,
                 advice: extractedData.advice,
                 investigations: extractedData.investigations,
-                followUp: extractedData.followUp
+                followUp: extractedData.followUp,
+                clinicalNotes: clinicalNotes
             },
             true // isAIProcessed
         );
@@ -51,6 +55,10 @@ exports.uploadAndProcess = async (req, res) => {
             isAIProcessed: true,
             originalFile: filePath,
             digitalPrescriptionPdf: pdfPath,
+            vitals: parsedVitals,
+            symptoms,
+            diagnosis: diagnosis || extractedData.diagnosis,
+            clinicalNotes,
             aiExtractedData: {
                 complaints: extractedData.complaints,
                 reason: extractedData.reason || extractedData.complaints,
@@ -77,121 +85,15 @@ exports.uploadAndProcess = async (req, res) => {
     }
 };
 
-// Helper function to generate prescription PDF (reusable for both AI and manual prescriptions)
-const generatePrescriptionPDF = async (patient, doctor, medications, aiExtractedData = null, isAIProcessed = false) => {
-    const pdfFileName = `prescription_${Date.now()}.pdf`;
-    const pdfPath = path.join('uploads', pdfFileName);
-    const doc = new PDFDocument({ margin: 50 });
-
-    const stream = fs.createWriteStream(pdfPath);
-    doc.pipe(stream);
-
-    // Header
-    doc.fontSize(20).text(doctor.clinicName || 'Clinic Name', { align: 'center' });
-    doc.fontSize(12).text(`Dr. ${doctor.userName || 'Doctor Name'}`, { align: 'center' });
-    if (doctor.nmrNumber) doc.text(`NMR: ${doctor.nmrNumber}`, { align: 'center' });
-    if (doctor.address) doc.fontSize(9).text(doctor.address, { align: 'center' });
-    doc.moveDown();
-    doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke();
-    doc.moveDown();
-
-    // Date & Time
-    doc.fontSize(10).text(`Date: ${new Date().toLocaleDateString()}`, { align: 'right' });
-    if (aiExtractedData && aiExtractedData.time) {
-        doc.text(`Time: ${aiExtractedData.time}`, { align: 'right' });
-    }
-    doc.moveDown();
-
-    // Patient Info
-    doc.fontSize(14).text('Patient Information', { underline: true });
-    doc.fontSize(10).text(`Name: ${patient.name}`);
-    doc.text(`Email: ${patient.email}`);
-    doc.text(`Phone: ${patient.phoneNumber || 'N/A'}`);
-    if (patient.age) doc.text(`Age: ${patient.age}`);
-    if (patient.bloodGroup) doc.text(`Blood Group: ${patient.bloodGroup}`);
-    doc.text(`Address: ${patient.area || 'N/A'}`);
-    doc.moveDown();
-
-    // AI Extracted Details (if available)
-    if (aiExtractedData) {
-        const sections = [
-            { label: 'Reason for Visit', value: aiExtractedData.complaints || aiExtractedData.reason },
-            { label: 'Vitals', value: aiExtractedData.vitals },
-            { label: 'Diagnosis', value: aiExtractedData.diagnosis },
-            { label: 'Advice', value: aiExtractedData.advice },
-            { label: 'Investigations', value: aiExtractedData.investigations },
-            { label: 'Follow Up', value: aiExtractedData.followUp }
-        ];
-
-        sections.forEach(s => {
-            if (s.value && s.value !== 'Not provided') {
-                doc.fontSize(12).text(s.label, { underline: true });
-                doc.fontSize(10).text(s.value);
-                doc.moveDown(0.5);
-            }
-        });
-    }
-
-    // Medications
-    doc.fontSize(14).text('Prescribed Medications', { underline: true });
-    doc.moveDown(0.5);
-
-    if (medications && medications.length > 0) {
-        medications.forEach((m, i) => {
-            doc.fontSize(11).fillColor('black').text(`${i + 1}. ${m.drugName}`, { continued: false });
-            doc.fontSize(10).text(`   Dosage: ${m.dosage}`);
-            doc.text(`   Frequency: ${m.frequency}`);
-            doc.text(`   Duration: ${m.duration}`);
-            if (m.instructions && m.instructions !== 'Not provided') {
-                doc.fontSize(9).fillColor('#555').text(`   Instructions: ${m.instructions}`, { oblique: true });
-            }
-            doc.fillColor('black');
-            doc.moveDown(0.5);
-        });
-    } else {
-        doc.fontSize(10).text('No medications prescribed');
-    }
-
-    doc.moveDown();
-
-    // Doctor Signature Section
-    doc.moveDown(2);
-    doc.fontSize(10).text('_________________________', { align: 'right' });
-    doc.text(`Dr. ${doctor.userName}`, { align: 'right' });
-    if (doctor.nmrNumber) doc.fontSize(8).text(`NMR: ${doctor.nmrNumber}`, { align: 'right' });
-
-    // Footer
-    doc.moveDown(2);
-    doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke();
-    doc.moveDown(0.5);
-
-    const disclaimer = isAIProcessed
-        ? 'DISCLAIMER: This is an AI-generated digital version of your uploaded prescription. Please verify the details with the original document or your healthcare provider before use.'
-        : 'This prescription is digitally generated. For any queries, please contact your healthcare provider.';
-
-    doc.fontSize(8).fillColor('gray').text(disclaimer, { align: 'center' });
-
-    doc.end();
-
-    // Wait for stream to finish
-    await new Promise((resolve) => stream.on('finish', resolve));
-
-    return pdfPath;
-};
-
-// Export function for manual prescription PDF generation
-exports.generateManualPrescriptionPDF = async (req, res) => {
+// Create Manual Prescription
+exports.createManual = async (req, res) => {
     try {
-        const { patientId, doctorId, medications } = req.body;
+        const { patientId, doctorId, medications, vitals, symptoms, diagnosis, clinicalNotes } = req.body;
 
         if (!patientId || !doctorId || !medications || medications.length === 0) {
-            return res.status(400).json({
-                success: false,
-                message: 'Patient ID, Doctor ID, and at least one medication are required'
-            });
+            return res.status(400).json({ success: false, message: 'Patient, Doctor and medications are required' });
         }
 
-        // Fetch Patient and Doctor details
         const patient = await Patient.findById(patientId);
         const doctor = await Clinic.findById(doctorId);
 
@@ -200,19 +102,160 @@ exports.generateManualPrescriptionPDF = async (req, res) => {
         }
 
         // Generate PDF
-        const pdfPath = await generatePrescriptionPDF(patient, doctor, medications, null, false);
+        const pdfPath = await generatePrescriptionPDF(
+            patient,
+            doctor,
+            medications,
+            {
+                complaints: symptoms,
+                vitals: vitals,
+                diagnosis: diagnosis,
+                clinicalNotes: clinicalNotes
+            },
+            false // isAIProcessed
+        );
 
-        res.status(200).json({
-            success: true,
-            message: 'Prescription PDF generated successfully',
-            data: { pdfPath }
+        const prescription = new Prescription({
+            patientId,
+            doctorId,
+            medications,
+            vitals,
+            symptoms,
+            diagnosis,
+            clinicalNotes,
+            isAIProcessed: false,
+            digitalPrescriptionPdf: pdfPath
         });
 
+        await prescription.save();
+
+        res.status(201).json({
+            success: true,
+            message: 'Manual prescription created successfully',
+            data: prescription
+        });
     } catch (error) {
-        console.error('Manual PDF Generation Error:', error);
+        console.error('Manual Creation Error:', error);
         res.status(500).json({ success: false, message: error.message });
     }
 };
 
-// Export the helper function for use in other controllers
+const generatePrescriptionPDF = async (patient, doctor, medications, details = {}, isAIProcessed = false) => {
+    const pdfFileName = `prescription_${Date.now()}.pdf`;
+    const pdfPath = path.join('uploads', pdfFileName);
+    const doc = new PDFDocument({ margin: 40, size: 'A4' });
+
+    const stream = fs.createWriteStream(pdfPath);
+    doc.pipe(stream);
+
+    // Color Palette
+    const primaryColor = '#0056b3';
+    const secondaryColor = '#444';
+    const accentColor = '#6c757d';
+
+    // Header - Clinic Branding
+    doc.fillColor(primaryColor).fontSize(24).text(doctor.clinicName || 'Namma Clinic', { align: 'center', bold: true });
+    doc.fillColor(secondaryColor).fontSize(12).text(`Providing Quality Healthcare Services`, { align: 'center' });
+    doc.fontSize(10).text(doctor.address || 'Chennai, Tamil Nadu, India', { align: 'center' });
+    doc.moveDown();
+    
+    doc.moveTo(40, doc.y).lineTo(555, doc.y).strokeColor('#ddd').stroke();
+    doc.moveDown();
+
+    // Doctor & Patient Layout (2 Columns)
+    const topY = doc.y;
+    doc.fillColor(primaryColor).fontSize(12).text('DOCTOR DETAILS', 40, topY, { underline: true });
+    doc.fillColor('black').fontSize(10).text(`Dr. ${doctor.userName}`, 40, topY + 20);
+    doc.text(`NMR No: ${doctor.nmrNumber || 'N/A'}`, 40, topY + 35);
+    doc.text(`Contact: ${doctor.phoneNumber || 'N/A'}`, 40, topY + 50);
+
+    doc.fillColor(primaryColor).fontSize(12).text('PATIENT DETAILS', 300, topY, { underline: true });
+    doc.fillColor('black').fontSize(10).text(`Name: ${patient.name}`, 300, topY + 20);
+    doc.text(`UHID: ${patient.uhid || patient._id.toString().slice(-6).toUpperCase()}`, 300, topY + 35);
+    doc.text(`Age/Gender: ${patient.age || 'N/A'} / ${patient.gender || 'N/A'}`, 300, topY + 50);
+    doc.text(`Phone: ${patient.phoneNumber || 'N/A'}`, 300, topY + 65);
+
+    doc.moveDown(5);
+    doc.moveTo(40, doc.y).lineTo(555, doc.y).strokeColor('#ddd').stroke();
+    doc.moveDown();
+
+    // Vitals Section
+    if (details.vitals) {
+        doc.fillColor(primaryColor).fontSize(14).text('CLINICAL VITALS', { bold: true });
+        doc.moveDown(0.5);
+        
+        const v = details.vitals;
+        const vitalsText = [
+            `BP: ${v.bloodPressure || '-'} mmHg`,
+            `Sugar: ${v.sugarLevel || '-'} mg/dL`,
+            `Weight: ${v.weight || '-'} kg`,
+            `Pulse: ${v.pulse || '-'} bpm`,
+            `Temp: ${v.temperature || '-'} °F`
+        ].join('  |  ');
+        
+        doc.fillColor('black').fontSize(10).rect(40, doc.y, 515, 25).fill('#f8f9fa');
+        doc.fillColor(primaryColor).text(vitalsText, 50, doc.y - 18, { align: 'center' });
+        doc.moveDown(2);
+    }
+
+    // Diagnosis & Symptoms
+    if (details.complaints || details.diagnosis) {
+        const dY = doc.y;
+        if (details.complaints) {
+            doc.fillColor(primaryColor).fontSize(12).text('Symptoms:', 40, dY, { bold: true });
+            doc.fillColor('black').fontSize(10).text(details.complaints, 120, dY);
+        }
+        if (details.diagnosis) {
+            const diagY = details.complaints ? dY + 15 : dY;
+            doc.fillColor(primaryColor).fontSize(12).text('Diagnosis:', 40, diagY, { bold: true });
+            doc.fillColor('black').fontSize(10).text(details.diagnosis, 120, diagY);
+        }
+        doc.moveDown(2);
+    }
+
+    // Medications (The Core)
+    doc.fillColor(primaryColor).fontSize(16).text('Rx (Prescription)', { bold: true });
+    doc.moveDown();
+
+    if (medications && medications.length > 0) {
+        medications.forEach((m, i) => {
+            doc.fillColor('black').fontSize(11).text(`${i + 1}. ${m.drugName}`, { continued: false, bold: true });
+            doc.fontSize(10).text(`   Dosage: ${m.dosage}  |  Frequency: ${m.frequency}  |  Duration: ${m.duration}`);
+            if (m.instructions && m.instructions !== 'Not provided') {
+                doc.fontSize(9).fillColor(accentColor).text(`   Notes: ${m.instructions}`, { oblique: true });
+            }
+            doc.moveDown(0.5);
+        });
+    } else {
+        doc.fontSize(10).text('No medications prescribed.');
+    }
+
+    // Notes
+    if (details.clinicalNotes) {
+        doc.moveDown();
+        doc.fillColor(primaryColor).fontSize(12).text('Clinical Notes:', { bold: true });
+        doc.fillColor('black').fontSize(10).text(details.clinicalNotes);
+    }
+
+    // Signature
+    doc.moveDown(3);
+    const sigY = doc.y;
+    doc.moveTo(400, sigY).lineTo(550, sigY).strokeColor('#333').stroke();
+    doc.fontSize(10).text(`Dr. ${doctor.userName}`, 400, sigY + 5, { align: 'center' });
+    doc.fontSize(8).text(`(Digital Signature)`, 400, sigY + 18, { align: 'center' });
+
+    // Footer
+    const footerY = 780;
+    doc.moveTo(40, footerY).lineTo(555, footerY).strokeColor('#eee').stroke();
+    const disclaimer = isAIProcessed
+        ? 'AI-Generated Transcript. Please verify with physical copy or doctor.'
+        : 'Generated digitally by Namma Clinic Management System.';
+    doc.fontSize(8).fillColor(accentColor).text(disclaimer, 40, footerY + 10, { align: 'center' });
+    doc.text(`Prescription ID: ${Date.now()}`, 40, footerY + 20, { align: 'center' });
+
+    doc.end();
+    await new Promise((resolve) => stream.on('finish', resolve));
+    return pdfPath;
+};
+
 exports.generatePrescriptionPDFHelper = generatePrescriptionPDF;

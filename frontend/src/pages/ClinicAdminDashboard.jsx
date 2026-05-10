@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import logo from '../assets/Namma Clinic logo.jpeg';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -8,8 +9,9 @@ import AIPrescriptionUpload from '../components/AIPrescriptionUpload';
 import PatientHistory from '../components/PatientHistory';
 import Footer from '../components/Footer';
 import ProfileSettings from '../components/ProfileSettings';
-import { Upload, Users, User, LogOut, Settings, Star, MessageSquare } from 'lucide-react';
+import { Upload, Users, User, LogOut, Settings, Star, MessageSquare, X } from 'lucide-react';
 import DashboardLayout from '../components/common/DashboardLayout';
+import DashboardGreeting from '../components/common/DashboardGreeting';
 import './AdminDashboard.css'; // Reusing AdminDashboard styles for consistency
 
 const ClinicAdminDashboard = () => {
@@ -146,6 +148,7 @@ const ClinicAdminDashboard = () => {
         <DashboardLayout sidebarLinks={sidebarLinks} activeTab={activeTab} setActiveTab={setActiveTab}>
                 {activeTab === 'staff' && (
                     <div className="dashboard-section">
+                        <DashboardGreeting user={user} role="admin" />
                         <div className="section-header">
                             <h1>Manage Clinic Staff</h1>
                             <button className="btn-add-user" onClick={() => setIsFormVisible(true)}>
@@ -311,7 +314,7 @@ const ClinicAdminDashboard = () => {
                     <div className="modal-content">
                         <div className="modal-header">
                             <h2>Add New Staff Member</h2>
-                            <button onClick={() => setIsFormVisible(false)} className="close-btn">×</button>
+                            <button onClick={() => setIsFormVisible(false)} className="close-btn"><X /></button>
                         </div>
                         <form onSubmit={handleCreateStaff} className="create-user-form">
                             <div className="form-group">

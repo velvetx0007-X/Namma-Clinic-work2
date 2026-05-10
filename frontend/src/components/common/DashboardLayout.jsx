@@ -10,6 +10,9 @@ const DashboardLayout = ({ children, sidebarLinks, activeTab, setActiveTab }) =>
         <div className="min-h-screen bg-white dark:bg-gray-900 flex flex-col font-sans transition-colors duration-200">
             {/* Top Navigation */}
             <TopNavbar onMenuClick={() => setIsMobileSidebarOpen(true)} />
+            
+            {/* Header Spacer */}
+            <div className="h-16 w-full flex-shrink-0" />
 
             {/* Main Content Area */}
             <div className="flex flex-1 overflow-hidden relative">

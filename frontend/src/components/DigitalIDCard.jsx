@@ -190,6 +190,13 @@ const DigitalIDCard = ({ user, onEdit }) => {
                                     <span>{clinicName}</span>
                                 </div>
                             )}
+
+                            {role === 'admin' && user.companyName && (
+                                <div className="detail-item">
+                                    <label>Company</label>
+                                    <span>{user.companyName}</span>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

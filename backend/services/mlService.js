@@ -64,31 +64,76 @@ class MLService {
     }
 
     /**
-     * Processes a prescription image/PDF using FastAPI (primary) or local mock.
+     * Processes a prescription image/PDF using FastAPI (primary) or Gemini Vision (fallback).
      */
     async processPrescription(filePath, mimeType) {
-        if (!this.aiServiceUrl || !this.aiServiceToken) {
-            console.warn("AI Service not configured, using mock.");
+        // Try FastAPI first
+        if (this.aiServiceUrl && this.aiServiceToken) {
+            try {
+                const formData = new FormData();
+                formData.append('file', fs.createReadStream(filePath), {
+                    contentType: mimeType,
+                    filename: 'prescription'
+                });
+
+                const response = await axios.post(`${this.aiServiceUrl}/process-prescription`, formData, {
+                    headers: {
+                        ...formData.getHeaders(),
+                        'Authorization': `Bearer ${this.aiServiceToken}`
+                    }
+                });
+
+                return response.data;
+            } catch (error) {
+                console.warn("FastAPI Prescription Error, falling back to Gemini Vision:", error.message);
+            }
+        }
+
+        // Direct Gemini Vision Fallback
+        if (!this.genAI) {
+            console.warn("Gemini AI not configured, using mock.");
             return this.getMockPrescription();
         }
 
         try {
-            const formData = new FormData();
-            formData.append('file', fs.createReadStream(filePath), {
-                contentType: mimeType,
-                filename: 'prescription'
-            });
+            const model = this.genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+            const imageData = fs.readFileSync(filePath).toString("base64");
 
-            const response = await axios.post(`${this.aiServiceUrl}/process-prescription`, formData, {
-                headers: {
-                    ...formData.getHeaders(),
-                    'Authorization': `Bearer ${this.aiServiceToken}`
+            const prompt = `
+                Analyze this medical prescription image or PDF. 
+                Extract the following information in a STRICT JSON format:
+                {
+                    "complaints": "patient's issues",
+                    "diagnosis": "doctor's diagnosis",
+                    "medications": [
+                        { "drugName": "name", "dosage": "e.g. 500mg", "frequency": "e.g. 1-0-1", "duration": "e.g. 5 days", "instructions": "e.g. After food" }
+                    ],
+                    "advice": "additional advice",
+                    "investigations": "lab tests suggested",
+                    "followUp": "next visit"
                 }
-            });
 
-            return response.data;
+                Guidelines:
+                - If handwritten, do your best to decipher.
+                - If not provided, use "Not provided".
+                - Medications list should be empty if none found.
+            `;
+
+            const result = await model.generateContent([
+                prompt,
+                {
+                    inlineData: {
+                        data: imageData,
+                        mimeType: mimeType === 'application/pdf' ? 'application/pdf' : 'image/jpeg'
+                    }
+                }
+            ]);
+
+            const responseText = result.response.text();
+            const jsonStr = responseText.replace(/```json|```/g, '').trim();
+            return JSON.parse(jsonStr);
         } catch (error) {
-            console.error("FastAPI Prescription Error:", error.response?.data || error.message);
+            console.error("Gemini Vision Prescription Error:", error.message);
             return this.getMockPrescription();
         }
     }
@@ -109,41 +154,84 @@ class MLService {
 
     /**
      * Handles chat interaction (direct Gemini fallback for now).
+     * Now returns a structured response for better UI rendering.
      */
     async chatWithAssistant(message, context) {
-        if (!this.genAI) return "The AI assistant is currently offline. Please try again later.";
+        if (!this.genAI) {
+            return JSON.stringify({
+                title: "Assistant Offline",
+                summary: "The AI assistant is currently offline.",
+                recommendation: "Please try again later or contact support.",
+                safetyNote: "Always consult a doctor for medical emergencies.",
+                isError: true
+            });
+        }
 
         try {
             for (const modelName of this.fallbackModels) {
                 try {
                     const model = this.genAI.getGenerativeModel({ model: modelName });
                     const instruction = `
-                        You are a helpful, professional, and empathetic AI Health Assistant for "Health One".
-                        Your goal is to provide general health information, wellness tips, and guidance on food, exercise, warmup, and yoga.
-                        IMPORTANT:
-                        - Always advise users to consult a doctor for specific medical diagnosis or treatment.
-                        - Do NOT provide medical prescriptions or diagnose serious conditions.
+                        You are a helpful, professional, and empathetic AI Health Assistant for "Namma Clinic".
+                        Your goal is to provide high-quality health information, wellness tips, and guidance on food, exercise, warmup, and yoga.
+                        
+                        RESPONSE STRUCTURE (STRICT JSON):
+                        Respond ONLY in the following JSON format:
+                        {
+                            "title": "Short descriptive title",
+                            "summary": "Concise summary of the answer",
+                            "recommendation": "Actionable advice or tips",
+                            "safetyNote": "Crucial health safety reminder"
+                        }
+
+                        GUIDELINES:
+                        - For food: Suggest balanced nutrition, hydration, and natural foods.
+                        - For exercise/yoga: Suggest safe, beginner-friendly movements.
+                        - Safety: Always include a note about consulting professional doctors.
+                        - Context: Use the user's recent history if available.
+                        
                         User Context: ${context || 'General User'}
                     `;
 
                     const chat = model.startChat({
                         history: [
                             { role: "user", parts: [{ text: instruction }] },
-                            { role: "model", parts: [{ text: "Understood. I am ready to assist." }] },
+                            { role: "model", parts: [{ text: "Understood. I will provide structured health advice in JSON format." }] },
                         ],
                     });
 
                     const result = await chat.sendMessage(message);
-                    const response = await result.response;
-                    return response.text();
+                    const responseText = await result.response.text();
+                    
+                    // Validate if it's JSON
+                    try {
+                        const jsonStr = responseText.replace(/```json|```/g, '').trim();
+                        JSON.parse(jsonStr); // test parse
+                        return jsonStr;
+                    } catch (e) {
+                        // Fallback if not JSON
+                        return JSON.stringify({
+                            title: "Health Insight",
+                            summary: responseText.substring(0, 200),
+                            recommendation: responseText,
+                            safetyNote: "Please consult a doctor for specific medical advice."
+                        });
+                    }
                 } catch (e) {
+                    console.error(`Model ${modelName} failed:`, e.message);
                     continue;
                 }
             }
             throw new Error("All models failed");
         } catch (error) {
             console.error("AI Chat Error:", error.message);
-            return "I'm having trouble connecting to my brain right now.";
+            return JSON.stringify({
+                title: "Service Error",
+                summary: "AI Assistant is temporarily unavailable. Please try again.",
+                recommendation: "If the problem persists, please use manual records.",
+                safetyNote: "For emergencies, call your local emergency number immediately.",
+                isError: true
+            });
         }
     }
 

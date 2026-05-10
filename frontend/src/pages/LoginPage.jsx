@@ -7,6 +7,7 @@ import FloatingLabelInput from '../components/common/FloatingLabelInput';
 import PhoneInput from '../components/common/PhoneInput';
 
 import ForgotPasswordModal from '../components/auth/ForgotPasswordModal';
+import RoleDropdown from '../components/common/RoleDropdown';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Phone } from 'lucide-react';
 import logo from '../assets/Namma Clinic logo.jpeg';
@@ -106,19 +107,10 @@ const LoginPage = () => {
                     {/* Role Dropdown */}
                     <div className="mb-2">
                         <label className="text-[11px] font-bold text-[#9E9E9E] uppercase tracking-wider mb-2 block">I am a</label>
-                        <select
+                        <RoleDropdown
                             value={formData.role}
-                            onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                            className="w-full py-3 px-4 rounded-xl border-2 border-[#E0E0E0] bg-white text-sm font-bold text-[#333] appearance-none cursor-pointer focus:border-[#1E88E5] focus:outline-none focus:shadow-[0_0_0_4px_rgba(30,136,229,0.1)] transition-all"
-                            style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23757575' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 16px center' }}
-                        >
-                            <option value="patient">🩺 Patient</option>
-                            <option value="clinic">🏥 Clinic</option>
-                            <option value="doctor">👨‍⚕️ Doctor</option>
-                            <option value="nurse">💉 Nurse</option>
-                            <option value="receptionist">📋 Receptionist</option>
-                            <option value="admin">🔐 Admin</option>
-                        </select>
+                            onChange={(role) => setFormData({ ...formData, role })}
+                        />
                     </div>
 
                     {/* Email / Phone Toggle - REMOVED for single identifier input */}

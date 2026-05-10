@@ -27,7 +27,7 @@ const TopNavbar = ({ onMenuClick }) => {
     };
 
     return (
-        <header className="bg-white/90 backdrop-blur-md dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 sticky top-0 z-30 h-16 transition-all duration-200">
+        <header className="bg-white/90 backdrop-blur-md dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 fixed top-0 left-0 right-0 z-[1000] h-16 transition-all duration-200">
             <div className="flex items-center justify-between h-full px-4 lg:px-6">
                 
                 {/* Left side: Hamburger (Mobile) + Brand */}

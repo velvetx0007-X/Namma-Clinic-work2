@@ -1,15 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
 import logo from '../assets/Namma Clinic logo.jpeg';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import api from '../api/axiosInstance';
-import DigitalIDCard from '../components/DigitalIDCard';
+import ProfileSettings from '../components/ProfileSettings';
 import Footer from '../components/Footer';
 import AIPrescriptionUpload from '../components/AIPrescriptionUpload';
 import PatientHistory from '../components/PatientHistory';
 import { LogOut, Edit, Trash2, Heart, Activity, FileText, Upload, Plus, Pill, Search, Users, Star, MessageSquare, LayoutDashboard, Shield, TrendingUp } from 'lucide-react';
 import DashboardLayout from '../components/common/DashboardLayout';
+import DashboardGreeting from '../components/common/DashboardGreeting';
 import StatCard from '../components/common/StatCard';
 import AIRevenueDashboard from '../components/AIRevenueDashboard';
 import AssignTaskButton from '../components/AssignTaskButton';
@@ -865,13 +867,7 @@ const AdminDashboard = () => {
                 {/* HOME TAB */}
                 {activeTab === 'home' && (
                     <div className="home-content">
-                        {/* Welcome Banner */}
-                        <div className="welcome-banner mb-6">
-                            <div className="banner-text">
-                                <h1 className="text-2xl font-bold text-white flex items-center gap-2">Namma Clinic Command Center 🛡️</h1>
-                                <p className="text-white opacity-90">System-wide monitoring and resource management</p>
-                            </div>
-                        </div>
+                        <DashboardGreeting user={user} role="admin" />
 
                         {/* Stats Grid */}
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -1055,21 +1051,19 @@ const AdminDashboard = () => {
                                     <p className="role-badge static-badge">Admin</p>
                                     <p><strong>Email:</strong> {admin.email}</p>
                                     <p><strong>Company:</strong> {admin.companyName}</p>
-                                    <div className="card-actions">
-                                        <button className="action-toggle-btn">
-                                            ⋮
-                                        </button>
-                                        <div className="action-dropdown">
+                                    <div className="card-actions-bottom mt-4 pt-3 border-t border-slate-100">
+                                        <div className="flex gap-2">
                                             <button
                                                 onClick={() => handleEditUser(admin, 'admin')}
+                                                className="flex-1 py-2 text-sm font-semibold text-slate-600 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors"
                                             >
-                                                Edit Admin
+                                                Edit
                                             </button>
                                             <button
                                                 onClick={() => handleDeleteUser(admin._id, 'admin')}
-                                                className="delete-action"
+                                                className="flex-1 py-2 text-sm font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
                                             >
-                                                Delete Admin
+                                                Delete
                                             </button>
                                         </div>
                                     </div>
@@ -1095,29 +1089,29 @@ const AdminDashboard = () => {
                                     {staff.nmrNumber && <p><strong>NMR:</strong> {staff.nmrNumber}</p>}
                                     {staff.nuid && <p><strong>NUID:</strong> {staff.nuid}</p>}
 
-                                    <div className="card-actions relative group-hover:opacity-100 transition-opacity">
-                                        <div className="flex gap-2">
+                                    <div className="mt-4 pt-3 border-t border-slate-100 transition-opacity">
+                                        <div className="flex flex-wrap gap-2">
                                             <button
                                                 onClick={() => {
                                                     setSelectedClinicForAnalytics(staff._id);
                                                     setActiveTab('revenue');
                                                     window.scrollTo(0, 0);
                                                 }}
-                                                className="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors flex items-center gap-1"
-                                                title="View Revenue Analytics"
+                                                className="flex-1 py-2 text-xs font-semibold text-purple-600 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors flex items-center justify-center gap-1"
+                                                title="Analytics"
                                             >
                                                 <TrendingUp size={14} /> Analytics
                                             </button>
                                             <button
                                                 onClick={() => handleEditUser(staff, staff.userType)}
-                                                className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+                                                className="flex-1 py-2 text-xs font-semibold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors"
                                                 title="Edit"
                                             >
                                                 Edit
                                             </button>
                                             <button
                                                 onClick={() => handleDeleteUser(staff._id, staff.userType)}
-                                                className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                className="flex-1 py-2 text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
                                                 title="Delete"
                                             >
                                                 Delete
@@ -1282,71 +1276,10 @@ const AdminDashboard = () => {
 
                 {/* PROFILE TAB */}
                 {activeTab === 'profile' && (
-                    <div className="profile-content content-section">
+                    <div className="profile-tab-container content-section">
                         <h1>👤 My Profile</h1>
-                        <div className="profile-top-grid">
-                            <div className="id-card-section">
-                                <h2>💳 Digital ID Card</h2>
-                                <DigitalIDCard user={user} onEdit={handleEditCardClick} />
-                            </div>
-                            <div className="profile-edit-section" ref={editRef}>
-                                <h2>⚙️ Settings</h2>
-                                <div className="upload-photo-card">
-                                    <h3>Profile Photo</h3>
-                                    <div className="upload-input-group">
-                                        <input type="file" onChange={(e) => setUploadFile(e.target.files[0])} />
-                                    </div>
-                                    <div className="form-group">
-                                        <label>Age</label>
-                                        <input
-                                            type="number"
-                                            placeholder="Enter Age"
-                                            className="profile-input"
-                                            value={newUser.age || (user && user.age) || ''}
-                                            onChange={(e) => setNewUser({ ...newUser, age: e.target.value })}
-                                        />
-                                    </div>
-                                    <div className="profile-actions">
-                                        <button
-                                            className="btn-save"
-                                            onClick={async () => {
-                                                if (!uploadFile) {
-                                                    alert('Please select a file first');
-                                                    return;
-                                                }
-                                                const formData = new FormData();
-                                                formData.append('profilePhoto', uploadFile);
-                                                formData.append('userId', user.id);
-                                                formData.append('role', 'admin');
-                                                try {
-                                                    const res = await api.post('/users/profile-photo', formData);
-                                                    updateUser(res.data.data);
-                                                    alert('Photo uploaded!');
-                                                    setUploadFile(null);
-                                                } catch (err) { alert('Upload failed'); }
-                                            }}
-                                        >
-                                            Upload Photo
-                                        </button>
-                                        <button
-                                            className="btn-save outline"
-                                            onClick={async () => {
-                                                try {
-                                                    const res = await api.put('/users/profile', {
-                                                        userId: user.id,
-                                                        role: 'admin',
-                                                        age: newUser.age || user.age
-                                                    });
-                                                    updateUser(res.data.data);
-                                                    alert('Profile details updated!');
-                                                } catch (err) { alert('Failed to update'); }
-                                            }}
-                                        >
-                                            Save Age
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
+                        <div className="profile-content-wrapper">
+                            <ProfileSettings showDigitalId={false} />
                         </div>
                     </div>
                 )}

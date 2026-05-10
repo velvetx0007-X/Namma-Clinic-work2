@@ -1,0 +1,143 @@
+.role-dropdown-container {
+    position: relative;
+    width: 100%;
+    user-select: none;
+}
+
+.role-dropdown-trigger {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: white;
+    border: 2px solid #E0E0E0;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    outline: none;
+}
+
+.role-dropdown-trigger:hover {
+    border-color: #BDBDBD;
+    background-color: #FAFAFA;
+}
+
+.role-dropdown-trigger:focus {
+    border-color: #1E88E5;
+    box-shadow: 0 0 0 4px rgba(30, 136, 229, 0.1);
+}
+
+.role-dropdown-trigger--open {
+    border-color: #1E88E5;
+    background-color: #FFFFFF;
+}
+
+.role-dropdown-selected {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.role-dropdown-icon {
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.role-dropdown-text {
+    font-size: 14px;
+    font-weight: 700;
+    color: #333;
+}
+
+.role-dropdown-chevron {
+    color: #757575;
+    transition: transform 0.2s ease;
+}
+
+.role-dropdown-chevron--active {
+    transform: rotate(180deg);
+    color: #1E88E5;
+}
+
+.role-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #E0E0E0;
+    border-radius: 14px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    z-index: 100;
+    margin: 0;
+    padding: 6px;
+    list-style: none;
+    overflow: hidden;
+}
+
+.role-dropdown-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 2px;
+}
+
+.role-dropdown-item:last-child {
+    margin-bottom: 0;
+}
+
+.role-dropdown-item:hover {
+    background-color: #F5F5F5;
+}
+
+.role-dropdown-item--selected {
+    background-color: rgba(30, 136, 229, 0.06);
+}
+
+.role-dropdown-item-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.role-dropdown-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+}
+
+.role-dropdown-item--selected .role-dropdown-label {
+    color: #1E88E5;
+}
+
+.role-dropdown-check {
+    color: #1E88E5;
+}
+
+/* Feature Badge Style */
+.role-feature-badge {
+    background-color: rgba(30, 136, 229, 0.1);
+    color: #1E88E5;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 100px;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    margin-left: 8px;
+    border: 1px solid rgba(30, 136, 229, 0.15);
+    white-space: nowrap;
+}
+
+.role-dropdown-item--selected .role-feature-badge {
+    background-color: #1E88E5;
+    color: white;
+    border-color: #1E88E5;
+}

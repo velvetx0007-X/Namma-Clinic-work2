@@ -29,4 +29,4 @@ const StatCard = ({ icon: Icon, number, label, subtextIcon: SubIcon, subtext, co
     );
 };
 
-export default StatCard;
+export default React.memo(StatCard);

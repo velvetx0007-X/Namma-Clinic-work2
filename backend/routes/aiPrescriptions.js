@@ -31,4 +31,7 @@ const upload = multer({
 // Route: Upload and process prescription
 router.post('/upload', upload.single('prescription'), aiPrescriptionController.uploadAndProcess);
 
+// Route: Manual prescription creation
+router.post('/manual', aiPrescriptionController.createManual);
+
 module.exports = router;

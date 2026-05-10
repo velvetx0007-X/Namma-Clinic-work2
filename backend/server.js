@@ -24,6 +24,8 @@ const communicationRoutes = require('./routes/communications');
 const clinicRoutes = require('./routes/clinics');
 const aiPrescriptionRoutes = require('./routes/aiPrescriptions');
 const subscriptionRoutes = require('./routes/subscriptionRoutes');
+const activityRoutes = require('./routes/activityRoutes');
+const childCareRoutes = require('./routes/childCareRoutes');
 const { startAIWatcher } = require('./services/aiMonitoringService');
 
 const { setupSecurity, errorHandler } = require('./middleware/security');
@@ -87,6 +89,9 @@ app.use('/api/users', require('./routes/users'));
 app.use('/api/reviews', require('./routes/reviews'));
 app.use('/api/notifications', require('./routes/notificationRoutes'));
 app.use('/api/subscriptions', subscriptionRoutes);
+app.use('/api/activity', activityRoutes);
+app.use('/api/child-care', childCareRoutes);
+app.use('/api/contact', require('./routes/contact'));
 
 // Test route
 app.get('/', (req, res) => {
@@ -127,6 +132,8 @@ io.on('connection', (socket) => {
 // Update Routes - Adding Task routes
 app.use('/api/tasks', require('./routes/taskRoutes'));
 app.use('/api/analytics', require('./routes/analytics'));
+app.use('/api/medical-documents', require('./routes/medicalDocuments'));
+app.use('/api/step-tracking', require('./routes/stepTracking'));
 
 server.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);

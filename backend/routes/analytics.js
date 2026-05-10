@@ -3,6 +3,8 @@ const router = express.Router();
 const Appointment = require('../models/Appointment');
 const Billing = require('../models/Billing');
 const Clinic = require('../models/Clinic');
+const Prescription = require('../models/Prescription');
+const Patient = require('../models/Patient');
 const auth = require('../middleware/auth');
 
 // @route   GET /api/analytics/revenue-ai
@@ -218,6 +220,160 @@ router.get('/revenue-ai', auth, async (req, res) => {
 
     } catch (error) {
         console.error('Analytics Error:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// @route   GET /api/analytics/patient-ai
+// @desc    Get AI-powered patient insights
+// @access  Private (Admin/Doctor)
+router.get('/patient-ai', auth, async (req, res) => {
+    try {
+        const { clinicId, doctorId, timeRange } = req.query;
+        let filter = {};
+        
+        // Calculate date ranges based on timeRange parameter
+        const now = new Date();
+        const start = new Date(now);
+        
+        if (timeRange === '1M') {
+            start.setMonth(start.getMonth() - 1);
+        } else if (timeRange === '1Y') {
+            start.setFullYear(start.getFullYear() - 1);
+        } else {
+            // Default 7D
+            start.setDate(start.getDate() - 6);
+        }
+        
+        start.setHours(0, 0, 0, 0);
+        const end = new Date(now);
+        end.setHours(23, 59, 59, 999);
+        
+        filter.createdAt = { $gte: start, $lte: end };
+
+        if (doctorId) filter.doctorId = doctorId;
+        else if (clinicId) filter.doctorId = clinicId;
+
+        const apptFilter = { ...filter };
+        if (apptFilter.createdAt) {
+            apptFilter.appointmentDate = { $gte: start, $lte: end };
+            delete apptFilter.createdAt;
+        }
+
+        const appointments = await Appointment.find(apptFilter);
+        const prescriptions = await Prescription.find(filter);
+        
+        const totalPatients = await Patient.countDocuments();
+        const activePatients = appointments.length; 
+        const completedPrescriptions = prescriptions.filter(p => p.status === 'completed').length;
+        
+        const trendData = [];
+        
+        if (timeRange === '1Y') {
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            for (let i = 11; i >= 0; i--) {
+                const targetMonth = new Date(now);
+                targetMonth.setMonth(now.getMonth() - i);
+                const monthName = months[targetMonth.getMonth()];
+                const year = targetMonth.getFullYear();
+                
+                const appts = appointments.filter(a => {
+                    const d = new Date(a.appointmentDate || a.createdAt);
+                    return d.getMonth() === targetMonth.getMonth() && d.getFullYear() === year;
+                }).length;
+                
+                const pxs = prescriptions.filter(p => {
+                    const d = new Date(p.createdAt);
+                    return d.getMonth() === targetMonth.getMonth() && d.getFullYear() === year;
+                }).length;
+
+                trendData.push({ name: `${monthName}`, appointments: appts, prescriptions: pxs });
+            }
+        } else if (timeRange === '1M') {
+            // Divide month into 4 weeks
+            for (let i = 3; i >= 0; i--) {
+                const weekEnd = new Date(end);
+                weekEnd.setDate(weekEnd.getDate() - (i * 7));
+                const weekStart = new Date(weekEnd);
+                weekStart.setDate(weekStart.getDate() - 6);
+                
+                const appts = appointments.filter(a => {
+                    const d = new Date(a.appointmentDate || a.createdAt);
+                    return d >= weekStart && d <= weekEnd;
+                }).length;
+                
+                const pxs = prescriptions.filter(p => {
+                    const d = new Date(p.createdAt);
+                    return d >= weekStart && d <= weekEnd;
+                }).length;
+
+                trendData.push({ name: `W${4 - i}`, appointments: appts, prescriptions: pxs });
+            }
+        } else {
+            // Default 7 days
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date(now);
+                d.setDate(d.getDate() - i);
+                d.setHours(0,0,0,0);
+                const dEnd = new Date(d);
+                dEnd.setHours(23,59,59,999);
+
+                const appts = appointments.filter(a => {
+                    const ad = new Date(a.appointmentDate || a.createdAt);
+                    return ad >= d && ad <= dEnd;
+                }).length;
+                const pxs = prescriptions.filter(p => {
+                    const pd = new Date(p.createdAt);
+                    return pd >= d && pd <= dEnd;
+                }).length;
+
+                trendData.push({
+                    name: days[d.getDay()],
+                    appointments: appts,
+                    prescriptions: pxs
+                });
+            }
+        }
+
+        // Real Data Insights Engine
+        const insights = [];
+        const prevAppts = appointments.filter(a => new Date(a.createdAt) < start).length || 0; // Simple approximation
+        const currentAppts = appointments.length;
+        
+        if (currentAppts > prevAppts && prevAppts > 0) {
+            insights.push(`Patient visits increased by ${Math.round(((currentAppts - prevAppts) / prevAppts) * 100)}% compared to previous period.`);
+        } else if (currentAppts > 0) {
+            insights.push(`Recorded ${currentAppts} active appointments in this period.`);
+        }
+
+        if (completedPrescriptions > 0) {
+            insights.push(`${completedPrescriptions} prescriptions actively processed and dispatched.`);
+        }
+
+        const pendingAppts = appointments.filter(a => a.status === 'pending').length;
+        if (pendingAppts > 0) {
+            insights.push(`Action required: ${pendingAppts} pending appointments awaiting confirmation.`);
+        } else if (appointments.length > 0) {
+            insights.push(`All current appointments are successfully managed.`);
+        }
+
+        if (insights.length === 0) {
+            insights.push("Data collection initialized. Awaiting clinical activity.");
+        }
+
+        res.json({
+            success: true,
+            data: {
+                totalPatients,
+                activePatients,
+                appointmentsCompleted: appointments.filter(a => a.status === 'completed').length,
+                prescriptionsCompleted: completedPrescriptions,
+                trendData,
+                insights
+            }
+        });
+    } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
 });

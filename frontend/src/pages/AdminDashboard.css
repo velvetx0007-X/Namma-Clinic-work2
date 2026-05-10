@@ -554,12 +554,14 @@
 
 .modal-content {
     background: var(--bg-secondary);
-    padding: 30px;
+    padding: 0;
     border-radius: 16px;
     width: 90%;
     max-width: 600px;
-    max-height: 90vh;
-    overflow-y: auto;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
     box-shadow: var(--shadow-lg);
     border: 1px solid var(--border-color);
 }
@@ -572,21 +574,45 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 25px;
+    padding: 20px 30px;
+    background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+    color: white;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    flex-shrink: 0;
 }
 
 .modal-header h2 {
-    color: var(--accent-primary);
+    color: white !important;
     margin: 0;
-    font-size: 24px;
+    font-size: 20px;
+    font-weight: 700;
 }
 
 .close-btn {
-    background: none;
+    background: rgba(255, 255, 255, 0.2);
     border: none;
-    font-size: 28px;
-    color: var(--text-tertiary);
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
+    transition: all 0.2s;
+}
+
+.close-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(90deg);
+}
+
+.create-user-form {
+    padding: 30px;
+    overflow-y: auto;
+    flex: 1;
 }
 
 .form-row {

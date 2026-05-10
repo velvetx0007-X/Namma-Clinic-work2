@@ -2,10 +2,6 @@
 2.Commercial EB Connection
 3.
 
-
-
-
-
 zeushera145@gmail.com
 
 snl142812@gmail.com
@@ -23,3 +19,17 @@ nurse = 7894561230 - ujaini.sk@gmail.com
 reception = 7418529630 - zeushera145@gmail.com
 
 admin = 1472583690 - snl142812@gmail.com
+
+
+
+
+
+
+velvetx0007  github token = [REMOVED]
+
+[REMOVED]
+
+git push [REMOVED] main
+
+
+[REMOVED]
