@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axiosInstance';
 import {
-    Upload, Camera, FileText, Image, X, CheckCircle,
+    Upload, Camera, FileText, X, CheckCircle,
     ChevronLeft, Loader2, AlertCircle, FolderOpen,
     User, Phone, Hash
 } from 'lucide-react';

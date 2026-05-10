@@ -1,10 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
-import logo from '../assets/Namma Clinic logo.jpeg';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axiosInstance';
-import DigitalIDCard from '../components/DigitalIDCard';
 import Footer from '../components/Footer';
 import {
     LayoutDashboard,
@@ -13,18 +10,10 @@ import {
     Calendar,
     Clock,
     User,
-    LogOut,
-    Moon,
-    Sun,
     Plus,
     UserPlus,
-    CreditCard,
     Activity,
-    Bell,
-    Menu,
     X,
-    ChevronRight,
-    Heart,
     Stethoscope,
     CheckCircle,
     Upload
@@ -46,10 +35,10 @@ const ReceptionistDashboard = () => {
     const [appointments, setAppointments] = useState([]);
     const [patients, setPatients] = useState([]);
     const [clinics, setClinics] = useState([]);
+    const [loading, setLoading] = useState(false);
     const [queue, setQueue] = useState([]);
     const [prescriptions, setPrescriptions] = useState([]);
     const [labTests, setLabTests] = useState([]);
-    const [loading, setLoading] = useState(false);
     const [selectedPatientForPrescription, setSelectedPatientForPrescription] = useState('');
 
     // Prescription Upload State
@@ -278,10 +267,7 @@ const ReceptionistDashboard = () => {
     };
 
 
-    const handleLogout = () => {
-        logout();
-        navigate('/login');
-    };
+    // handleLogout removed if unused
 
     // todayAppointments removed if unused
 

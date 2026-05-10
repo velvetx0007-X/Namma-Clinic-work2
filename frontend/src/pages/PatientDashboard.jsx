@@ -23,14 +23,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import gsap from 'gsap';
 import { 
     Heart, Activity, Calendar, FileText, Pill, Search, MapPin, Navigation, 
-    MessageSquare, MessageSquarePlus, CheckCircle, User, UserCheck, LogOut, 
+    MessageSquare, MessageSquarePlus, CheckCircle, User, UserCheck, 
     Sparkles, Bot, Zap, Download, Clock, Star, Loader2, X, LayoutDashboard,
     Footprints, Flame, TrendingUp, ChevronRight, Droplets, Moon, Wind, Bed, 
-    Maximize, Baby, Target, Plus, History, Eye, Stethoscope
+    Maximize, Baby, Target, History, Eye, Stethoscope
 } from 'lucide-react';
-import logo from '../assets/Namma Clinic logo.jpeg';
 import DashboardLayout from '../components/common/DashboardLayout';
-import StatCard from '../components/common/StatCard';
 import {
     LineChart,
     Line,
@@ -40,11 +38,7 @@ import {
     YAxis,
     CartesianGrid,
     Tooltip,
-    Legend,
-    ResponsiveContainer,
-    PieChart,
-    Pie,
-    Cell
+    ResponsiveContainer
 } from 'recharts';
 import DashboardGreeting from '../components/common/DashboardGreeting';
 
@@ -99,7 +93,7 @@ const getTaskIcon = (type) => {
 
 const PatientDashboard = () => {
     const { user, updateUser, logout } = useAuth();
-    const { isDarkMode, toggleTheme } = useTheme();
+    const { isDarkMode } = useTheme();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('home');
     const [myReviews, setMyReviews] = useState([]);
@@ -110,11 +104,11 @@ const PatientDashboard = () => {
     const [prescriptionTypeFilter, setPrescriptionTypeFilter] = useState('all');
     const [labTests, setLabTests] = useState([]);
     const [clinics, setClinics] = useState([]);
-    const [searchTerm, setSearchTerm] = useState('');
+    const [searchTerm] = useState('');
     const [userLocation, setUserLocation] = useState({ lat: 13.0827, lng: 80.2707 });
     const [loading, setLoading] = useState(true);
     const [tasks, setTasks] = useState([]);
-    const [profileDetails, setProfileDetails] = useState({
+    const [profileDetails] = useState({
         bloodGroup: user.bloodGroup || '',
         uhid: user.uhid || '',
         age: user.age || '',
@@ -129,6 +123,7 @@ const PatientDashboard = () => {
         address: user.address || '',
         area: user.area || ''
     });
+    const [selectedClinic, setSelectedClinic] = useState(null);
 
     const [editModes, setEditModes] = useState({
         personal: false,
@@ -136,9 +131,6 @@ const PatientDashboard = () => {
         emergency: false,
         address: false
     });
-    const [selectedDoctor, setSelectedDoctor] = useState('');
-    const [selectedClinic, setSelectedClinic] = useState(null);
-    const [uploadFile, setUploadFile] = useState(null);
     const [showBookingModal, setShowBookingModal] = useState(false);
     const [bookingData, setBookingData] = useState({
         doctorId: '',
@@ -160,12 +152,12 @@ const PatientDashboard = () => {
     };
     const [uploadMessage, setUploadMessage] = useState({ type: '', text: '' });
     const [showChat, setShowChat] = useState(false);
-    const [selectedAIModule, setSelectedAIModule] = useState(null);
+    const [selectedAIModule] = useState(null);
     const [selectedReview, setSelectedReview] = useState(null);
     const [showReviewDetail, setShowReviewDetail] = useState(false);
     
     // Advanced Review Form State
-    const [reviewForm, setReviewForm] = useState({
+    const [reviewForm] = useState({
         clinicId: '',
         rating: 5,
         communication: 5,
@@ -230,7 +222,7 @@ const PatientDashboard = () => {
             }
         }, 10000);
 
-        return () => clearInterval(syncInterval);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user?.id]);
 
     useEffect(() => {
@@ -246,8 +238,7 @@ const PatientDashboard = () => {
         };
 
         checkDailyReset();
-        const interval = setInterval(checkDailyReset, 3600000); // Check every hour
-        return () => clearInterval(interval);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user.id]);
 
     useEffect(() => {
@@ -427,6 +418,7 @@ const PatientDashboard = () => {
         if (activeTab === 'reviews') {
             fetchMyReviews();
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [activeTab]);
 
     const handleTaskUpdate = async (taskId, newStatus) => {

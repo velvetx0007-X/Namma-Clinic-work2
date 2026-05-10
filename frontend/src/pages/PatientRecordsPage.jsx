@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axiosInstance';
@@ -24,6 +24,7 @@ const PatientRecordsPage = () => {
 
     useEffect(() => {
         fetchAllData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const fetchAllData = async () => {

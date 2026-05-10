@@ -38,7 +38,7 @@ const SignupPage = () => {
     });
 
     const [emailOtp, setEmailOtp] = useState(['', '', '', '', '', '']);
-    const [phoneOtp, setPhoneOtp] = useState(['', '', '', '', '', '']);
+    const [phoneOtp] = useState(['', '', '', '', '', '']);
     const [emailTimer, setEmailTimer] = useState(0);
     const [phoneTimer, setPhoneTimer] = useState(0);
 
