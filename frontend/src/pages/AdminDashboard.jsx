@@ -3,13 +3,12 @@ import { motion } from 'framer-motion';
 import logo from '../assets/Namma Clinic logo.jpeg';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useTheme } from '../context/ThemeContext';
 import api from '../api/axiosInstance';
 import ProfileSettings from '../components/ProfileSettings';
 import Footer from '../components/Footer';
 import AIPrescriptionUpload from '../components/AIPrescriptionUpload';
 import PatientHistory from '../components/PatientHistory';
-import { LogOut, Edit, Trash2, Heart, Activity, FileText, Upload, Plus, Pill, Search, Users, Star, MessageSquare, LayoutDashboard, Shield, TrendingUp } from 'lucide-react';
+import { LogOut, Edit, Trash2, Heart, Activity, Upload, Plus, Pill, Users, Star, MessageSquare, LayoutDashboard, Shield, TrendingUp } from 'lucide-react';
 import DashboardLayout from '../components/common/DashboardLayout';
 import DashboardGreeting from '../components/common/DashboardGreeting';
 import StatCard from '../components/common/StatCard';
@@ -19,22 +18,13 @@ import AssignTaskButton from '../components/AssignTaskButton';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
-    const { user, updateUser, logout } = useAuth();
-    const { isDarkMode, toggleTheme } = useTheme();
+    const { user, logout } = useAuth();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('home');
     const [uploadFile, setUploadFile] = useState(null);
     const editRef = useRef(null);
 
-    const handleEditCardClick = () => {
-        if (editRef.current) {
-            editRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            editRef.current.style.backgroundColor = 'rgba(16, 185, 129, 0.1)';
-            setTimeout(() => {
-                if (editRef.current) editRef.current.style.backgroundColor = 'transparent';
-            }, 2000);
-        }
-    };
+    // Removed unused handleEditCardClick
 
     // Data states
     const [admins, setAdmins] = useState([]);

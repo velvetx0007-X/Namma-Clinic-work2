@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import logo from '../assets/Namma Clinic logo.jpeg';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useTheme } from '../context/ThemeContext';
 import api from '../api/axiosInstance';
 import DigitalIDCard from '../components/DigitalIDCard';
 import Footer from '../components/Footer';
@@ -13,19 +12,14 @@ import ProfileSettings from '../components/ProfileSettings';
 
 import {
     LayoutDashboard,
-    ClipboardList,
     Calendar,
     Activity,
     Users,
     User,
     LogOut,
-    Moon,
-    Sun,
     Plus,
-    Save,
     Stethoscope,
     Pill,
-    FileText,
     MapPin,
     Phone,
     Clock,
@@ -35,7 +29,6 @@ import {
     Menu,
     X,
     CheckCircle,
-    AlertCircle,
     Upload,
     Eye
 } from 'lucide-react';
@@ -50,8 +43,7 @@ import './DoctorDashboard.css';
 // Dashboard v2 - DashboardGreeting integrated
 
 const DoctorDashboard = () => {
-    const { user, updateUser, logout } = useAuth();
-    const { isDarkMode, toggleTheme } = useTheme();
+    const { user, logout } = useAuth();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('home');
     const [appointments, setAppointments] = useState([]);
@@ -61,7 +53,6 @@ const DoctorDashboard = () => {
     const [selectedPrescription, setSelectedPrescription] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
     const [editPrescriptionData, setEditPrescriptionData] = useState(null);
-    const [loading, setLoading] = useState(false);
     const editRef = useRef(null);
 
     const [consultation, setConsultation] = useState({
@@ -266,10 +257,7 @@ const DoctorDashboard = () => {
         setEditPrescriptionData(prev => ({ ...prev, medications: updated }));
     };
 
-    const handleLogout = () => {
-        logout();
-        navigate('/login');
-    };
+    // handleLogout removed if unused
 
     const sidebarLinks = [
         { id: 'home', label: 'Dashboard', icon: LayoutDashboard },

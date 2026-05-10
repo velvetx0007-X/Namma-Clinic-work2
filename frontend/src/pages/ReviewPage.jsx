@@ -33,7 +33,6 @@ const ReviewPage = () => {
         comment: ''
     });
 
-    const [hover, setHover] = useState(0);
     const [hovers, setHovers] = useState({ communication: 0, treatment: 0, waitingTime: 0 });
 
     useEffect(() => {

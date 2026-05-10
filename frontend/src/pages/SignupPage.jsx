@@ -16,7 +16,6 @@ const SignupPage = () => {
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
     const navigate = useNavigate();
     const { login } = useAuth();
 
@@ -108,7 +107,6 @@ const SignupPage = () => {
             setLoading(true);
             const res = await api.post('/auth/send-email-otp', { email: formData.email });
             if (res.data.success) {
-                setSuccess('Email OTP sent!');
                 startTimer('email');
                 if (res.data.otp) console.log("[DEV] Email OTP:", res.data.otp);
                 setStep(3);
@@ -120,23 +118,7 @@ const SignupPage = () => {
         }
     };
 
-    const handleSendPhoneOtp = async () => {
-        try {
-            setLoading(true);
-            const fullPhone = formData.countryCode + formData.phoneNumber;
-            const res = await api.post('/auth/send-phone-otp', { phoneNumber: fullPhone });
-            if (res.data.success) {
-                setSuccess('Phone OTP sent!');
-                startTimer('phone');
-                if (res.data.otp) console.log("[DEV] Phone OTP:", res.data.otp);
-                setStep(4);
-            }
-        } catch (err) {
-            setError(err.response?.data?.message || 'Failed to send phone OTP');
-        } finally {
-            setLoading(false);
-        }
-    };
+    // Removed unused handleSendPhoneOtp
 
     const handleVerifyOtp = async (type) => {
         const otpValue = (type === 'email' ? emailOtp : phoneOtp).join('');
