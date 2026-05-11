@@ -1,0 +1,64 @@
+/* Light theme overrides for NAMMA CLINIC landing page */
+
+:root {
+  --nc-bg: #f9fafb;        /* Light background */
+  --nc-bg-2: #e5e7eb;      /* Slightly darker section */
+  --nc-bg-3: #d1d5db;      /* Darker gray */
+  --nc-text: #111827;     /* Dark primary text */
+  --nc-gray: #4b5563;     /* Medium gray */
+}
+
+/* Core overrides */
+.landing-root {
+  background: var(--nc-bg) !important;
+  color: var(--nc-text) !important;
+}
+
+.nc-navbar.scrolled {
+  background: rgba(255,255,255,.85) !important;
+}
+
+/* Section backgrounds */
+.nc-showcase {
+  background: linear-gradient(180deg, var(--nc-bg), var(--nc-bg-2)) !important;
+}
+
+.nc-ai-section {
+  background: linear-gradient(180deg, var(--nc-bg-2), var(--nc-bg-3), var(--nc-bg-2)) !important;
+}
+
+.nc-footer {
+  background: var(--nc-bg) !important;
+}
+
+/* Text color fixes */
+.nc-hero h1,
+.nc-section-title,
+.nc-testimonial-author h5,
+.nc-footer-col h4 {
+  color: var(--nc-text) !important;
+}
+
+/* Light card backgrounds */
+.nc-trust {
+  background: #ffffff !important;
+}
+
+.nc-testimonial-text {
+  color: var(--nc-text) !important;
+}
+
+/* Adjust button outlines for better contrast */
+.nc-hero-btn-outline {
+  color: var(--nc-gray) !important;
+}
+
+/* Ensure links are dark on light background */
+.nc-nav-links a {
+  color: var(--nc-gray) !important;
+}
+
+/* Override glass backgrounds for better visibility */
+.nc-glass {
+  background: rgba(255,255,255,.03) !important;
+}

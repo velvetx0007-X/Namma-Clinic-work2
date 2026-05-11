@@ -205,10 +205,12 @@ const SupplementalSections = () => {
           </div>
           <div className="p-8 rounded-[3rem] bg-gray-50 border border-gray-100">
              <div className="flex items-center gap-4 mb-8">
-                <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold">DR</div>
+                <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold">
+                   <Users size={24} />
+                </div>
                 <div>
-                   <h5 className="font-bold text-gray-900">Dr. Rajesh Kumar</h5>
-                   <p className="text-xs text-gray-500">Chief Surgeon, Apollo Clinic</p>
+                   <h5 className="font-bold text-gray-900">Verified Clinic Member</h5>
+                   <p className="text-xs text-gray-500">Practice Administrator</p>
                 </div>
              </div>
              <blockquote className="text-lg text-gray-700 italic mb-8">

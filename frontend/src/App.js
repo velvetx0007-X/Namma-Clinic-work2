@@ -20,6 +20,19 @@ import PatientRecordsPage from './pages/PatientRecordsPage';
 import PatientUploadPage from './pages/PatientUploadPage';
 import PatientFeedbackPage from './pages/PatientFeedbackPage';
 
+// Landing Pages
+import SolutionsPage from './pages/landing/SolutionsPage';
+import AIIntelligencePage from './pages/landing/AIIntelligencePage';
+import DocumentationPage from './pages/landing/DocumentationPage';
+import APIReferencePage from './pages/landing/APIReferencePage';
+import BlogPage from './pages/landing/BlogPage';
+import HelpCenterPage from './pages/landing/HelpCenterPage';
+import AboutPage from './pages/landing/AboutPage';
+import CareersPage from './pages/landing/CareersPage';
+import ContactPage from './pages/landing/ContactPage';
+import LegalPrivacyPage from './pages/landing/LegalPrivacyPage';
+import ProductPage from './pages/landing/ProductPage';
+
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -209,6 +222,19 @@ const AnimatedRoutes = () => {
             </RoleProtectedRoute>
           }
         />
+
+        {/* New Landing Pages */}
+        <Route path="/solutions" element={<PageWrapper><SolutionsPage /></PageWrapper>} />
+        <Route path="/ai-intelligence" element={<PageWrapper><AIIntelligencePage /></PageWrapper>} />
+        <Route path="/documentation" element={<PageWrapper><DocumentationPage /></PageWrapper>} />
+        <Route path="/api-reference" element={<PageWrapper><APIReferencePage /></PageWrapper>} />
+        <Route path="/blog" element={<PageWrapper><BlogPage /></PageWrapper>} />
+        <Route path="/help-center" element={<PageWrapper><HelpCenterPage /></PageWrapper>} />
+        <Route path="/about" element={<PageWrapper><AboutPage /></PageWrapper>} />
+        <Route path="/careers" element={<PageWrapper><CareersPage /></PageWrapper>} />
+        <Route path="/contact" element={<PageWrapper><ContactPage /></PageWrapper>} />
+        <Route path="/legal-privacy" element={<PageWrapper><LegalPrivacyPage /></PageWrapper>} />
+        <Route path="/product" element={<PageWrapper><ProductPage /></PageWrapper>} />
 
         {/* Catch all - redirect to signup */}
         <Route path="*" element={<Navigate to="/signup" replace />} />

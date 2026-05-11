@@ -1,36 +1,72 @@
 import React from 'react';
-import { FileX, Clock, Users, BarChart3, CalendarX, AlertTriangle } from 'lucide-react';
+import { XCircle, CheckCircle2 } from 'lucide-react';
 
-const problems = [
-  { icon: <FileX size={22} />, title: 'Paper Prescriptions', desc: 'Illegible handwriting, lost records, zero traceability in traditional prescription workflows.' },
-  { icon: <Clock size={22} />, title: 'Manual Workflows', desc: 'Hours wasted on patient registration, billing, and appointment scheduling every single day.' },
-  { icon: <Users size={22} />, title: 'Patient Confusion', desc: 'No digital access to health records, prescriptions, or appointment status for patients.' },
-  { icon: <BarChart3 size={22} />, title: 'Zero Analytics', desc: 'No visibility into revenue trends, doctor performance, or clinic operational efficiency.' },
-  { icon: <CalendarX size={22} />, title: 'Scheduling Chaos', desc: 'Double bookings, missed appointments, and no real-time queue management system.' },
-  { icon: <AlertTriangle size={22} />, title: 'Compliance Risk', desc: 'No audit trail, insecure patient data storage, and non-compliant record keeping.' },
-];
-
-const ProblemSection = () => (
-  <section className="nc-section" id="problems">
-    <div className="nc-section-inner">
-      <div className="nc-section-header centered">
-        <div className="nc-section-tag" style={{ background: 'rgba(239,68,68,0.08)', borderColor: 'rgba(239,68,68,0.15)', color: '#ef4444' }}>
-          The Problem
+const ProblemSection = () => {
+  return (
+    <section className="nc-problem-solution" id="solutions">
+      <div className="nc-split-grid">
+        <div className="nc-ps-content reveal">
+          <div className="section-tag">The Challenge</div>
+          <h2 className="section-title">Traditional clinics are broken.</h2>
+          <p className="section-subtitle" style={{ marginBottom: '40px' }}>
+            Paper records, disconnected systems, and manual workflows are costing your clinic time, money, and compromising patient care.
+          </p>
+          
+          <ul className="nc-ps-list">
+            <li className="nc-ps-item">
+              <div className="nc-ps-icon red"><XCircle size={18} /></div>
+              <div className="nc-ps-text">
+                <h4>Scattered Patient Records</h4>
+                <p>Doctors waste hours searching through paper files and outdated legacy software.</p>
+              </div>
+            </li>
+            <li className="nc-ps-item">
+              <div className="nc-ps-icon red"><XCircle size={18} /></div>
+              <div className="nc-ps-text">
+                <h4>Manual Prescriptions</h4>
+                <p>Handwritten prescriptions lead to pharmacy errors and poor patient compliance tracking.</p>
+              </div>
+            </li>
+            <li className="nc-ps-item">
+              <div className="nc-ps-icon red"><XCircle size={18} /></div>
+              <div className="nc-ps-text">
+                <h4>No Data Insights</h4>
+                <p>Clinics operate blind without real-time analytics on revenue, patient flow, or treatment efficacy.</p>
+              </div>
+            </li>
+          </ul>
         </div>
-        <h2 className="nc-section-title">Clinics Are Still Running on Broken Systems</h2>
-        <p className="nc-section-subtitle">Most healthcare providers operate with fragmented tools that waste time, lose data, and frustrate both staff and patients.</p>
+        
+        <div className="nc-ps-visual reveal delay-200">
+          <div className="section-tag blue" style={{ marginBottom: '24px' }}>The Solution</div>
+          <h3 style={{ fontSize: '28px', marginBottom: '32px', fontWeight: '800', color: 'var(--nc-text)' }}>Namma Clinic OS</h3>
+          <ul className="nc-ps-list" style={{ gap: '24px' }}>
+            <li className="nc-ps-item">
+              <div className="nc-ps-icon green"><CheckCircle2 size={18} /></div>
+              <div className="nc-ps-text">
+                <h4 style={{ color: 'var(--nc-text)', fontSize: '17px', fontWeight: '700', marginBottom: '4px' }}>Unified Digital Records</h4>
+                <p style={{ fontSize: '15px', color: 'var(--nc-text-muted)' }}>Everything in one secure cloud dashboard.</p>
+              </div>
+            </li>
+            <li className="nc-ps-item">
+              <div className="nc-ps-icon green"><CheckCircle2 size={18} /></div>
+              <div className="nc-ps-text">
+                <h4 style={{ color: 'var(--nc-text)', fontSize: '17px', fontWeight: '700', marginBottom: '4px' }}>AI Smart Prescriptions</h4>
+                <p style={{ fontSize: '15px', color: 'var(--nc-text-muted)' }}>Generate and track digital prescriptions instantly.</p>
+              </div>
+            </li>
+            <li className="nc-ps-item">
+              <div className="nc-ps-icon green"><CheckCircle2 size={18} /></div>
+              <div className="nc-ps-text">
+                <h4 style={{ color: 'var(--nc-text)', fontSize: '17px', fontWeight: '700', marginBottom: '4px' }}>Predictive Analytics</h4>
+                <p style={{ fontSize: '15px', color: 'var(--nc-text-muted)' }}>Real-time clinic performance and patient health insights.</p>
+              </div>
+            </li>
+          </ul>
+        </div>
       </div>
-      <div className="nc-problems-grid">
-        {problems.map((p, i) => (
-          <div key={i} className="nc-problem-card">
-            <div className="icon">{p.icon}</div>
-            <h4>{p.title}</h4>
-            <p>{p.desc}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  </section>
-);
+    </section>
+  );
+};
 
 export default ProblemSection;

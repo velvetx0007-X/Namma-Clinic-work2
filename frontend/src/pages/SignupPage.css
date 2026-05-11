@@ -5,7 +5,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--action-primary) 0%, var(--action-hover) 100%);
+  background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%);
   padding: 20px;
 }
 
@@ -17,7 +17,7 @@
   max-width: 800px;
   /* Increased from 500px to prevent field overlaps */
   width: 100%;
-  box-shadow: 0 20px 60px rgba(1, 22, 17, 0.3);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
   animation: slideUp 0.5s ease-out;
 }
 

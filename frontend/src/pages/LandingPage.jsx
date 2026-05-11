@@ -2,14 +2,12 @@ import React, { useEffect } from 'react';
 import LandingNavbar from '../components/landing/LandingNavbar';
 import HeroSection from '../components/landing/HeroSection';
 import TrustSection from '../components/landing/TrustSection';
+import MedicalMarquee from '../components/landing/MedicalMarquee';
 import ProblemSection from '../components/landing/ProblemSection';
-import SolutionSection from '../components/landing/SolutionSection';
 import FeaturesSection from '../components/landing/FeaturesSection';
-import ShowcaseSection from '../components/landing/ShowcaseSection';
 import AISection from '../components/landing/AISection';
+import WorkflowSection from '../components/landing/WorkflowSection';
 import TestimonialsSection from '../components/landing/TestimonialsSection';
-import CTASection from '../components/landing/CTASection';
-import FAQSection from '../components/landing/FAQSection';
 import ContactSection from '../components/landing/ContactSection';
 import LandingFooter from '../components/landing/LandingFooter';
 import '../components/landing/LandingPage.css';
@@ -26,7 +24,10 @@ const LandingPage = () => {
     // Smooth scroll for anchor links
     const handleClick = function (e) {
       e.preventDefault();
-      const targetId = this.getAttribute('href').substring(1);
+      const href = this.getAttribute('href');
+      if (!href.startsWith('#')) return;
+      
+      const targetId = href.substring(1);
       const el = document.getElementById(targetId);
       if (el) {
         window.scrollTo({ top: el.offsetTop - 80, behavior: 'smooth' });
@@ -34,7 +35,7 @@ const LandingPage = () => {
     };
     document.querySelectorAll('a[href^="#"]').forEach(a => a.addEventListener('click', handleClick));
 
-    // Scroll reveal observer
+    // Scroll reveal observer for animations
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach(entry => {
@@ -47,7 +48,10 @@ const LandingPage = () => {
     );
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      document.querySelectorAll('a[href^="#"]').forEach(a => a.removeEventListener('click', handleClick));
+    };
   }, []);
 
   return (
@@ -56,14 +60,12 @@ const LandingPage = () => {
       <main>
         <HeroSection />
         <TrustSection />
+        <MedicalMarquee />
         <ProblemSection />
-        <SolutionSection />
         <FeaturesSection />
-        <ShowcaseSection />
         <AISection />
+        <WorkflowSection />
         <TestimonialsSection />
-        <CTASection />
-        <FAQSection />
         <ContactSection />
       </main>
       <LandingFooter />

@@ -1,82 +1,111 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Play, Shield, Zap, Activity } from 'lucide-react';
-import dashboardImg from '../../assets/dashboard-preview.png';
+import { ArrowRight, Play, Activity, ShieldCheck, UserPlus, FileUp, BrainCircuit, Stethoscope, CloudCog, Database } from 'lucide-react';
+import { DoctorVisual, LabVisual } from './MedicalIllustrations';
 
 const HeroSection = () => {
   return (
     <section className="nc-hero">
-      <div className="nc-hero-bg" />
-      <div className="nc-hero-grid" />
-
+      <div className="nc-hero-bg"></div>
+      
+      {/* Decorative Background Elements */}
+      <div className="nc-hero-deco deco-1"><Stethoscope size={120} /></div>
+      <div className="nc-hero-deco deco-2"><Activity size={80} /></div>
+      <div className="nc-hero-deco deco-3"><Database size={100} /></div>
+      
+      {/* Character Visuals */}
+      <DoctorVisual className="hero-doctor reveal" />
+      <LabVisual className="hero-lab reveal delay-200" />
+      
       <div className="nc-hero-inner">
-        <div className="nc-hero-content">
-          <div className="nc-hero-badge">
-            <span className="dot" />
-            AI-Powered Healthcare Platform
-          </div>
-
-          <h1>
-            The Operating System for{' '}
-            <span className="gradient-text">Modern Clinics</span>
+        <div className="nc-hero-content reveal visible">
+          
+          <h1 className="hero-headline">
+            Start Your Clinic's <br />
+            <span className="gradient-text">Digital Transformation Today</span>
           </h1>
-
-          <p className="nc-hero-subtitle">
-            NAMMA CLINIC unifies prescriptions, appointments, patient records, 
-            wellness tracking, and AI-powered analytics into one intelligent 
-            platform — built for doctors, clinics, and hospitals.
+          
+          <p className="hero-subtitle">
+            Unify patient records, prescriptions, appointments, and wellness tracking with our intelligent SaaS platform built exclusively for progressive clinics and hospitals.
           </p>
-
+          
           <div className="nc-hero-actions">
-            <Link to="/signup" className="nc-hero-btn-lg">
-              Start Free Trial <ArrowRight size={18} />
+            <Link to="/contact" className="btn btn-primary">
+              Book a Demo <ArrowRight size={14} />
             </Link>
-            <a href="#showcase" className="nc-hero-btn-outline">
-              <Play size={16} /> Watch Demo
+            <a href="#workflow" className="btn btn-glass">
+              <Play size={14} /> Watch Product Tour
             </a>
-          </div>
-
-          <div style={{ display: 'flex', gap: '32px', marginTop: '48px' }}>
-            {[
-              { icon: <Shield size={16} />, text: 'HIPAA Compliant' },
-              { icon: <Zap size={16} />, text: 'AI-Powered' },
-              { icon: <Activity size={16} />, text: 'Real-Time' },
-            ].map((item, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b', fontSize: '13px', fontWeight: 500 }}>
-                <span style={{ color: '#3b82f6' }}>{item.icon}</span>
-                {item.text}
-              </div>
-            ))}
           </div>
         </div>
 
-        <div className="nc-hero-visual">
-          <div className="nc-hero-glow" />
-          <div className="nc-hero-mockup">
-            <img src={dashboardImg} alt="NAMMA CLINIC Dashboard" />
+        <div className="nc-hero-showcase reveal delay-200" style={{ perspective: 'none' }}>
+          <div className="nc-workflow-circle-container">
+            <div className="nc-workflow-center">
+              <div className="nc-workflow-pulse-ring"></div>
+              <div className="nc-workflow-pulse-ring delay"></div>
+              <div className="nc-workflow-center-icon">
+                <Activity size={40} color="#fff" />
+              </div>
+              <h4>Namma Clinic OS</h4>
+              <p>Core Engine</p>
+            </div>
+            
+            {/* Orbiting nodes */}
+            <div className="nc-node" style={{ '--angle': '0deg' }}>
+              <div className="nc-node-icon"><UserPlus size={24} /></div>
+              <span>1. Patient Portal</span>
+            </div>
+            <div className="nc-node" style={{ '--angle': '60deg' }}>
+              <div className="nc-node-icon"><FileUp size={24} /></div>
+              <span>2. Upload Rx</span>
+            </div>
+            <div className="nc-node" style={{ '--angle': '120deg' }}>
+              <div className="nc-node-icon"><BrainCircuit size={24} /></div>
+              <span>3. AI Processing</span>
+            </div>
+            <div className="nc-node" style={{ '--angle': '180deg' }}>
+              <div className="nc-node-icon"><Stethoscope size={24} /></div>
+              <span>4. Consultation</span>
+            </div>
+            <div className="nc-node" style={{ '--angle': '240deg' }}>
+              <div className="nc-node-icon"><CloudCog size={24} /></div>
+              <span>5. Secure EHR</span>
+            </div>
+            <div className="nc-node" style={{ '--angle': '300deg' }}>
+              <div className="nc-node-icon"><Database size={24} /></div>
+              <span>6. Record Management</span>
+            </div>
+            
+            {/* Connecting SVG Circle */}
+            <svg className="nc-workflow-ring" viewBox="0 0 400 400">
+              <circle cx="200" cy="200" r="198" fill="none" stroke="rgba(37,99,235,0.15)" strokeWidth="2" strokeDasharray="8 8" />
+            </svg>
+            
+            {/* Orbiting Data Particles */}
+            <div className="nc-data-particle" style={{ '--angle': '0deg', '--duration': '8s' }}></div>
+            <div className="nc-data-particle" style={{ '--angle': '120deg', '--duration': '12s' }}></div>
+            <div className="nc-data-particle" style={{ '--angle': '240deg', '--duration': '10s' }}></div>
           </div>
-
-          <div className="nc-hero-float-card card-1">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(16,185,129,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10b981' }}>
-                <Activity size={18} />
-              </div>
-              <div>
-                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>Patient Vitals</div>
-                <div style={{ fontSize: '16px', color: '#fff', fontWeight: 800 }}>98.2% Normal</div>
-              </div>
+          
+          {/* Floating Medical Elements (Sides) */}
+          <div className="floating-card fc-1 reveal delay-300" style={{ left: '-30%', top: '20%' }}>
+            <div className="fc-icon" style={{ background: '#eff6ff', color: '#3b82f6' }}>
+              <Activity size={20} />
+            </div>
+            <div className="fc-info">
+              <h5>Real-time Vitals</h5>
+              <p>98.2% Accuracy</p>
             </div>
           </div>
 
-          <div className="nc-hero-float-card card-2">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(59,130,246,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#3b82f6' }}>
-                <Zap size={18} />
-              </div>
-              <div>
-                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>AI Analysis</div>
-                <div style={{ fontSize: '16px', color: '#fff', fontWeight: 800 }}>Completed ✓</div>
-              </div>
+          <div className="floating-card fc-2 reveal delay-300" style={{ right: '-30%', bottom: '20%' }}>
+            <div className="fc-icon" style={{ background: '#d1fae5', color: '#10b981' }}>
+              <ShieldCheck size={20} />
+            </div>
+            <div className="fc-info">
+              <h5>Data Security</h5>
+              <p>HIPAA Compliant</p>
             </div>
           </div>
         </div>
