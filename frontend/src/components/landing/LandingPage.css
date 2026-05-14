@@ -429,4 +429,6 @@ textarea.nc-form-input { resize: vertical; min-height: 120px; }
   .nc-workflow-circle-container { transform: scale(0.7); transform-origin: center center; margin: 0 auto; }
   .nc-bento-grid, .nc-why-grid, .nc-ai-grid, .nc-footer-grid { grid-template-columns: 1fr; }
   .nc-footer-bottom { flex-direction: column; gap: 16px; text-align: center; }
+  /* Testimonials: hide desktop grid, show carousel */
+  .nc-test-grid { display: none !important; }
 }

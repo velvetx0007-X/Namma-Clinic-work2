@@ -1,0 +1,245 @@
+/* ============================================
+   TESTIMONIALS SECTION — Desktop + Mobile Carousel
+   ============================================ */
+
+.nc-testimonials {
+  padding: 80px 0;
+  background: var(--nc-bg-alt, #f8fafc);
+}
+
+/* Header */
+.nc-test-header {
+  text-align: center;
+  margin-bottom: 60px;
+  padding: 0 24px;
+}
+
+/* ===== DESKTOP GRID (≥768px) ===== */
+.nc-test-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* Hide carousel on desktop */
+.nc-test-carousel {
+  display: none;
+}
+
+/* ===== CARD STYLES ===== */
+.nc-test-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 24px;
+  padding: 36px;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.04);
+  transition: all 0.3s;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.nc-test-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #2563eb, #4f46e5);
+  border-radius: 24px 24px 0 0;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.nc-test-card:hover {
+  transform: translateY(-6px);
+  border-color: #bfdbfe;
+  box-shadow: 0 20px 40px rgba(37, 99, 235, 0.1);
+}
+
+.nc-test-card:hover::before {
+  opacity: 1;
+}
+
+/* Metric Badge */
+.nc-test-metric {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 6px 16px;
+  border-radius: 100px;
+  width: fit-content;
+}
+
+.metric-blue    { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+.metric-violet  { background: #f5f3ff; color: #7c3aed; border: 1px solid #ddd6fe; }
+.metric-emerald { background: #ecfdf5; color: #10b981; border: 1px solid #a7f3d0; }
+
+/* Quote Icon */
+.nc-test-quote-icon {
+  color: #e0e7ff;
+}
+
+/* Quote Text */
+.nc-test-quote {
+  font-size: 15px;
+  line-height: 1.7;
+  color: #374151;
+  font-style: italic;
+  margin: 0;
+  flex: 1;
+}
+
+/* Author row */
+.nc-test-author {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 20px;
+  margin-top: auto;
+}
+
+.nc-test-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.avatar-blue    { background: #eff6ff; color: #2563eb; }
+.avatar-violet  { background: #f5f3ff; color: #7c3aed; }
+.avatar-emerald { background: #ecfdf5; color: #10b981; }
+
+.nc-test-info h5 {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 2px;
+}
+
+.nc-test-info p {
+  font-size: 12px;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* ===== MOBILE CAROUSEL (≤768px) ===== */
+@media (max-width: 768px) {
+  .nc-testimonials {
+    padding: 60px 0 20px;
+  }
+
+  .nc-test-header {
+    margin-bottom: 40px;
+  }
+
+  /* Force hide desktop grid */
+  .nc-test-grid {
+    display: none !important;
+  }
+
+  /* Show carousel */
+  .nc-test-carousel {
+    display: block !important;
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    padding-bottom: 80px;
+  }
+
+  /* Sliding track */
+  .nc-test-carousel-track {
+    display: flex;
+    transition: transform 0.45s cubic-bezier(0.25, 1, 0.5, 1);
+    will-change: transform;
+    width: 100%;
+  }
+
+  /* Each slide = full width */
+  .nc-test-carousel-slide {
+    min-width: 100%;
+    padding: 0 20px;
+    box-sizing: border-box;
+  }
+
+  /* Card inside slide should not overflow */
+  .nc-test-carousel-slide .nc-test-card {
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0;
+  }
+
+  /* ---- Arrow Buttons ---- */
+  .nc-test-nav {
+    position: absolute;
+    bottom: 24px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #fff;
+    border: 1.5px solid #bfdbfe;
+    color: #2563eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(37, 99, 235, 0.15);
+    transition: all 0.2s ease;
+    z-index: 20;
+    padding: 0;
+  }
+
+  .nc-test-nav:hover {
+    background: #2563eb;
+    color: #fff;
+    border-color: #2563eb;
+    transform: scale(1.08);
+  }
+
+  .nc-test-nav-prev {
+    left: calc(50% - 58px);
+  }
+
+  .nc-test-nav-next {
+    left: calc(50% + 14px);
+  }
+
+  /* ---- Dot Indicators ---- */
+  .nc-test-dots {
+    position: absolute;
+    bottom: 34px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .nc-test-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: none;
+    background: #cbd5e1;
+    cursor: pointer;
+    padding: 0;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+  }
+
+  .nc-test-dot.active {
+    width: 28px;
+    border-radius: 4px;
+    background: #2563eb;
+  }
+}
