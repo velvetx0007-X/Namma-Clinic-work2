@@ -1,0 +1,301 @@
+.mocdoc-workflow-section {
+  padding: 80px 0;
+  background: #ffffff;
+  overflow: hidden;
+  position: relative;
+}
+
+.mocdoc-workflow-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  min-height: 500px;
+}
+
+.mocdoc-workflow-column {
+  display: flex;
+  flex-direction: column;
+  gap: 60px;
+  position: relative;
+  z-index: 10;
+  width: 280px;
+}
+
+.mocdoc-feature-box {
+  background: #ffffff;
+  border: 1.5px solid #2563eb;
+  border-radius: 6px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 4px 15px rgba(37, 99, 235, 0.06);
+  transition: transform 0.3s, box-shadow 0.3s;
+  z-index: 2;
+  position: relative;
+}
+
+.mocdoc-feature-box:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(37, 99, 235, 0.15);
+  border-color: #4f46e5;
+}
+
+.md-feature-icon.orange {
+  color: #2563eb;
+}
+
+.mocdoc-feature-box span {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.3;
+}
+
+/* Central Hub */
+.mocdoc-workflow-center {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.md-connector-lines {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.md-center-logo-container {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: -40px;
+}
+
+.md-logo-ring {
+  width: 180px;
+  height: 180px;
+  background: #ffffff;
+  border: 8px solid #2563eb;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1), inset 0 0 20px rgba(37, 99, 235, 0.1);
+  position: relative;
+  z-index: 5;
+  animation: float 6s ease-in-out infinite;
+}
+
+.md-logo-img {
+  width: 100px;
+  height: auto;
+}
+
+.md-platform-base {
+  width: 220px;
+  height: 80px;
+  background: #e0e7ff;
+  border-radius: 50%;
+  position: absolute;
+  bottom: -40px;
+  z-index: 1;
+  box-shadow: inset 0 10px 20px #c7d2fe;
+  transform: scaleY(0.5);
+}
+
+.md-platform-base::after {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: 15px;
+  right: 15px;
+  bottom: 15px;
+  background: #2563eb;
+  border-radius: 50%;
+  opacity: 0.3;
+  filter: blur(8px);
+}
+
+/* Decorative Floating Elements */
+.md-floating-gear {
+  position: absolute;
+  animation: spin 10s linear infinite;
+  opacity: 0.5;
+  color: #94a3b8;
+}
+
+.md-gear-1 {
+  left: 35%;
+  bottom: 25%;
+  animation-duration: 15s;
+}
+
+.md-gear-2 {
+  left: 40%;
+  bottom: 20%;
+  animation-duration: 8s;
+  animation-direction: reverse;
+}
+
+.md-floating-cloud {
+  position: absolute;
+  top: 15%;
+  right: 35%;
+  animation: float 8s ease-in-out infinite 1s;
+  opacity: 0.9;
+  filter: drop-shadow(0 10px 15px rgba(0,0,0,0.05));
+}
+
+.md-floating-box {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  background: linear-gradient(135deg, #2563eb, #4f46e5);
+  transform: rotate(45deg);
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
+  animation: float 5s ease-in-out infinite;
+  border-radius: 4px;
+}
+
+.md-box-1 {
+  left: 30%;
+  bottom: 40%;
+  animation-delay: 0.5s;
+}
+
+.md-box-2 {
+  right: 32%;
+  bottom: 15%;
+  animation-delay: 1.5s;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ===== TOOLTIP POPUP ===== */
+.mocdoc-feature-box {
+  position: relative;
+}
+
+.md-tooltip {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 260px;
+  background: #ffffff;
+  border: 1px solid #e0e7ff;
+  border-radius: 12px;
+  padding: 14px 16px;
+  box-shadow: 0 12px 40px rgba(37, 99, 235, 0.15), 0 2px 8px rgba(0,0,0,0.06);
+  z-index: 100;
+  animation: tooltipFadeIn 0.2s ease forwards;
+  pointer-events: none;
+}
+
+/* Right column tooltips appear to the LEFT of the box */
+.tooltip-left {
+  right: calc(100% + 14px);
+}
+
+/* Left column tooltips appear to the RIGHT of the box */
+.tooltip-right {
+  left: calc(100% + 14px);
+}
+
+.md-tooltip p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #374151;
+  font-weight: 400;
+}
+
+/* Arrow for right-side tooltip (pointing left) */
+.tooltip-right .md-tooltip-arrow {
+  position: absolute;
+  top: 50%;
+  left: -8px;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-right: 8px solid #ffffff;
+  filter: drop-shadow(-2px 0 2px rgba(37,99,235,0.08));
+}
+
+/* Arrow for left-side tooltip (pointing right) */
+.tooltip-left .md-tooltip-arrow {
+  position: absolute;
+  top: 50%;
+  right: -8px;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-left: 8px solid #ffffff;
+  filter: drop-shadow(2px 0 2px rgba(37,99,235,0.08));
+}
+
+/* Tooltip top accent bar */
+.md-tooltip::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #2563eb, #4f46e5);
+  border-radius: 12px 12px 0 0;
+}
+
+@keyframes tooltipFadeIn {
+  from { opacity: 0; transform: translateY(calc(-50% + 6px)); }
+  to   { opacity: 1; transform: translateY(-50%); }
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1024px) {
+  .mocdoc-workflow-inner {
+    flex-direction: column;
+    gap: 40px;
+  }
+  .mocdoc-workflow-center {
+    position: relative;
+    order: -1;
+    height: 300px;
+  }
+  .md-connector-lines {
+    display: none;
+  }
+  .mocdoc-workflow-column {
+    width: 100%;
+    align-items: center;
+    gap: 20px;
+  }
+  .mocdoc-feature-box {
+    width: 100%;
+    max-width: 400px;
+  }
+  .md-tooltip {
+    display: none;
+  }
+}

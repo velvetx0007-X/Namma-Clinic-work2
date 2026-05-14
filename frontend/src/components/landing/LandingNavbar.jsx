@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
-import logo from '../../assets/logo.jpg';
+import { Menu, X, Play, ArrowRight } from 'lucide-react';
+import logo from '../../assets/logo.svg';
 
 const LandingNavbar = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -20,8 +20,6 @@ const LandingNavbar = () => {
       <div className="nc-nav-inner">
         <Link to="/" className="nc-nav-brand">
           <img src={logo} alt="NAMMA CLINIC" />
-          <span className="brand-namma">NAMMA</span>
-          <span className="brand-clinic">CLINIC</span>
         </Link>
 
         <ul className="nc-nav-links">
@@ -31,9 +29,16 @@ const LandingNavbar = () => {
           <li><Link to="/ai-intelligence">AI Intelligence</Link></li>
         </ul>
 
-        <div className="nc-nav-actions">
-          <Link to="/contact" className="btn btn-glass">Book a Demo</Link>
-          <Link to="/login" className="btn btn-primary">Login</Link>
+        <div className="nc-nav-actions" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <Link to="/contact" className="btn btn-glass" style={{ boxSizing: 'border-box', padding: '0 20px', margin: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', height: '42px' }}>
+            <span style={{ backgroundColor: '#f1f5f9', borderRadius: '50%', width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--nc-text)' }}>
+              <Play size={10} fill="currentColor" style={{ marginLeft: '1px' }} />
+            </span>
+            Book Demo
+          </Link>
+          <Link to="/login" className="btn btn-primary" style={{ boxSizing: 'border-box', border: '1px solid transparent', padding: '0 20px', margin: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', height: '42px' }}>
+            Launch Platform <ArrowRight size={16} />
+          </Link>
           <button 
             className="nc-mobile-toggle"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}

@@ -8,7 +8,7 @@ import {
     Activity, Clock, Sparkles, Heart 
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import logo from '../assets/logo.jpg';
+import logo from '../assets/logo.svg';
 import BrandText from '../components/common/BrandText';
 import './ReviewPage.css';
 

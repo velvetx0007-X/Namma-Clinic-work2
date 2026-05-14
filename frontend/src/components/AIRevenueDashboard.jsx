@@ -11,7 +11,7 @@ import {
     ChevronDown, MapPin, Search
 } from 'lucide-react';
 import api from '../api/axiosInstance';
-import logo from '../assets/logo.jpg';
+import logo from '../assets/logo.svg';
 import './AIRevenueDashboard.css';
 
 const AIRevenueDashboard = ({ doctorId = null, clinicId = null }) => {

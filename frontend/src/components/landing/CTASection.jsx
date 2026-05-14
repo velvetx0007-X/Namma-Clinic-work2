@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Play } from 'lucide-react';
 
 const CTASection = () => {
   return (
@@ -11,11 +11,14 @@ const CTASection = () => {
           Join hundreds of innovative clinics using Namma Clinic to automate workflows, reduce errors, and deliver better patient care with AI.
         </p>
         <div className="nc-hero-actions" style={{ marginBottom: 0 }}>
-          <Link to="/contact" className="btn btn-primary" style={{ padding: '18px 36px' }}>
-            Book a Demo <ArrowRight size={18} />
+          <Link to="/login" className="btn btn-primary" style={{ padding: '18px 36px' }}>
+            Launch Platform <ArrowRight size={18} />
           </Link>
-          <Link to="/login" className="btn btn-glass" style={{ padding: '18px 36px' }}>
-            Login to Portal
+          <Link to="/contact" className="btn btn-glass" style={{ padding: '18px 36px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ backgroundColor: '#f1f5f9', borderRadius: '50%', padding: '5px', display: 'flex', color: 'var(--nc-text)' }}>
+              <Play size={14} fill="currentColor" />
+            </span>
+            Book Demo
           </Link>
         </div>
       </div>

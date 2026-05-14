@@ -4,7 +4,7 @@ import { jsPDF } from 'jspdf';
 import { motion } from 'framer-motion';
 import gsap from 'gsap';
 import { ShieldCheck, Download, Edit3 } from 'lucide-react';
-import logo from '../assets/logo.jpg';
+import logo from '../assets/logo.svg';
 import BrandText from './common/BrandText';
 
 import './DigitalIDCard.css';

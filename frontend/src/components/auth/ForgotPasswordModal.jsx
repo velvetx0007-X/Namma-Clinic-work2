@@ -35,17 +35,43 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
 
     const handleSendOtp = async () => {
         setError('');
+        if (!formData.identifier.trim()) {
+            setError('Please enter your email or phone number');
+            return;
+        }
+
         setLoading(true);
         try {
-            const id = method === 'email' ? formData.identifier : (formData.countryCode + formData.identifier);
-            const res = await api.post('/auth/forgot-password', { identifier: id, type: method });
+            let id = formData.identifier.trim();
+            let currentMethod = method;
+
+            // Auto-detect if user entered phone in email field
+            if (currentMethod === 'email' && !id.includes('@') && /^\d+$/.test(id.replace(/[+]/g, ''))) {
+                // If it's all digits (and optional +), it's probably a phone number
+                currentMethod = 'phone';
+                setMethod('phone');
+            }
+
+            const finalId = currentMethod === 'email' ? id : (id.startsWith('+') ? id : (formData.countryCode + id));
+            
+            const res = await api.post('/auth/forgot-password', { 
+                identifier: finalId, 
+                type: currentMethod 
+            });
+
             if (res.data.success) {
                 setStep(2);
                 setTimer(120);
+                // Important: Use the identifier returned by backend if available
+                if (res.data.identifier) {
+                    setFormData(prev => ({ ...prev, identifier: res.data.identifier }));
+                }
                 if (res.data.otp) console.log("[DEV] Reset OTP:", res.data.otp);
             }
         } catch (err) {
-            setError(err.response?.data?.message || 'Failed to send reset code');
+            console.error('Reset error:', err);
+            const msg = err.response?.data?.message || err.message || 'Failed to send reset code. Please check your connection.';
+            setError(msg);
         } finally {
             setLoading(false);
         }

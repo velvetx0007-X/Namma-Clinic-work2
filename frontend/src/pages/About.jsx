@@ -1,7 +1,7 @@
 import React from 'react';
 import { Target, Mail, Activity, ShieldCheck, ClipboardCheck, Sparkles } from 'lucide-react';
 import './About.css';
-import logo from '../assets/logo.jpg';
+import logo from '../assets/logo.svg';
 import BrandText from '../components/common/BrandText';
 
 const About = () => {

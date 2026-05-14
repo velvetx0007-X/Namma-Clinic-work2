@@ -7,7 +7,7 @@ import FloatingLabelInput from '../components/common/FloatingLabelInput';
 import ForgotPasswordModal from '../components/auth/ForgotPasswordModal';
 import RoleDropdown from '../components/common/RoleDropdown';
 import { motion, AnimatePresence } from 'framer-motion';
-import logo from '../assets/logo.jpg';
+import logo from '../assets/logo.svg';
 import BrandText from '../components/common/BrandText';
 
 const LoginPage = () => {
@@ -41,9 +41,22 @@ const LoginPage = () => {
         setLoading(true);
 
         const loginData = {
-            role: formData.role,
-            identifier: identifierType === 'email' ? formData.email : (formData.countryCode + formData.phoneNumber)
+            role: formData.role
         };
+
+        if (identifierType === 'email') {
+            loginData.identifier = formData.email;
+        } else {
+            // Smart phone number handling
+            let phone = formData.phoneNumber.trim();
+            // If it already starts with +, don't add country code
+            if (phone.startsWith('+')) {
+                loginData.identifier = phone;
+            } else {
+                // Otherwise add the selected country code
+                loginData.identifier = formData.countryCode + phone;
+            }
+        }
 
         if (loginMethod === 'password') {
             loginData.password = formData.password;
@@ -129,6 +142,8 @@ const LoginPage = () => {
                                     setFormData({ ...formData, email: val });
                                 } else {
                                     setIdentifierType('phone');
+                                    // If user typed a number starting with +, 
+                                    // we still store it in phoneNumber and handleSubmit will handle it
                                     setFormData({ ...formData, phoneNumber: val });
                                 }
                             }}

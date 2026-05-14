@@ -3,7 +3,7 @@ import { Menu, LogOut } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import logo from '../../assets/logo.jpg';
+import logo from '../../assets/logo.svg';
 import BrandText from './BrandText';
 
 import NotificationBell from '../NotificationBell';
@@ -42,7 +42,6 @@ const TopNavbar = ({ onMenuClick }) => {
                     
                     <div className="flex items-center gap-2 lg:gap-3 cursor-pointer" onClick={() => navigate('/')}>
                         <img src={logo} alt="NAMMA CLINIC Logo" className="w-8 h-8 lg:w-10 lg:h-10 rounded-lg object-contain shadow-sm" />
-                        <BrandText className="text-lg lg:text-xl hidden sm:flex" />
                     </div>
                 </div>
 

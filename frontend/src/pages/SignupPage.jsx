@@ -9,7 +9,7 @@ import RoleDropdown from '../components/common/RoleDropdown';
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, CheckCircle, ArrowRight } from 'lucide-react';
-import logo from '../assets/logo.jpg';
+import logo from '../assets/logo.svg';
 import BrandText from '../components/common/BrandText';
 import './SignupPage.css';
 

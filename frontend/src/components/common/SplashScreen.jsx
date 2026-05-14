@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
-import logo from '../../assets/logo.jpg';
+import logo from '../../assets/logo.svg';
 import BrandText from './BrandText';
 import './SplashScreen.css';
 

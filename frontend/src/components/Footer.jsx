@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Edit, Save, X, Bot, Cpu, ShieldCheck, Clock, Calendar, MapPin, Phone, Mail, Github, Twitter, Linkedin, Activity, Heart } from 'lucide-react';
-import logo from '../assets/logo.jpg';
+import logo from '../assets/logo.svg';
 import BrandText from './common/BrandText';
 import './Footer.css';
 

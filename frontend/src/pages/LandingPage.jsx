@@ -10,6 +10,7 @@ import WorkflowSection from '../components/landing/WorkflowSection';
 import TestimonialsSection from '../components/landing/TestimonialsSection';
 import ContactSection from '../components/landing/ContactSection';
 import LandingFooter from '../components/landing/LandingFooter';
+import MocDocWorkflowSection from '../components/landing/MocDocWorkflowSection';
 import '../components/landing/LandingPage.css';
 
 const LandingPage = () => {
@@ -62,6 +63,7 @@ const LandingPage = () => {
         <TrustSection />
         <MedicalMarquee />
         <ProblemSection />
+        <MocDocWorkflowSection />
         <FeaturesSection />
         <AISection />
         <WorkflowSection />
