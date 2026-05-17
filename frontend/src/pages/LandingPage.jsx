@@ -15,7 +15,7 @@ import '../components/landing/LandingPage.css';
 
 const LandingPage = () => {
   useEffect(() => {
-    document.title = "NAMMA CLINIC | AI-Powered Smart Healthcare Management";
+    document.title = "NAMMA CLINIC";
 
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {

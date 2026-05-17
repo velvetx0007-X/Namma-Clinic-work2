@@ -278,14 +278,7 @@ const DoctorDashboard = () => {
                         <DashboardGreeting user={user} role="doctor" />
 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-                            <StatCard 
-                                icon={Calendar} 
-                                number={todayAppointments.length} 
-                                label="Today's Appointments" 
-                                subtext={new Date().toLocaleDateString()} 
-                                colorClass="text-blue-600"
-                                className="premium-stat-card"
-                            />
+
                             <StatCard 
                                 icon={AlertCircle} 
                                 number={todayAppointments.filter(apt => apt.status === 'scheduled').length} 

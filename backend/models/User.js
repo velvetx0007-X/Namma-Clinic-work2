@@ -97,8 +97,6 @@ userSchema.methods.comparePin = async function(candidatePin) {
 };
 
 // Add Indexes for performance
-userSchema.index({ email: 1 });
-userSchema.index({ phoneNumber: 1 });
 userSchema.index({ role: 1 });
 userSchema.index({ clinicCode: 1 });
 

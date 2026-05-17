@@ -24,6 +24,7 @@ const LoginPage = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [showForgotModal, setShowForgotModal] = useState(false);
+    const [forgotType, setForgotType] = useState('password'); // 'password' or 'pin'
     const navigate = useNavigate();
     const { login } = useAuth();
 
@@ -208,13 +209,20 @@ const LoginPage = () => {
                         {loading ? 'Authenticating...' : 'Sign In'}
                     </button>
 
-                    <div className="flex justify-center mt-6">
+                    <div className="flex justify-between items-center mt-6 px-2">
                         <button 
                             type="button"
-                            onClick={() => setShowForgotModal(true)}
+                            onClick={() => { setForgotType('password'); setShowForgotModal(true); }}
                             className="text-[#1E88E5] text-sm font-bold hover:underline"
                         >
-                            Forgot Password or PIN?
+                            Forgot Password?
+                        </button>
+                        <button 
+                            type="button"
+                            onClick={() => { setForgotType('pin'); setShowForgotModal(true); }}
+                            className="text-[#1E88E5] text-sm font-bold hover:underline"
+                        >
+                            Forgot PIN?
                         </button>
                     </div>
                 </form>
@@ -222,6 +230,7 @@ const LoginPage = () => {
                 <ForgotPasswordModal 
                     isOpen={showForgotModal} 
                     onClose={() => setShowForgotModal(false)} 
+                    resetType={forgotType}
                 />
 
                 <div className="mt-8 pt-6 border-t border-[#F5F5F5]">

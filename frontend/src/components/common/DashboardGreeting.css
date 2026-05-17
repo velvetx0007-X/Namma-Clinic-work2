@@ -1,0 +1,111 @@
+@import url('https://api.fontshare.com/v2/css?f[]=general-sans@200,300,400,500,600,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+.dg-font-satoshi {
+    font-family: 'General Sans', 'Inter', sans-serif;
+}
+
+.dg-font-inter {
+    font-family: 'Inter', sans-serif;
+}
+
+/* ── Widget Cards ── */
+.dg-premium-glass {
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(99, 102, 241, 0.12);
+    box-shadow: 0 2px 16px rgba(99, 102, 241, 0.06), 0 1px 4px rgba(0,0,0,0.04);
+    transition: all 0.3s ease;
+}
+
+.dg-premium-glass:hover {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(99, 102, 241, 0.25);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(99, 102, 241, 0.12), 0 2px 8px rgba(0,0,0,0.06);
+}
+
+/* ── Heading gradient: indigo → violet ── */
+.dg-text-gradient {
+    background: linear-gradient(120deg, #4F46E5 0%, #7C3AED 60%, #0EA5E9 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* ── Subtle noise for light surface ── */
+.dg-noise-texture {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+/* ── Ambient Orbs (light-tinted) ── */
+.dg-orb-violet {
+    position: absolute;
+    top: -120px;
+    right: -160px;
+    width: 480px;
+    height: 480px;
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.12) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+    animation: dg-pulse-orb 5s ease-in-out infinite;
+}
+
+.dg-orb-cyan {
+    position: absolute;
+    bottom: -120px;
+    left: -100px;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(14, 165, 233, 0.1) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.dg-orb-green {
+    position: absolute;
+    top: 50%;
+    left: 38%;
+    width: 320px;
+    height: 320px;
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.07) 0%, transparent 70%);
+    border-radius: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+@keyframes dg-pulse-orb {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.6; transform: scale(1.05); }
+}
+
+/* ── Live status dot ── */
+.dg-live-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #10B981;
+    box-shadow: 0 0 6px #10B981;
+    flex-shrink: 0;
+    animation: dg-live-pulse 2s ease-in-out infinite;
+}
+
+@keyframes dg-live-pulse {
+    0%, 100% { box-shadow: 0 0 5px #10B981; }
+    50%       { box-shadow: 0 0 12px #10B981; }
+}
+
+/* ── Widget hover shimmer ── */
+.dg-widget-inner-glow {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(99,102,241,0.05), transparent 60%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    border-radius: inherit;
+}
+
+.dg-premium-glass:hover .dg-widget-inner-glow {
+    opacity: 1;
+}

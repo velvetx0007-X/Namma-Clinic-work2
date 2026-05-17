@@ -4,3 +4,9 @@ build/
 .env
 .npm
 **/.cache/
+backend/uploads/
+*.jpeg
+*.jpg
+*.png
+*.txt
+

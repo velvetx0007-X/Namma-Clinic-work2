@@ -991,10 +991,7 @@ const PatientDashboard = () => {
                                         <div className="stat-label">Daily Goal</div>
                                         <div className="stat-value">{tasks.filter(t => t.status === 'completed').length}/{tasks.length}</div>
                                     </div>
-                                    <div className="stat-row">
-                                        <div className="stat-label">Wellness Score</div>
-                                        <div className="stat-value">{(tasks.filter(t => t.status === 'completed').length / tasks.length * 10).toFixed(1)}/10</div>
-                                    </div>
+
                                     <div className="wellness-badge-display">
                                         <Star className="text-yellow-400 fill-yellow-400" size={40} />
                                         <span>Wellness Champion</span>

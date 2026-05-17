@@ -203,14 +203,7 @@ const NurseDashboard = () => {
                     <DashboardGreeting user={user} role="nurse" />
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                        <StatCard 
-                            icon={Calendar} 
-                            number={todayAppointments.length} 
-                            label="Today's Appointments" 
-                            subtextIcon={Calendar} 
-                            subtext={new Date().toLocaleDateString()} 
-                            colorClass="text-blue-500"
-                        />
+
                         <StatCard 
                             icon={Droplets} 
                             number={labSamples.filter(s => s.status === 'ordered').length} 
